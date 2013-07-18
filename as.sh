@@ -5,3 +5,4 @@
 
 echo "${@}" >> /tmp/as;
 as.old "${@}";
+exit "${?}";
