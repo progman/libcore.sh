@@ -17,5 +17,6 @@ export LC_IDENTIFICATION="${LANG}";
 export LC_ALL="${LANG}";
 
 #xlock -mode blank;
+#xset s off;
 xset dpms force off;
 xlock -mode blank -dpmsstandby 0 -dpmssuspend 0 -dpmsoff 0 +resetsaver;
