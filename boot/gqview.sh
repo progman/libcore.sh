@@ -16,4 +16,6 @@ export LC_MEASUREMENT="${LANG}";
 export LC_IDENTIFICATION="${LANG}";
 export LC_ALL="${LANG}";
 
+export G_BROKEN_FILENAMES=1;
+
 gqview "${@}" &> /dev/null < /dev/null &
