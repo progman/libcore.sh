@@ -8,6 +8,14 @@ fi
 
 FILENAME="/tmp/screenshot-$(date '+%Y%m%d_%H%M%S').png";
 
+
+if [ "$(which import)" != "" ];
+then
+	echo "ERROR: imagemagick not found";
+	exit 1;
+fi
+
+
 import -window "${WINDOW}" "${FILENAME}";
 
 
@@ -22,3 +30,10 @@ then
 		rm -rf "${TMP}";
 	fi
 fi
+
+if [ "$(which beep)" != "" ];
+then
+	beep;
+fi
+
+exit 0;
