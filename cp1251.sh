@@ -27,3 +27,5 @@ do
 done < "${TMP}";
 
 rm "${TMP}" &> /dev/null;
+
+exit 0;
