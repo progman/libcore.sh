@@ -27,3 +27,5 @@ then
 
     done
 fi
+
+exit 0;
