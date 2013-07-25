@@ -26,3 +26,5 @@ diff -u --minimal ${D1} ${D2};
 
 rm -rf ${D1} &> /dev/null;
 rm -rf ${D2} &> /dev/null;
+
+exit 0;
