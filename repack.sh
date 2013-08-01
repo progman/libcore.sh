@@ -126,6 +126,7 @@ function check_file_type()
 	if [ "${MIME}" == "application/x-tar" ];
 	then
 		FLAG_TAR=1;
+		EXT="tar";
 #		echo "INFO: TAR DETECT";
 		return 1;
 	fi
@@ -133,6 +134,7 @@ function check_file_type()
 	if [ "${MIME}" == "application/gzip" ];
 	then
 		FLAG_GZIP=1;
+		EXT="gz";
 #		echo "INFO: GZIP DETECT";
 		return 1;
 	fi
@@ -140,6 +142,7 @@ function check_file_type()
 	if [ "${MIME}" == "application/x-bzip2" ];
 	then
 		FLAG_BZIP2=1;
+		EXT="bz2";
 #		echo "INFO: BZIP2 DETECT";
 		return 1;
 	fi
@@ -147,6 +150,7 @@ function check_file_type()
 	if [ "${MIME}" == "application/x-xz" ];
 	then
 		FLAG_XZ=1;
+		EXT="xz";
 #		echo "INFO: XZ DETECT";
 		return 1;
 	fi
@@ -154,6 +158,7 @@ function check_file_type()
 	if [ "${MIME}" == "application/x-rar" ];
 	then
 		FLAG_RAR=1;
+		EXT="rar";
 #		echo "INFO: RAR DETECT";
 		return 1;
 	fi
@@ -161,6 +166,7 @@ function check_file_type()
 	if [ "${MIME}" == "application/zip" ];
 	then
 		FLAG_ZIP=1;
+		EXT="zip";
 #		echo "INFO: ZIP DETECT";
 		return 1;
 	fi
@@ -198,6 +204,12 @@ function unpack()
 			FLAG_OK=1; # file not support type, pack
 			break;
 		fi
+
+
+# set correct suffix name
+# example may be file is 'GZIP' and have suffix name is NOT '.gz'
+		mv "${FILENAME}" "${FILENAME}.${EXT}";
+		FILENAME="${FILENAME}.${EXT}";
 
 
 # unpack TAR
