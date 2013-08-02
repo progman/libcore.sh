@@ -381,7 +381,7 @@ function main()
 
 # check file type
 	check_file_type "${1}";
-	if [ "${FLAG_OK}" == "0" ];
+	if [ "${?}" == "0" ];
 	then
 		echo "ERROR: file not support type";
 		exit 1;
