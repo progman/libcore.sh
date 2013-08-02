@@ -593,7 +593,7 @@ function main()
 
 # check pack size
 	SIZE_NEW=$(stat --printf '%s' "${TMP4}");
-	if [ ${SIZE_NEW} -ge ${SIZE_OLD} ]; # if SIZE_NEW >= SIZE_OLD
+	if [ ${SIZE_NEW} -ge ${SIZE_OLD} ] && [ "${FLAG_REPACK_FORCE}" != "1" ]; # if SIZE_NEW >= SIZE_OLD
 	then
 		rm -rf "${TMP4}";
 		cd "${DIR_CUR}";
@@ -623,7 +623,14 @@ function main()
 	(( SIZE-=SIZE_NEW ));
 
 	HUMAN_SIZE="$(human_size ${SIZE})";
-	echo "-${HUMAN_SIZE}";
+
+	if [ "${HUMAN_SIZE:0:1}" != "-" ];
+	then
+		echo "-${HUMAN_SIZE}";
+	else
+		HUMAN_SIZE="$(echo "${HUMAN_SIZE}" | sed -e 's/^-//g')";
+		echo "+${HUMAN_SIZE}";
+	fi
 
 	mv "${TMP4}" "${TARGET_FILENAME}";
 
