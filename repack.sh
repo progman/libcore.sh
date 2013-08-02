@@ -99,6 +99,8 @@ function strip_filename()
 		FILENAME="${OUT}";
 		OUT="$(echo "${FILENAME}" | sed -e 's/\.[zZ][iI][pP]$//g')";
 		FILENAME="${OUT}";
+		OUT="$(echo "${FILENAME}" | sed -e 's/\.[aA][rR][jJ]$//g')";
+		FILENAME="${OUT}";
 
 		if [ "${SOURCE}" == "${FILENAME}" ];
 		then
@@ -121,6 +123,7 @@ function check_file_type()
 	FLAG_XZ=0;
 	FLAG_RAR=0;
 	FLAG_ZIP=0;
+	FLAG_ARJ=0;
 
 
 	if [ "${MIME}" == "application/x-tar" ];
@@ -168,6 +171,14 @@ function check_file_type()
 		FLAG_ZIP=1;
 		EXT="zip";
 #		echo "INFO: ZIP DETECT";
+		return 1;
+	fi
+
+	if [ "${MIME}" == "application/x-arj" ];
+	then
+		FLAG_ARJ=1;
+		EXT="arj";
+#		echo "INFO: ARJ DETECT";
 		return 1;
 	fi
 
@@ -328,6 +339,28 @@ function unpack()
 			fi
 
 			unzip "${FILENAME}" &> /dev/null;
+			if [ "${?}" != "0" ];
+			then
+				echo "ERROR: unpack error";
+				break;
+			fi
+
+			rm -rf "${FILENAME}" &> /dev/null;
+		fi
+
+
+# unpack ARJ
+		if [ "${FLAG_ARJ}" == "1" ];
+		then
+#			echo "INFO: do ARJ";
+
+			if [ "$(which arj)" == "" ];
+			then
+				echo "ERROR: arj not found";
+				break;
+			fi
+
+			arj x "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "ERROR: unpack error";
