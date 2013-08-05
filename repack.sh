@@ -220,6 +220,7 @@ function unpack()
 # set correct suffix name
 # example may be file is 'GZIP' and have suffix name is NOT '.gz'
 		mv "${FILENAME}" "${FILENAME}.${EXT}";
+		FILENAME_OLD="${FILENAME}";
 		FILENAME="${FILENAME}.${EXT}";
 
 
@@ -231,6 +232,7 @@ function unpack()
 			tar -xf "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
+#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
 				echo "ERROR: unpack error";
 				break;
 			fi
@@ -253,6 +255,7 @@ function unpack()
 			gzip -df "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
+#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
 				echo "ERROR: unpack error";
 				break;
 			fi
@@ -275,6 +278,7 @@ function unpack()
 			bzip2 -df "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
+#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
 				echo "ERROR: unpack error";
 				break;
 			fi
@@ -297,6 +301,7 @@ function unpack()
 			xz -df "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
+#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
 				echo "ERROR: unpack error";
 				break;
 			fi
@@ -319,6 +324,7 @@ function unpack()
 			unrar x "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
+#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
 				echo "ERROR: unpack error";
 				break;
 			fi
@@ -341,6 +347,7 @@ function unpack()
 			unzip "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
+#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
 				echo "ERROR: unpack error";
 				break;
 			fi
@@ -363,6 +370,7 @@ function unpack()
 			arj x "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
+#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
 				echo "ERROR: unpack error";
 				break;
 			fi
@@ -374,30 +382,13 @@ function unpack()
 	done
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# general function
-function main()
+# repack file
+function repack()
 {
 	if [ "${1}" == "" ] || [ ! -f "${1}" ];
 	then
-		echo "example: ${0} FILE";
-		exit 1;
-	fi
-
-
-# check minimal depends tools
-	check_prog "basename dirname echo file ionice ln ls mktemp mv nice rm sed stat tar wc which";
-	if [ "${?}" == "0" ];
-	then
-		exit 1;
-	fi
-
-
-# check compressor
-	check_compressor;
-	if [ "${FLAG_FOUND_GZIP}" == "0" ] && [ "${FLAG_FOUND_BZIP2}" == "0" ] && [ "${FLAG_FOUND_XZ}" == "0" ];
-	then
-		echo "ERROR: install xz or bzip2 or gzip";
-		exit 1;
+		echo "ERROR: file not found";
+		return 1;
 	fi
 
 
@@ -417,7 +408,7 @@ function main()
 	if [ "${?}" == "0" ];
 	then
 		echo "ERROR: file not support type";
-		exit 1;
+		return 1;
 	fi
 
 
@@ -436,7 +427,7 @@ function main()
 
 	if [ "${?}" != "0" ];
 	then
-		exit 1;
+		return 1;
 	fi
 
 
@@ -454,7 +445,7 @@ function main()
 	then
 		cd "${DIR_CUR}";
 		rm -rf "${TMP1}";
-		exit 1;
+		return 1;
 	fi
 
 
@@ -501,7 +492,7 @@ function main()
 			rm -rf "${TMP2}";
 			rm -rf "${TMP3}";
 			cd "${DIR_CUR}";
-			exit 1;
+			return 1;
 		fi
 	done < "../${TMP3}";
 
@@ -530,7 +521,7 @@ function main()
 		then
 			rm -rf "${TMP2}";
 			rm -rf "${TMP4}";
-			exit 1;
+			return 1;
 		fi
 
 		EXT="xz";
@@ -550,7 +541,7 @@ function main()
 		then
 			rm -rf "${TMP2}";
 			rm -rf "${TMP4}";
-			exit 1;
+			return 1;
 		fi
 
 		EXT="bz2";
@@ -570,7 +561,7 @@ function main()
 		then
 			rm -rf "${TMP2}";
 			rm -rf "${TMP4}";
-			exit 1;
+			return 1;
 		fi
 
 		EXT="gz";
@@ -587,7 +578,7 @@ function main()
 	then
 		cd "${DIR_CUR}";
 		echo "ERROR: install xz or bzip2 or gzip";
-		exit 1;
+		return 1;
 	fi
 
 
@@ -598,7 +589,6 @@ function main()
 		rm -rf "${TMP4}";
 		cd "${DIR_CUR}";
 		echo "-0 B";
-#		exit 0;
 		return 0;
 	fi
 
@@ -613,7 +603,7 @@ function main()
 		rm -rf "${TMP4}";
 		cd "${DIR_CUR}";
 		echo "ERROR: file already exist";
-		exit 1;
+		return 1;
 	fi
 
 
@@ -640,27 +630,56 @@ function main()
 	fi
 
 	cd "${DIR_CUR}";
+
+	return 0;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-FILE_COUNT="${#}";
-if [ "${FILE_COUNT}" == "0" ];
-then
-	echo "example: ${0} FILE...";
-	exit 1;
-fi
-
-while true;
-do
-	main "${1}";
-
-	(( FILE_COUNT-- ));
-	shift 1;
-
+# general function
+function main()
+{
+	FILE_COUNT="${#}";
 	if [ "${FILE_COUNT}" == "0" ];
 	then
-		break;
+		echo "example: ${0} FILE...";
+		return 1;
 	fi
-done
 
-exit 0;
+
+# check minimal depends tools
+	check_prog "basename dirname echo file ionice ln ls mktemp mv nice rm sed stat tar wc which";
+	if [ "${?}" == "0" ];
+	then
+		return 1;
+	fi
+
+
+# check compressor
+	check_compressor;
+	if [ "${FLAG_FOUND_GZIP}" == "0" ] && [ "${FLAG_FOUND_BZIP2}" == "0" ] && [ "${FLAG_FOUND_XZ}" == "0" ];
+	then
+		echo "ERROR: install xz or bzip2 or gzip";
+		return 1;
+	fi
+
+
+	while true;
+	do
+		echo -n "\"${1}\": ";
+		repack "${1}";
+
+		(( FILE_COUNT-- ));
+		shift 1;
+
+		if [ "${FILE_COUNT}" == "0" ];
+		then
+			break;
+		fi
+	done
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+main "${@}";
+
+exit "${?}";
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
