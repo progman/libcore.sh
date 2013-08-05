@@ -141,7 +141,7 @@ function check_file_type()
 		return 1;
 	fi
 
-	if [ "${MIME}" == "application/gzip" ];
+	if [ "${MIME}" == "application/gzip" ] || [ "${MIME}" == "application/x-compress" ];
 	then
 		FLAG_GZIP=1;
 		EXT="gz";
