@@ -240,7 +240,8 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 #				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-				echo "ERROR: unpack error";
+#				echo "ERROR: unpack error";
+				echo "tar unpack error";
 				break;
 			fi
 
@@ -255,7 +256,8 @@ function unpack()
 
 			if [ "${FLAG_FOUND_GZIP}" == "0" ];
 			then
-				echo "ERROR: gzip not found";
+#				echo "ERROR: gzip not found";
+				echo "gzip not found";
 				break;
 			fi
 
@@ -263,7 +265,8 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 #				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-				echo "ERROR: unpack error";
+#				echo "ERROR: unpack error";
+				echo "gzip unpack error";
 				break;
 			fi
 
@@ -278,7 +281,8 @@ function unpack()
 
 			if [ "${FLAG_FOUND_BZIP2}" == "0" ];
 			then
-				echo "ERROR: bzip2 not found";
+#				echo "ERROR: bzip2 not found";
+				echo "bzip2 not found";
 				break;
 			fi
 
@@ -286,7 +290,8 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 #				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-				echo "ERROR: unpack error";
+#				echo "ERROR: unpack error";
+				echo "bzip2 unpack error";
 				break;
 			fi
 
@@ -301,7 +306,8 @@ function unpack()
 
 			if [ "${FLAG_FOUND_XZ}" == "0" ];
 			then
-				echo "ERROR: xz not found";
+#				echo "ERROR: xz not found";
+				echo "xz not found";
 				break;
 			fi
 
@@ -309,7 +315,8 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 #				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-				echo "ERROR: unpack error";
+#				echo "ERROR: unpack error";
+				echo "xz unpack error";
 				break;
 			fi
 
@@ -324,7 +331,8 @@ function unpack()
 
 			if [ "$(which unrar)" == "" ];
 			then
-				echo "ERROR: unrar not found";
+#				echo "ERROR: unrar not found";
+				echo "unrar not found";
 				break;
 			fi
 
@@ -332,7 +340,8 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 #				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-				echo "ERROR: unpack error";
+#				echo "ERROR: unpack error";
+				echo "unrar unpack error";
 				break;
 			fi
 
@@ -347,7 +356,8 @@ function unpack()
 
 			if [ "$(which unzip)" == "" ];
 			then
-				echo "ERROR: unzip not found";
+#				echo "ERROR: unzip not found";
+				echo "unzip not found";
 				break;
 			fi
 
@@ -355,7 +365,8 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 #				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-				echo "ERROR: unpack error";
+#				echo "ERROR: unpack error";
+				echo "unzip unpack error";
 				break;
 			fi
 
@@ -370,7 +381,8 @@ function unpack()
 
 			if [ "$(which arj)" == "" ];
 			then
-				echo "ERROR: arj not found";
+#				echo "ERROR: arj not found";
+				echo "arj not found";
 				break;
 			fi
 
@@ -378,7 +390,8 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 #				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-				echo "ERROR: unpack error";
+#				echo "ERROR: unpack error";
+				echo "arj unpack error";
 				break;
 			fi
 
@@ -394,19 +407,22 @@ function repack()
 {
 	if [ "${1}" == "" ];
 	then
-		echo "ERROR: file not found";
+#		echo "ERROR: file not found";
+		echo "file not found";
 		return 1;
 	fi
 
 	if [ -d "${1}" ];
 	then
-		echo "ERROR: is dir";
+#		echo "ERROR: is dir";
+		echo "is dir";
 		return 1;
 	fi
 
 	if [ "${1}" == "" ] || [ ! -f "${1}" ];
 	then
-		echo "ERROR: file not found";
+#		echo "ERROR: file not found";
+		echo "file not found";
 		return 1;
 	fi
 
@@ -426,7 +442,8 @@ function repack()
 	check_file_type "${1}";
 	if [ "${?}" == "0" ];
 	then
-		echo "ERROR: file not support type";
+#		echo "ERROR: file not support type";
+		echo "file not support type";
 		return 1;
 	fi
 
@@ -457,7 +474,6 @@ function repack()
 # link to source file in tmp dir
 	ln -sf "../${SOURCE_FILENAME}";
 
-
 # unpack
 	unpack;
 	if [ "${FLAG_OK}" == "0" ];
@@ -466,6 +482,7 @@ function repack()
 		rm -rf "${TMP1}";
 		return 1;
 	fi
+	echo -n ".";
 
 
 # go to work dir
@@ -520,6 +537,7 @@ function repack()
 	cd "${SOURCE_DIRNAME}";
 	rm -rf "${TMP1}";
 	rm -rf "${TMP3}";
+	echo -n ".";
 
 
 # compress TAR
@@ -590,13 +608,15 @@ function repack()
 
 # kill TAR
 	rm -rf "${TMP2}";
+	echo -n ". ";
 
 
 # check pack tar
 	if [ "${FLAG_PACK}" == "0" ];
 	then
 		cd "${DIR_CUR}";
-		echo "ERROR: install xz or bzip2 or gzip";
+#		echo "ERROR: install xz or bzip2 or gzip";
+		echo "install xz or bzip2 or gzip";
 		return 1;
 	fi
 
@@ -621,7 +641,8 @@ function repack()
 	then
 		rm -rf "${TMP4}";
 		cd "${DIR_CUR}";
-		echo "ERROR: file already exist";
+#		echo "ERROR: file already exist";
+		echo "file already exist";
 		return 1;
 	fi
 
@@ -675,7 +696,8 @@ function main()
 	check_compressor;
 	if [ "${FLAG_FOUND_GZIP}" == "0" ] && [ "${FLAG_FOUND_BZIP2}" == "0" ] && [ "${FLAG_FOUND_XZ}" == "0" ];
 	then
-		echo "ERROR: install xz or bzip2 or gzip";
+#		echo "ERROR: install xz or bzip2 or gzip";
+		echo "FATAL: install xz or bzip2 or gzip";
 		return 1;
 	fi
 
