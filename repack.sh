@@ -616,16 +616,15 @@ function repack()
 
 #	echo "${SIZE_OLD} -> ${SIZE_NEW}";
 
-	SIZE="${SIZE_OLD}";
-	(( SIZE-=SIZE_NEW ));
+	SIZE="${SIZE_NEW}";
+	(( SIZE-=SIZE_OLD ));
 
 	HUMAN_SIZE="$(human_size ${SIZE})";
 
-	if [ "${HUMAN_SIZE:0:1}" != "-" ];
+	if [ "${HUMAN_SIZE:0:1}" == "-" ];
 	then
-		echo "-${HUMAN_SIZE}";
+		echo "${HUMAN_SIZE}";
 	else
-		HUMAN_SIZE="$(echo "${HUMAN_SIZE}" | sed -e 's/^-//g')";
 		echo "+${HUMAN_SIZE}";
 	fi
 
