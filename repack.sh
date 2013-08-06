@@ -108,6 +108,8 @@ function strip_filename()
 		FILENAME="${OUT}";
 		OUT="$(echo "${FILENAME}" | sed -e 's/\.[aA][rR][jJ]$//g')";
 		FILENAME="${OUT}";
+		OUT="$(echo "${FILENAME}" | sed -e 's/\.[lL][hH][aA]$//g')";
+		FILENAME="${OUT}";
 
 		if [ "${SOURCE}" == "${FILENAME}" ];
 		then
@@ -131,6 +133,7 @@ function check_file_type()
 	FLAG_RAR=0;
 	FLAG_ZIP=0;
 	FLAG_ARJ=0;
+	FLAG_LHA=0;
 
 
 	if [ "${MIME}" == "application/x-tar" ];
@@ -186,6 +189,14 @@ function check_file_type()
 		FLAG_ARJ=1;
 		EXT="arj";
 #		echo "INFO: ARJ DETECT";
+		return 1;
+	fi
+
+	if [ "${MIME}" == "application/x-lha" ];
+	then
+		FLAG_LHA=1;
+		EXT="lha";
+#		echo "INFO: LHA DETECT";
 		return 1;
 	fi
 
@@ -392,6 +403,31 @@ function unpack()
 #				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
 #				echo "ERROR: unpack error";
 				echo "arj unpack error";
+				break;
+			fi
+
+			rm -rf "${FILENAME}" &> /dev/null;
+		fi
+
+
+# unpack LHA
+		if [ "${FLAG_LHA}" == "1" ];
+		then
+#			echo "INFO: do LHA";
+
+			if [ "$(which lha)" == "" ];
+			then
+#				echo "ERROR: lha not found";
+				echo "lha not found";
+				break;
+			fi
+
+			lha e "${FILENAME}" &> /dev/null;
+			if [ "${?}" != "0" ];
+			then
+#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
+#				echo "ERROR: unpack error";
+				echo "lha unpack error";
 				break;
 			fi
 
