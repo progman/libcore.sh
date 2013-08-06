@@ -250,8 +250,6 @@ function unpack()
 			tar -xf "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
-#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-#				echo "ERROR: unpack error";
 				echo "tar unpack error";
 				break;
 			fi
@@ -267,7 +265,6 @@ function unpack()
 
 			if [ "${FLAG_FOUND_GZIP}" == "0" ];
 			then
-#				echo "ERROR: gzip not found";
 				echo "gzip not found";
 				break;
 			fi
@@ -275,8 +272,6 @@ function unpack()
 			gzip -df "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
-#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-#				echo "ERROR: unpack error";
 				echo "gzip unpack error";
 				break;
 			fi
@@ -292,7 +287,6 @@ function unpack()
 
 			if [ "${FLAG_FOUND_BZIP2}" == "0" ];
 			then
-#				echo "ERROR: bzip2 not found";
 				echo "bzip2 not found";
 				break;
 			fi
@@ -300,8 +294,6 @@ function unpack()
 			bzip2 -df "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
-#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-#				echo "ERROR: unpack error";
 				echo "bzip2 unpack error";
 				break;
 			fi
@@ -317,7 +309,6 @@ function unpack()
 
 			if [ "${FLAG_FOUND_XZ}" == "0" ];
 			then
-#				echo "ERROR: xz not found";
 				echo "xz not found";
 				break;
 			fi
@@ -325,8 +316,6 @@ function unpack()
 			xz -df "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
-#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-#				echo "ERROR: unpack error";
 				echo "xz unpack error";
 				break;
 			fi
@@ -342,7 +331,6 @@ function unpack()
 
 			if [ "$(which unrar)" == "" ];
 			then
-#				echo "ERROR: unrar not found";
 				echo "unrar not found";
 				break;
 			fi
@@ -350,8 +338,6 @@ function unpack()
 			unrar x "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
-#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-#				echo "ERROR: unpack error";
 				echo "unrar unpack error";
 				break;
 			fi
@@ -367,7 +353,6 @@ function unpack()
 
 			if [ "$(which unzip)" == "" ];
 			then
-#				echo "ERROR: unzip not found";
 				echo "unzip not found";
 				break;
 			fi
@@ -375,8 +360,6 @@ function unpack()
 			unzip "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
-#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-#				echo "ERROR: unpack error";
 				echo "unzip unpack error";
 				break;
 			fi
@@ -392,7 +375,6 @@ function unpack()
 
 			if [ "$(which arj)" == "" ];
 			then
-#				echo "ERROR: arj not found";
 				echo "arj not found";
 				break;
 			fi
@@ -400,8 +382,6 @@ function unpack()
 			arj x "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
-#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-#				echo "ERROR: unpack error";
 				echo "arj unpack error";
 				break;
 			fi
@@ -417,7 +397,6 @@ function unpack()
 
 			if [ "$(which lha)" == "" ];
 			then
-#				echo "ERROR: lha not found";
 				echo "lha not found";
 				break;
 			fi
@@ -425,8 +404,6 @@ function unpack()
 			lha e "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
-#				echo "ERROR: \"${FILENAME_OLD}\" unpack error";
-#				echo "ERROR: unpack error";
 				echo "lha unpack error";
 				break;
 			fi
