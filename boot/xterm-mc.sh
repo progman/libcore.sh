@@ -19,5 +19,5 @@ export LC_ALL="${LANG}";
 export DISABLE_SET_LOCALE="1";
 export EDITOR='mcedit';
 
-xterm -geometry 84x52+0+0 -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=14' -e mc &> /dev/null < /dev/null &
+xterm -geometry 195x74+0+0 -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=14' -e mc &> /dev/null < /dev/null &
 #xterm -geometry 112x61+0+0 -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=12' -e mc &> /dev/null < /dev/null &
