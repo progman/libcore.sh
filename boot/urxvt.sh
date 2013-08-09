@@ -27,3 +27,5 @@ export LC_ALL="${LANG}";
 
 #urxvt -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=14' &> /dev/null < /dev/null &
 urxvt +sb -cr yellow -bg black -fg orange -hc orange4 -font '-*-terminus-medium-*-*-*-14-*-*-*-*-*-*' &> /dev/null < /dev/null &
+
+#urxvt -fn "xft:Terminus-13" +sb +st -title "Shell"
