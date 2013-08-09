@@ -16,4 +16,5 @@ export LC_MEASUREMENT="${LANG}";
 export LC_IDENTIFICATION="${LANG}";
 export LC_ALL="${LANG}";
 
+ulimit -n 2048;
 linuxdcpp &> /dev/null < /dev/null &
