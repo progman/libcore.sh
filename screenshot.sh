@@ -9,7 +9,7 @@ fi
 FILENAME="/tmp/screenshot-$(date '+%Y%m%d_%H%M%S').png";
 
 
-if [ "$(which import)" != "" ];
+if [ "$(which import)" == "" ];
 then
 	echo "ERROR: imagemagick not found";
 	exit 1;
@@ -22,7 +22,7 @@ import -window "${WINDOW}" "${FILENAME}";
 if [ "$(which pngcrush)" != "" ];
 then
 	TMP="$(mktemp)";
-	pngcrush -brute "${FILENAME}" "${TMP}";
+	pngcrush -brute "${FILENAME}" "${TMP}" &> /dev/null;
 	if [ "${?}" == "0" ];
 	then
 		mv "${TMP}" "${FILENAME}";
