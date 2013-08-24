@@ -1,3 +1,3 @@
 #!/bin/sh
 
-gkrellm --geometry +1853+127
+gkrellm --geometry +1852+191
