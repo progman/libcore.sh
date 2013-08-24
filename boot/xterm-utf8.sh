@@ -30,3 +30,5 @@ export DISABLE_SET_LOCALE="1";
 
 #xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr gray85 -bg gray13 -fg gray44 -hc gray75 -fa 'Terminus:pixelsize=14' &> /dev/null < /dev/null &
 xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=14' &> /dev/null < /dev/null &
+
+#xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'DroidSansMono:pixelsize=13' &> /dev/null < /dev/null &
