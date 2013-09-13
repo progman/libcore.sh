@@ -563,7 +563,8 @@ function repack()
 	then
 		if [ "${XZ_OPT}" == "" ];
 		then
-			export XZ_OPT='-9 --extreme';
+#			export XZ_OPT='-9 --extreme';
+			export XZ_OPT='--lzma2=preset=9e,dict=512MiB';
 		fi
 
 		ionice -c 3 nice -n 20 xz -zc "${TMP2}" > "${TMP4}";
