@@ -251,6 +251,7 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 				echo "tar unpack error";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -266,6 +267,7 @@ function unpack()
 			if [ "${FLAG_FOUND_GZIP}" == "0" ];
 			then
 				echo "gzip not found";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -273,6 +275,7 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 				echo "gzip unpack error";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -288,6 +291,7 @@ function unpack()
 			if [ "${FLAG_FOUND_BZIP2}" == "0" ];
 			then
 				echo "bzip2 not found";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -295,6 +299,7 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 				echo "bzip2 unpack error";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -310,6 +315,7 @@ function unpack()
 			if [ "${FLAG_FOUND_XZ}" == "0" ];
 			then
 				echo "xz not found";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -317,6 +323,7 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 				echo "xz unpack error";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -332,6 +339,7 @@ function unpack()
 			if [ "$(which unrar)" == "" ];
 			then
 				echo "unrar not found";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -339,6 +347,7 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 				echo "unrar unpack error";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -354,6 +363,7 @@ function unpack()
 			if [ "$(which unzip)" == "" ];
 			then
 				echo "unzip not found";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -361,6 +371,7 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 				echo "unzip unpack error";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -376,6 +387,7 @@ function unpack()
 			if [ "$(which arj)" == "" ];
 			then
 				echo "arj not found";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -383,6 +395,7 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 				echo "arj unpack error";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -398,6 +411,7 @@ function unpack()
 			if [ "$(which lha)" == "" ];
 			then
 				echo "lha not found";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -405,6 +419,7 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 				echo "lha unpack error";
+				FLAG_OK=1;
 				break;
 			fi
 
@@ -418,24 +433,31 @@ function unpack()
 # repack file
 function repack()
 {
+# check file exist
 	if [ "${1}" == "" ];
 	then
-#		echo "ERROR: file not found";
 		echo "file not found";
 		return 1;
 	fi
 
 	if [ -d "${1}" ];
 	then
-#		echo "ERROR: is dir";
 		echo "is dir";
 		return 1;
 	fi
 
 	if [ "${1}" == "" ] || [ ! -f "${1}" ];
 	then
-#		echo "ERROR: file not found";
 		echo "file not found";
+		return 1;
+	fi
+
+
+# check file type
+	check_file_type "${1}";
+	if [ "${?}" == "0" ];
+	then
+		echo "file not support type";
 		return 1;
 	fi
 
@@ -451,33 +473,79 @@ function repack()
 #	echo "SOURCE_DIRNAME: ${SOURCE_DIRNAME}";
 
 
-# check file type
-	check_file_type "${1}";
-	if [ "${?}" == "0" ];
-	then
-#		echo "ERROR: file not support type";
-		echo "file not support type";
-		return 1;
-	fi
-
-
 # save work dir
 	DIR_CUR="${PWD}";
 
 
 # go to source dir
 	cd "${SOURCE_DIRNAME}";
+	SOURCE_DIRNAME="${PWD}"; #get absolute path
 
 
-# create temp dir
-#	TMP1="$(mktemp -d)";
-	TMP1="$(mktemp -d --tmpdir="./")";
-#echo "TMP1: \"${TMP1}\"";
+# create temp dir and files
 
+
+	REPACK_TMPDIR="/tmp";
+	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
+	then
+		REPACK_TMPDIR="${TMPDIR}";
+	fi
+
+
+	if [ "${FLAG_USE_TMPDIR}" == "0" ];
+	then
+		REPACK_TMPDIR="${SOURCE_DIRNAME}";
+	fi
+
+
+	TMP1="$(mktemp -d --tmpdir="${REPACK_TMPDIR}")";
 	if [ "${?}" != "0" ];
 	then
+		echo "can't make tmp file";
 		return 1;
 	fi
+
+	TMP2="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
+	if [ "${?}" != "0" ];
+	then
+		echo "can't make tmp file";
+		rm -rf "${TMP1}";
+		return 1;
+	fi
+
+	TMP3="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
+	if [ "${?}" != "0" ];
+	then
+		echo "can't make tmp file";
+		rm -rf "${TMP1}";
+		rm -rf "${TMP2}";
+		return 1;
+	fi
+
+	TMP4="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
+	if [ "${?}" != "0" ];
+	then
+		echo "can't make tmp file";
+		rm -rf "${TMP1}";
+		rm -rf "${TMP2}";
+		rm -rf "${TMP3}";
+		return 1;
+	fi
+
+
+	if [ "${FLAG_USE_TMPDIR}" == "0" ];
+	then
+		TMP1="${SOURCE_DIRNAME}/$(basename "${TMP1}")";
+		TMP2="${SOURCE_DIRNAME}/$(basename "${TMP2}")";
+		TMP3="${SOURCE_DIRNAME}/$(basename "${TMP3}")";
+		TMP4="${SOURCE_DIRNAME}/$(basename "${TMP4}")";
+	fi
+
+
+#	echo "TMP1: \"${TMP1}\"";
+#	echo "TMP2: \"${TMP2}\"";
+#	echo "TMP3: \"${TMP3}\"";
+#	echo "TMP4: \"${TMP4}\"";
 
 
 # go to temp dir
@@ -485,7 +553,8 @@ function repack()
 
 
 # link to source file in tmp dir
-	ln -sf "../${SOURCE_FILENAME}";
+	ln -sf "${SOURCE_DIRNAME}/${SOURCE_FILENAME}";
+
 
 # unpack
 	unpack;
@@ -493,70 +562,43 @@ function repack()
 	then
 		cd "${DIR_CUR}";
 		rm -rf "${TMP1}";
+		rm -rf "${TMP2}";
+		rm -rf "${TMP3}";
+		rm -rf "${TMP4}";
 		return 1;
 	fi
 	echo -n ".";
 
 
-# go to work dir
-	cd "${DIR_CUR}";
-
-# go to source dir
-	cd "${SOURCE_DIRNAME}";
-
-
-# make TAR
-
-#	TMP2="$(mktemp)";
-#echo "TMP2: \"${TMP2}\"";
-	TMP2="$(mktemp --tmpdir="./")";
-#echo "TMP2: \"${TMP2}\"";
-
-	TMP2="$(basename "${TMP2}")";
-#echo "TMP2: \"${TMP2}\"";
-
-
-	TMP3="$(mktemp --tmpdir="./")";
-#echo "TMP3: \"${TMP3}\"";
-
-	TMP3="$(basename "${TMP3}")";
-#echo "TMP3: \"${TMP3}\"";
-
-
-# go to temp dir
-	cd "${TMP1}";
-
 # make file list
-	ls -1 > "../${TMP3}";
+	ls -1 > "${TMP2}";
+
 
 # add files to TAR
 	while read -r i;
 	do
-		ionice -c 3 nice -n 20 tar -rf "../${TMP2}" "${i}";
+		ionice -c 3 nice -n 20 tar -rf "${TMP3}" "${i}";
 		if [ "${?}" != "0" ];
 		then
-			cd "${DIR_CUR}";
 			cd "${SOURCE_DIRNAME}";
 			rm -rf "${TMP1}";
 			rm -rf "${TMP2}";
 			rm -rf "${TMP3}";
+			rm -rf "${TMP4}";
 			cd "${DIR_CUR}";
 			return 1;
 		fi
-	done < "../${TMP3}";
+	done < "${TMP2}";
 
 
-	cd "${DIR_CUR}";
 	cd "${SOURCE_DIRNAME}";
 	rm -rf "${TMP1}";
-	rm -rf "${TMP3}";
+	rm -rf "${TMP2}";
 	echo -n ".";
 
 
 # compress TAR
 	FLAG_PACK=0;
-	TMP4="$(mktemp --tmpdir="./")";
-#echo "TMP4: \"${TMP4}\"";
 
 
 	if [ "${FLAG_PACK}" == "0" ] && [ "${FLAG_FOUND_XZ}" != "0" ];
@@ -567,10 +609,10 @@ function repack()
 			export XZ_OPT='--lzma2=preset=9e,dict=512MiB';
 		fi
 
-		ionice -c 3 nice -n 20 xz -zc "${TMP2}" > "${TMP4}";
+		ionice -c 3 nice -n 20 xz -zc "${TMP3}" > "${TMP4}";
 		if [ "${?}" != "0" ];
 		then
-			rm -rf "${TMP2}";
+			rm -rf "${TMP3}";
 			rm -rf "${TMP4}";
 			return 1;
 		fi
@@ -587,10 +629,10 @@ function repack()
 			export BZIP2='-9';
 		fi
 
-		ionice -c 3 nice -n 20 bzip2 -zc "${TMP2}" > "${TMP4}";
+		ionice -c 3 nice -n 20 bzip2 -zc "${TMP3}" > "${TMP4}";
 		if [ "${?}" != "0" ];
 		then
-			rm -rf "${TMP2}";
+			rm -rf "${TMP3}";
 			rm -rf "${TMP4}";
 			return 1;
 		fi
@@ -607,10 +649,10 @@ function repack()
 			export GZIP='-9';
 		fi
 
-		ionice -c 3 nice -n 20 gzip -c "${TMP2}" > "${TMP4}";
+		ionice -c 3 nice -n 20 gzip -c "${TMP3}" > "${TMP4}";
 		if [ "${?}" != "0" ];
 		then
-			rm -rf "${TMP2}";
+			rm -rf "${TMP3}";
 			rm -rf "${TMP4}";
 			return 1;
 		fi
@@ -621,7 +663,7 @@ function repack()
 
 
 # kill TAR
-	rm -rf "${TMP2}";
+	rm -rf "${TMP3}";
 	echo -n ". ";
 
 
@@ -629,7 +671,6 @@ function repack()
 	if [ "${FLAG_PACK}" == "0" ];
 	then
 		cd "${DIR_CUR}";
-#		echo "ERROR: install xz or bzip2 or gzip";
 		echo "install xz or bzip2 or gzip";
 		return 1;
 	fi
@@ -655,7 +696,6 @@ function repack()
 	then
 		rm -rf "${TMP4}";
 		cd "${DIR_CUR}";
-#		echo "ERROR: file already exist";
 		echo "file already exist";
 		return 1;
 	fi
@@ -710,7 +750,6 @@ function main()
 	check_compressor;
 	if [ "${FLAG_FOUND_GZIP}" == "0" ] && [ "${FLAG_FOUND_BZIP2}" == "0" ] && [ "${FLAG_FOUND_XZ}" == "0" ];
 	then
-#		echo "ERROR: install xz or bzip2 or gzip";
 		echo "FATAL: install xz or bzip2 or gzip";
 		return 1;
 	fi
@@ -729,6 +768,7 @@ function main()
 			break;
 		fi
 	done
+
 
 	return 0;
 }
