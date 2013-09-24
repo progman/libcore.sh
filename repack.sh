@@ -582,9 +582,10 @@ function repack()
 # add files to TAR
 	while read -r i;
 	do
-		ionice -c 3 nice -n 20 tar -rf "${TMP3}" "${i}";
+		ionice -c 3 nice -n 20 tar -rf "${TMP3}" "${i}" &> /dev/null;
 		if [ "${?}" != "0" ];
 		then
+			echo " tar error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 			cd "${SOURCE_DIRNAME}";
 			rm -rf "${TMP1}";
 			rm -rf "${TMP2}";
@@ -614,9 +615,10 @@ function repack()
 			export XZ_OPT='--lzma2=preset=9e,dict=512MiB';
 		fi
 
-		ionice -c 3 nice -n 20 xz -zc "${TMP3}" > "${TMP4}";
+		ionice -c 3 nice -n 20 xz -zc "${TMP3}" > "${TMP4}" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
+			echo " xz error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 			rm -rf "${TMP3}";
 			rm -rf "${TMP4}";
 			return 1;
@@ -634,9 +636,10 @@ function repack()
 			export BZIP2='-9';
 		fi
 
-		ionice -c 3 nice -n 20 bzip2 -zc "${TMP3}" > "${TMP4}";
+		ionice -c 3 nice -n 20 bzip2 -zc "${TMP3}" > "${TMP4}" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
+			echo " bzip2 error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 			rm -rf "${TMP3}";
 			rm -rf "${TMP4}";
 			return 1;
@@ -654,9 +657,10 @@ function repack()
 			export GZIP='-9';
 		fi
 
-		ionice -c 3 nice -n 20 gzip -c "${TMP3}" > "${TMP4}";
+		ionice -c 3 nice -n 20 gzip -c "${TMP3}" > "${TMP4}" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
+			echo " gzip error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 			rm -rf "${TMP3}";
 			rm -rf "${TMP4}";
 			return 1;
