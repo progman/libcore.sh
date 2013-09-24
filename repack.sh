@@ -6,18 +6,16 @@
 # check depends
 function check_prog()
 {
-	local FLAG_OK=1;
 	for i in ${1};
 	do
 		if [ "$(which ${i})" == "" ];
 		then
 			echo "FATAL: you must install \"${i}\"...";
-			FLAG_OK=0;
-			break;
+			return 1;
 		fi
 	done
 
-	return ${FLAG_OK};
+	return 0;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # convert SIZE to human readable string
@@ -141,7 +139,7 @@ function check_file_type()
 		FLAG_TAR=1;
 		EXT="tar";
 #		echo "INFO: TAR DETECT";
-		return 1;
+		return 0;
 	fi
 
 	if [ "${MIME}" == "application/gzip" ] || [ "${MIME}" == "application/x-compress" ];
@@ -149,7 +147,7 @@ function check_file_type()
 		FLAG_GZIP=1;
 		EXT="gz";
 #		echo "INFO: GZIP DETECT";
-		return 1;
+		return 0;
 	fi
 
 	if [ "${MIME}" == "application/x-bzip2" ];
@@ -157,7 +155,7 @@ function check_file_type()
 		FLAG_BZIP2=1;
 		EXT="bz2";
 #		echo "INFO: BZIP2 DETECT";
-		return 1;
+		return 0;
 	fi
 
 	if [ "${MIME}" == "application/x-xz" ];
@@ -165,7 +163,7 @@ function check_file_type()
 		FLAG_XZ=1;
 		EXT="xz";
 #		echo "INFO: XZ DETECT";
-		return 1;
+		return 0;
 	fi
 
 	if [ "${MIME}" == "application/x-rar" ];
@@ -173,7 +171,7 @@ function check_file_type()
 		FLAG_RAR=1;
 		EXT="rar";
 #		echo "INFO: RAR DETECT";
-		return 1;
+		return 0;
 	fi
 
 	if [ "${MIME}" == "application/zip" ];
@@ -181,7 +179,7 @@ function check_file_type()
 		FLAG_ZIP=1;
 		EXT="zip";
 #		echo "INFO: ZIP DETECT";
-		return 1;
+		return 0;
 	fi
 
 	if [ "${MIME}" == "application/x-arj" ];
@@ -189,7 +187,7 @@ function check_file_type()
 		FLAG_ARJ=1;
 		EXT="arj";
 #		echo "INFO: ARJ DETECT";
-		return 1;
+		return 0;
 	fi
 
 	if [ "${MIME}" == "application/x-lha" ];
@@ -197,28 +195,21 @@ function check_file_type()
 		FLAG_LHA=1;
 		EXT="lha";
 #		echo "INFO: LHA DETECT";
-		return 1;
+		return 0;
 	fi
 
 
-	return 0;
+	return 1;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # unpack
 function unpack()
 {
-	FLAG_OK=0;
-
 	while true;
 	do
-#echo "----------------";
-#ls -1;
-
 		if [ "$(ls -1 | wc -l)" != "1" ];
 		then
-#			echo "INFO: more one files";
-			FLAG_OK=1; # INFO: more one files
-			break;
+			break; # more one files
 		fi
 
 
@@ -227,11 +218,9 @@ function unpack()
 
 # check file type
 		check_file_type "${FILENAME}";
-		if [ "${?}" == "0" ];
+		if [ "${?}" != "0" ];
 		then
-#			echo "INFO: file not support type, pack";
-			FLAG_OK=1; # file not support type, pack
-			break;
+			break; # file not support type, pack
 		fi
 
 
@@ -245,14 +234,11 @@ function unpack()
 # unpack TAR
 		if [ "${FLAG_TAR}" == "1" ];
 		then
-#			echo "INFO: do TAR";
-
 			tar -xf "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "tar unpack error";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			rm -rf "${FILENAME}" &> /dev/null;
@@ -262,21 +248,17 @@ function unpack()
 # unpack GZIP
 		if [ "${FLAG_GZIP}" == "1" ];
 		then
-#			echo "INFO: do GZIP";
-
 			if [ "${FLAG_FOUND_GZIP}" == "0" ];
 			then
 				echo "gzip not found";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			gzip -df "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "gzip unpack error";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			rm -rf "${FILENAME}" &> /dev/null;
@@ -286,21 +268,17 @@ function unpack()
 # unpack BZIP2
 		if [ "${FLAG_BZIP2}" == "1" ];
 		then
-#			echo "INFO: do BZIP2";
-
 			if [ "${FLAG_FOUND_BZIP2}" == "0" ];
 			then
 				echo "bzip2 not found";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			bzip2 -df "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "bzip2 unpack error";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			rm -rf "${FILENAME}" &> /dev/null;
@@ -310,21 +288,17 @@ function unpack()
 # unpack XZ
 		if [ "${FLAG_XZ}" == "1" ];
 		then
-#			echo "INFO: do XZ";
-
 			if [ "${FLAG_FOUND_XZ}" == "0" ];
 			then
 				echo "xz not found";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			xz -df "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "xz unpack error";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			rm -rf "${FILENAME}" &> /dev/null;
@@ -334,21 +308,17 @@ function unpack()
 # unpack RAR
 		if [ "${FLAG_RAR}" == "1" ];
 		then
-#			echo "INFO: do RAR";
-
 			if [ "$(which unrar)" == "" ];
 			then
 				echo "unrar not found";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			unrar x "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "unrar unpack error";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			rm -rf "${FILENAME}" &> /dev/null;
@@ -358,21 +328,17 @@ function unpack()
 # unpack ZIP
 		if [ "${FLAG_ZIP}" == "1" ];
 		then
-#			echo "INFO: do ZIP";
-
 			if [ "$(which unzip)" == "" ];
 			then
 				echo "unzip not found";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			unzip "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "unzip unpack error";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			rm -rf "${FILENAME}" &> /dev/null;
@@ -382,21 +348,17 @@ function unpack()
 # unpack ARJ
 		if [ "${FLAG_ARJ}" == "1" ];
 		then
-#			echo "INFO: do ARJ";
-
 			if [ "$(which arj)" == "" ];
 			then
 				echo "arj not found";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			arj x "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "arj unpack error";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			rm -rf "${FILENAME}" &> /dev/null;
@@ -406,21 +368,17 @@ function unpack()
 # unpack LHA
 		if [ "${FLAG_LHA}" == "1" ];
 		then
-#			echo "INFO: do LHA";
-
 			if [ "$(which lha)" == "" ];
 			then
 				echo "lha not found";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			lha e "${FILENAME}" &> /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "lha unpack error";
-				FLAG_OK=1;
-				break;
+				return 1;
 			fi
 
 			rm -rf "${FILENAME}" &> /dev/null;
@@ -428,6 +386,9 @@ function unpack()
 
 
 	done
+
+
+	return 0;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # repack file
@@ -455,7 +416,7 @@ function repack()
 
 # check file type
 	check_file_type "${1}";
-	if [ "${?}" == "0" ];
+	if [ "${?}" != "0" ];
 	then
 		echo "file not support type";
 		return 1;
@@ -563,7 +524,7 @@ function repack()
 
 # unpack
 	unpack;
-	if [ "${FLAG_OK}" == "0" ];
+	if [ "${?}" != "0" ];
 	then
 		cd "${DIR_CUR}";
 		rm -rf "${TMP1}";
@@ -749,7 +710,7 @@ function main()
 
 # check minimal depends tools
 	check_prog "basename dirname echo file ionice ln ls mktemp mv nice rm sed stat tar wc which";
-	if [ "${?}" == "0" ];
+	if [ "${?}" != "0" ];
 	then
 		return 1;
 	fi
