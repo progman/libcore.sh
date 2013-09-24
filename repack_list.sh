@@ -10,6 +10,7 @@ fi
 TMP1=$(mktemp);
 TMP2=$(mktemp);
 
+
 while read -r LINE;
 do
 #	echo "${LINE}";
@@ -30,7 +31,7 @@ cat "${TMP1}" | sort -n | sed -e 's/^[0-9]*\ //g' > "${TMP2}";
 rm -rf "${TMP1}" &> /dev/null;
 
 
-COUNT_ALL=$(cat "${TMP2}" | wc -l);
+COUNT_ALL=$(wc -l "${TMP2}" | { read a b; echo ${a}; });
 COUNT_CUR=1;
 
 
