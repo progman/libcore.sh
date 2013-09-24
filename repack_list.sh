@@ -40,6 +40,13 @@ do
 #	echo "${LINE}"
 
 	echo -n "[${COUNT_CUR}/${COUNT_ALL}] ";
+
+	if [ ! -f "${LINE}" ];
+	then
+		continue;
+	fi
+
+
 	repack.sh "${LINE}";
 #	echo "${LINE}";
 	(( COUNT_CUR++ ));
