@@ -7,24 +7,27 @@
 # check depends
 function check_prog()
 {
-	for i in ${CHECK_PROG_LIST};
+	for i in ${1};
 	do
 		if [ "$(which ${i})" == "" ];
 		then
-			echo "[!]FATAL: you must install \"${i}\"...";
-			echo;
-			echo;
-			exit 1;
+			echo "FATAL: you must install \"${i}\"...";
+			return 1;
 		fi
 	done
+
+	return 0;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
 function main()
 {
 # check depends tools
-	CHECK_PROG_LIST='basename dirname echo find mktemp mv rm tr';
-	check_prog;
+	check_prog "basename dirname echo find mktemp mv rm tr";
+	if [ "${?}" != "0" ];
+	then
+		exit 1;
+	fi
 
 
 	if [ "${1}" == "" ] || [ ! -e "${1}" ];
