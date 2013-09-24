@@ -8,26 +8,33 @@ fi
 
 
 TMP1=$(mktemp);
+if [ "${?}" != "0" ];
+then
+	echo "[!]FATAL: can't make tmp file";
+	exit 1;
+fi
+
+
 TMP2=$(mktemp);
+if [ "${?}" != "0" ];
+then
+	echo "[!]FATAL: can't make tmp file";
+	exit 1;
+fi
 
 
 while read -r LINE;
 do
-#	echo "${LINE}";
-
 	if [ -f "${LINE}" ];
 	then
-#		echo "${LINE}";
-
 		SIZE=$(stat --printf='%s' "${LINE}");
-
 		echo "${SIZE} ${LINE}" >> "${TMP1}";
 	fi
 
 done < "${1}";
 
 
-cat "${TMP1}" | sort -n | sed -e 's/^[0-9]*\ //g' > "${TMP2}";
+sort -n "${TMP1}" | sed -e 's/^[0-9]*\ //g' > "${TMP2}";
 rm -rf "${TMP1}" &> /dev/null;
 
 
@@ -37,18 +44,17 @@ COUNT_CUR=1;
 
 while read -r LINE;
 do
-#	echo "${LINE}"
-
 	echo -n "[${COUNT_CUR}/${COUNT_ALL}] ";
 
 	if [ ! -f "${LINE}" ];
 	then
+		echo "not found, skip";
+		(( COUNT_CUR++ ));
 		continue;
 	fi
 
 
 	repack.sh "${LINE}";
-#	echo "${LINE}";
 	(( COUNT_CUR++ ));
 
 done < "${TMP2}";
