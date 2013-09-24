@@ -492,6 +492,11 @@ function repack()
 	fi
 
 
+	if [ "${FLAG_USE_TMPDIR}" != "0" ];
+	then
+		FLAG_USE_TMPDIR=1;
+	fi
+
 	if [ "${FLAG_USE_TMPDIR}" == "0" ];
 	then
 		REPACK_TMPDIR="${SOURCE_DIRNAME}";
