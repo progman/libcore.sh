@@ -701,9 +701,10 @@ function repack()
 function main()
 {
 	FILE_COUNT="${#}";
-	if [ "${FILE_COUNT}" == "0" ];
+	if [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
 	then
 		echo "example: ${0} FILE...";
+		echo "example: cat FILELIST | ${0}";
 		return 1;
 	fi
 
@@ -725,19 +726,77 @@ function main()
 	fi
 
 
-	while true;
+# file repack
+	if [ "${FILE_COUNT}" != "0" ];
+	then
+		while true;
+		do
+			echo -n "\"${1}\": ";
+			repack "${1}";
+
+			(( FILE_COUNT-- ));
+			shift 1;
+
+			if [ "${FILE_COUNT}" == "0" ];
+			then
+				break;
+			fi
+		done
+
+		return 0;
+	fi
+
+
+# filelist repack
+
+# create file for filelist
+	TMP1=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "FATAL: can't make tmp file";
+		return 1;
+	fi
+
+# create file for sorted filelist
+	TMP2=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "FATAL: can't make tmp file";
+		rm -rf "${TMP1}" &> /dev/null;
+		return 1;
+	fi
+
+# add in filelist exist files
+	while read -r LINE;
 	do
-		echo -n "\"${1}\": ";
-		repack "${1}";
-
-		(( FILE_COUNT-- ));
-		shift 1;
-
-		if [ "${FILE_COUNT}" == "0" ];
+		if [ -f "${LINE}" ];
 		then
-			break;
+			SIZE=$(stat --printf='%s' "${LINE}");
+			echo "${SIZE} ${LINE}" >> "${TMP1}";
 		fi
 	done
+
+
+# sort filelist
+	sort -n "${TMP1}" | sed -e 's/^[0-9]*\ //g' > "${TMP2}";
+	rm -rf "${TMP1}" &> /dev/null;
+
+
+# compute line count
+	COUNT_ALL=$(wc -l "${TMP2}" | { read a b; echo ${a}; });
+	COUNT_CUR=1;
+
+# repack
+	while read -r LINE;
+	do
+		echo -n "[${COUNT_CUR}/${COUNT_ALL}] \"${LINE}\": ";
+
+		repack "${LINE}";
+
+		(( COUNT_CUR++ ));
+
+	done < "${TMP2}";
+	rm -rf "${TMP2}" &> /dev/null;
 
 
 	return 0;
