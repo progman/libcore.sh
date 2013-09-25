@@ -234,7 +234,7 @@ function unpack()
 # unpack TAR
 		if [ "${FLAG_TAR}" == "1" ];
 		then
-			tar -xf "${FILENAME}" &> /dev/null;
+			tar -xf "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "tar unpack error";
@@ -254,7 +254,7 @@ function unpack()
 				return 1;
 			fi
 
-			gzip -df "${FILENAME}" &> /dev/null;
+			gzip -df "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "gzip unpack error";
@@ -274,7 +274,7 @@ function unpack()
 				return 1;
 			fi
 
-			bzip2 -df "${FILENAME}" &> /dev/null;
+			bzip2 -df "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "bzip2 unpack error";
@@ -294,7 +294,7 @@ function unpack()
 				return 1;
 			fi
 
-			xz -df "${FILENAME}" &> /dev/null;
+			xz -df "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "xz unpack error";
@@ -314,7 +314,7 @@ function unpack()
 				return 1;
 			fi
 
-			unrar x "${FILENAME}" &> /dev/null;
+			unrar x "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "unrar unpack error";
@@ -334,7 +334,7 @@ function unpack()
 				return 1;
 			fi
 
-			unzip "${FILENAME}" &> /dev/null;
+			unzip "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "unzip unpack error";
@@ -354,7 +354,7 @@ function unpack()
 				return 1;
 			fi
 
-			arj x "${FILENAME}" &> /dev/null;
+			arj x "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "arj unpack error";
@@ -374,7 +374,7 @@ function unpack()
 				return 1;
 			fi
 
-			lha e "${FILENAME}" &> /dev/null;
+			lha e "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "lha unpack error";
@@ -543,7 +543,7 @@ function repack()
 # add files to TAR
 	while read -r i;
 	do
-		ionice -c 3 nice -n 20 tar -rf "${TMP3}" "${i}" &> /dev/null;
+		ionice -c 3 nice -n 20 tar -rf "${TMP3}" "${i}" &> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " tar error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
@@ -576,7 +576,7 @@ function repack()
 			export XZ_OPT='--lzma2=preset=9e,dict=512MiB';
 		fi
 
-		ionice -c 3 nice -n 20 xz -zc "${TMP3}" > "${TMP4}" 2> /dev/null;
+		ionice -c 3 nice -n 20 xz -zc "${TMP3}" > "${TMP4}" 2> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " xz error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
@@ -597,7 +597,7 @@ function repack()
 			export BZIP2='-9';
 		fi
 
-		ionice -c 3 nice -n 20 bzip2 -zc "${TMP3}" > "${TMP4}" 2> /dev/null;
+		ionice -c 3 nice -n 20 bzip2 -zc "${TMP3}" > "${TMP4}" 2> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " bzip2 error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
@@ -618,7 +618,7 @@ function repack()
 			export GZIP='-9';
 		fi
 
-		ionice -c 3 nice -n 20 gzip -c "${TMP3}" > "${TMP4}" 2> /dev/null;
+		ionice -c 3 nice -n 20 gzip -c "${TMP3}" > "${TMP4}" 2> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " gzip error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
