@@ -480,9 +480,49 @@ function repack()
 	SOURCE_DIRNAME="${PWD}"; #get absolute path
 
 
+# select compressor
+	local FLAG_COMPRESSOR_SELECT=0;
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${FLAG_FOUND_XZ}" != "0" ];
+	then
+		COMPRESSOR="xz";
+		FLAG_COMPRESSOR_SELECT=1;
+	fi
+
+
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${FLAG_FOUND_BZIP2}" != "0" ];
+	then
+		COMPRESSOR="bz2";
+		FLAG_COMPRESSOR_SELECT=1;
+	fi
+
+
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${FLAG_FOUND_GZIP}" != "0" ];
+	then
+		COMPRESSOR="gz";
+		FLAG_COMPRESSOR_SELECT=1;
+	fi
+
+
+# check exist file
+	strip_filename "${SOURCE_FILENAME}";
+
+	TARGET_FILENAME="${FILENAME}.tar.${COMPRESSOR}";
+
+#	TARGET_FILENAME="$(strip_filename "${SOURCE_FILENAME}").tar.${COMPRESSOR}";
+
+
+#	echo "${SOURCE_FILENAME} -> ${TARGET_FILENAME}";
+
+	if [ -e "${TARGET_FILENAME}" ] && [ "${TARGET_FILENAME}" != "${SOURCE_FILENAME}" ];
+	then
+		rm -rf -- "${TMP4}";
+		cd -- "${DIR_CUR}";
+		echo "file already exist";
+		return 1;
+	fi
+
+
 # create temp dir and files
-
-
 	REPACK_TMPDIR="/tmp";
 	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
 	then
@@ -602,10 +642,7 @@ function repack()
 
 
 # compress TAR
-	FLAG_PACK=0;
-
-
-	if [ "${FLAG_PACK}" == "0" ] && [ "${FLAG_FOUND_XZ}" != "0" ];
+	if [ "${COMPRESSOR}" == "xz" ];
 	then
 		if [ "${XZ_OPT}" == "" ];
 		then
@@ -621,13 +658,10 @@ function repack()
 			rm -rf -- "${TMP4}";
 			return 1;
 		fi
-
-		EXT="xz";
-		FLAG_PACK=1;
 	fi
 
 
-	if [ "${FLAG_PACK}" == "0" ] && [ "${FLAG_FOUND_BZIP2}" != "0" ];
+	if [ "${COMPRESSOR}" == "bz2" ];
 	then
 		if [ "${BZIP2}" == "" ];
 		then
@@ -642,13 +676,10 @@ function repack()
 			rm -rf -- "${TMP4}";
 			return 1;
 		fi
-
-		EXT="bz2";
-		FLAG_PACK=1;
 	fi
 
 
-	if [ "${FLAG_PACK}" == "0" ] && [ "${FLAG_FOUND_GZIP}" != "0" ];
+	if [ "${COMPRESSOR}" == "gz" ];
 	then
 		if [ "${GZIP}" == "" ];
 		then
@@ -663,24 +694,12 @@ function repack()
 			rm -rf -- "${TMP4}";
 			return 1;
 		fi
-
-		EXT="gz";
-		FLAG_PACK=1;
 	fi
 
 
 # kill TAR
 	rm -rf -- "${TMP3}";
 	echo -n ". ";
-
-
-# check pack tar
-	if [ "${FLAG_PACK}" == "0" ];
-	then
-		cd -- "${DIR_CUR}";
-		echo "install xz or bzip2 or gzip";
-		return 1;
-	fi
 
 
 # check pack size
@@ -694,22 +713,7 @@ function repack()
 	fi
 
 
-	strip_filename "${SOURCE_FILENAME}";
-
-	TARGET_FILENAME="${FILENAME}.tar.${EXT}";
-#	echo "${SOURCE_FILENAME} -> ${TARGET_FILENAME}";
-
-	if [ -e "${TARGET_FILENAME}" ] && [ "${TARGET_FILENAME}" != "${SOURCE_FILENAME}" ];
-	then
-		rm -rf -- "${TMP4}";
-		cd -- "${DIR_CUR}";
-		echo "file already exist";
-		return 1;
-	fi
-
-
-#	echo "${SIZE_OLD} -> ${SIZE_NEW}";
-
+# view pack size
 	SIZE="${SIZE_NEW}";
 	(( SIZE-=SIZE_OLD ));
 
@@ -722,14 +726,21 @@ function repack()
 		echo "+${HUMAN_SIZE}";
 	fi
 
+
+# move pack
 	mv -- "${TMP4}" "${TARGET_FILENAME}";
 
+
+# delete old
 	if [ "${TARGET_FILENAME}" != "${SOURCE_FILENAME}" ];
 	then
 		rm -rf -- "${SOURCE_FILENAME}";
 	fi
 
+
+# i'll be back
 	cd -- "${DIR_CUR}";
+
 
 	return 0;
 }
