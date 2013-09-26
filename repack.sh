@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.2
+# 1.0.0
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 GLOBAL_FLAG_FOUND_GZIP=0;
@@ -158,82 +158,97 @@ function strip_filename()
 # check file type
 function check_file_type()
 {
-#	local MIME="$(file -L --mime-type "${1}" | sed -e 's/.*\ //g')";
 	local MIME="$(file -b -L --mime-type -- "${1}")";
 #	echo "MIME: ${MIME}";
-
-	FLAG_TAR=0;
-	FLAG_GZIP=0;
-	FLAG_BZIP2=0;
-	FLAG_XZ=0;
-	FLAG_RAR=0;
-	FLAG_ZIP=0;
-	FLAG_ARJ=0;
-	FLAG_LHA=0;
-	FLAG_HA=0;
 
 
 	if [ "${MIME}" == "application/x-tar" ];
 	then
-		FLAG_TAR=1;
-		EXT="tar";
-#		echo "INFO: TAR DETECT";
+		echo "tar";
 		return 0;
 	fi
 
 	if [ "${MIME}" == "application/gzip" ] || [ "${MIME}" == "application/x-compress" ];
 	then
-		FLAG_GZIP=1;
-		EXT="gz";
-#		echo "INFO: GZIP DETECT";
+		if [ "GLOBAL_FLAG_FOUND_GZIP" == "0" ];
+		then
+			echo "gzip not found";
+			return 1;
+		fi
+
+		echo "gz";
 		return 0;
 	fi
 
 	if [ "${MIME}" == "application/x-bzip2" ];
 	then
-		FLAG_BZIP2=1;
-		EXT="bz2";
-#		echo "INFO: BZIP2 DETECT";
+		if [ "GLOBAL_FLAG_FOUND_BZIP2" == "0" ];
+		then
+			echo "bzip2 not found";
+			return 1;
+		fi
+
+		echo "bz2";
 		return 0;
 	fi
 
 	if [ "${MIME}" == "application/x-xz" ];
 	then
-		FLAG_XZ=1;
-		EXT="xz";
-#		echo "INFO: XZ DETECT";
+		if [ "GLOBAL_FLAG_FOUND_XZ" == "0" ];
+		then
+			echo "xz not found";
+			return 1;
+		fi
+
+		echo "xz";
 		return 0;
 	fi
 
 	if [ "${MIME}" == "application/x-rar" ];
 	then
-		FLAG_RAR=1;
-		EXT="rar";
-#		echo "INFO: RAR DETECT";
+		if [ "GLOBAL_FLAG_FOUND_RAR" == "0" ];
+		then
+			echo "unrar not found";
+			return 1;
+		fi
+
+		echo "rar";
 		return 0;
 	fi
 
 	if [ "${MIME}" == "application/zip" ];
 	then
-		FLAG_ZIP=1;
-		EXT="zip";
-#		echo "INFO: ZIP DETECT";
+		if [ "GLOBAL_FLAG_FOUND_ZIP" == "0" ];
+		then
+			echo "unzip not found";
+			return 1;
+		fi
+
+		echo "zip";
 		return 0;
 	fi
 
 	if [ "${MIME}" == "application/x-arj" ];
 	then
-		FLAG_ARJ=1;
-		EXT="arj";
-#		echo "INFO: ARJ DETECT";
+		if [ "GLOBAL_FLAG_FOUND_ARJ" == "0" ];
+		then
+			echo "arj not found";
+			return 1;
+		fi
+
+		echo "arj";
 		return 0;
 	fi
 
 	if [ "${MIME}" == "application/x-lha" ];
 	then
-		FLAG_LHA=1;
-		EXT="lha";
-#		echo "INFO: LHA DETECT";
+		if [ "GLOBAL_FLAG_FOUND_LHA" == "0" ];
+		then
+			echo "lha not found";
+			return 1;
+		fi
+
+		echo "lha";
 		return 0;
 	fi
 
@@ -243,14 +258,19 @@ function check_file_type()
 
 		if [ "$(echo ${MIMENAME} | grep '^HA archive data' | wc -l)" != "0" ];
 		then
-			FLAG_HA=1;
-			EXT="ha";
-#			echo "INFO: HA DETECT";
+			if [ "GLOBAL_FLAG_FOUND_HA" == "0" ];
+			then
+				echo "ha not found";
+				return 1;
+			fi
+
+			echo "ha";
 			return 0;
 		fi
 	fi
 
 
+	echo "file not support type";
 	return 1;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -265,26 +285,26 @@ function unpack()
 		fi
 
 
-		FILENAME="$(ls -1)";
+		local FILENAME="$(ls -1)";
 
 
 # check file type
-		check_file_type "${FILENAME}";
+		DECOMPRESSOR="$(check_file_type "${FILENAME}")";
 		if [ "${?}" != "0" ];
 		then
+#			echo "${DECOMPRESSOR}";
 			break; # file not support type, pack
 		fi
 
 
 # set correct suffix name
 # example may be file is 'GZIP' and have suffix name is NOT '.gz'
-		mv -- "${FILENAME}" "${FILENAME}.${EXT}";
-		FILENAME_OLD="${FILENAME}";
-		FILENAME="${FILENAME}.${EXT}";
+		mv -- "${FILENAME}" "${FILENAME}.${DECOMPRESSOR}";
+		FILENAME="${FILENAME}.${DECOMPRESSOR}";
 
 
 # unpack TAR
-		if [ "${FLAG_TAR}" == "1" ];
+		if [ "${DECOMPRESSOR}" == "tar" ];
 		then
 			tar -xf "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
@@ -292,167 +312,110 @@ function unpack()
 				echo "tar unpack error";
 				return 1;
 			fi
-
 			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
 # unpack GZIP
-		if [ "${FLAG_GZIP}" == "1" ];
+		if [ "${DECOMPRESSOR}" == "gz" ];
 		then
-			if [ "${GLOBAL_FLAG_FOUND_GZIP}" == "0" ];
-			then
-				echo "gzip not found";
-				return 1;
-			fi
-
 			gzip -df -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "gzip unpack error";
 				return 1;
 			fi
-
 			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
 # unpack BZIP2
-		if [ "${FLAG_BZIP2}" == "1" ];
+		if [ "${DECOMPRESSOR}" == "bz2" ];
 		then
-			if [ "${GLOBAL_FLAG_FOUND_BZIP2}" == "0" ];
-			then
-				echo "bzip2 not found";
-				return 1;
-			fi
-
 			bzip2 -df -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "bzip2 unpack error";
 				return 1;
 			fi
-
 			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
 # unpack XZ
-		if [ "${FLAG_XZ}" == "1" ];
+		if [ "${DECOMPRESSOR}" == "xz" ];
 		then
-			if [ "${GLOBAL_FLAG_FOUND_XZ}" == "0" ];
-			then
-				echo "xz not found";
-				return 1;
-			fi
-
 			xz -df -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "xz unpack error";
 				return 1;
 			fi
-
 			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
 # unpack RAR
-		if [ "${FLAG_RAR}" == "1" ];
+		if [ "${DECOMPRESSOR}" == "rar" ];
 		then
-			if [ "$(which unrar)" == "" ];
-			then
-				echo "unrar not found";
-				return 1;
-			fi
-
 			unrar x -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "unrar unpack error";
 				return 1;
 			fi
-
 			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
 # unpack ZIP
-		if [ "${FLAG_ZIP}" == "1" ];
+		if [ "${DECOMPRESSOR}" == "zip" ];
 		then
-			if [ "$(which unzip)" == "" ];
-			then
-				echo "unzip not found";
-				return 1;
-			fi
-
 			unzip -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "unzip unpack error";
 				return 1;
 			fi
-
 			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
 # unpack ARJ
-		if [ "${FLAG_ARJ}" == "1" ];
+		if [ "${DECOMPRESSOR}" == "arj" ];
 		then
-			if [ "$(which arj)" == "" ];
-			then
-				echo "arj not found";
-				return 1;
-			fi
-
 			arj x -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "arj unpack error";
 				return 1;
 			fi
-
 			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
 # unpack LHA
-		if [ "${FLAG_LHA}" == "1" ];
+		if [ "${DECOMPRESSOR}" == "lha" ];
 		then
-			if [ "$(which lha)" == "" ];
-			then
-				echo "lha not found";
-				return 1;
-			fi
-
 			lha e "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "lha unpack error";
 				return 1;
 			fi
-
 			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
 # unpack HA
-		if [ "${FLAG_HA}" == "1" ];
+		if [ "${DECOMPRESSOR}" == "ha" ];
 		then
-			if [ "$(which ha)" == "" ];
-			then
-				echo "ha not found";
-				return 1;
-			fi
-
 			ha e "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "ha unpack error";
 				return 1;
 			fi
-
 			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
@@ -464,7 +427,7 @@ function unpack()
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # repack file
-function repack()
+function repack_file()
 {
 # check file exist
 	if [ "${1}" == "" ];
@@ -487,27 +450,27 @@ function repack()
 
 
 # check file type
-	check_file_type "${1}";
+	DECOMPRESSOR="$(check_file_type "${1}")";
 	if [ "${?}" != "0" ];
 	then
-		echo "file not support type";
+		echo "${DECOMPRESSOR}";
 		return 1;
 	fi
 
 
-	SIZE_OLD=$(stat --printf '%s' -- "${1}");
+	local SIZE_OLD=$(stat --printf '%s' -- "${1}");
 
 
-	SOURCE_FILENAME=$(basename -- "${1}");
+	local SOURCE_FILENAME=$(basename -- "${1}");
 #	echo "SOURCE_FILENAME: ${SOURCE_FILENAME}";
 
 
-	SOURCE_DIRNAME=$(dirname -- "${1}");
+	local SOURCE_DIRNAME=$(dirname -- "${1}");
 #	echo "SOURCE_DIRNAME: ${SOURCE_DIRNAME}";
 
 
 # save work dir
-	DIR_CUR="${PWD}";
+	local DIR_CUR="${PWD}";
 
 
 # go to source dir
@@ -516,20 +479,20 @@ function repack()
 
 
 # select compressor
+	local COMPRESSOR;
 	local FLAG_COMPRESSOR_SELECT=0;
+
 	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_XZ}" != "0" ];
 	then
 		COMPRESSOR="xz";
 		FLAG_COMPRESSOR_SELECT=1;
 	fi
 
-
 	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_BZIP2}" != "0" ];
 	then
 		COMPRESSOR="bz2";
 		FLAG_COMPRESSOR_SELECT=1;
 	fi
-
 
 	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_GZIP}" != "0" ];
 	then
@@ -539,7 +502,7 @@ function repack()
 
 
 # check exist file
-	TARGET_FILENAME="$(strip_filename "${SOURCE_FILENAME}").tar.${COMPRESSOR}";
+	local TARGET_FILENAME="$(strip_filename "${SOURCE_FILENAME}").tar.${COMPRESSOR}";
 #	echo "${SOURCE_FILENAME} -> ${TARGET_FILENAME}";
 
 	if [ -e "${TARGET_FILENAME}" ] && [ "${TARGET_FILENAME}" != "${SOURCE_FILENAME}" ];
@@ -552,7 +515,7 @@ function repack()
 
 
 # create temp dir and files
-	REPACK_TMPDIR="/tmp";
+	local REPACK_TMPDIR="/tmp";
 	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
 	then
 		REPACK_TMPDIR="${TMPDIR}";
@@ -570,14 +533,14 @@ function repack()
 	fi
 
 
-	TMP1="$(mktemp -d --tmpdir="${REPACK_TMPDIR}")";
+	local TMP1="$(mktemp -d --tmpdir="${REPACK_TMPDIR}")";
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
 		return 1;
 	fi
 
-	TMP2="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
+	local TMP2="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -585,7 +548,7 @@ function repack()
 		return 1;
 	fi
 
-	TMP3="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
+	local TMP3="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -594,7 +557,7 @@ function repack()
 		return 1;
 	fi
 
-	TMP4="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
+	local TMP4="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -732,7 +695,7 @@ function repack()
 
 
 # check pack size
-	SIZE_NEW=$(stat --printf '%s' -- "${TMP4}");
+	local SIZE_NEW=$(stat --printf '%s' -- "${TMP4}");
 	if [ ${SIZE_NEW} -ge ${SIZE_OLD} ] && [ "${FLAG_REPACK_FORCE}" != "1" ]; # if SIZE_NEW >= SIZE_OLD
 	then
 		rm -rf -- "${TMP4}";
@@ -743,10 +706,10 @@ function repack()
 
 
 # view pack size
-	SIZE="${SIZE_NEW}";
+	local SIZE="${SIZE_NEW}";
 	(( SIZE-=SIZE_OLD ));
 
-	HUMAN_SIZE="$(human_size ${SIZE})";
+	local HUMAN_SIZE="$(human_size ${SIZE})";
 
 	if [ "${HUMAN_SIZE:0:1}" == "-" ];
 	then
@@ -774,20 +737,128 @@ function repack()
 	return 0;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# repack filelist
+function repack_filelist()
+{
+	if [ "${1}" == "" ] || [ ! -f "${1}" ];
+	then
+		echo "file not found";
+		return 1;
+	fi
+
+
+# create file for filelist
+	local TMP1=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "FATAL: can't make tmp file";
+		return 1;
+	fi
+
+# create file for sorted filelist
+	local TMP2=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "FATAL: can't make tmp file";
+		rm -rf -- "${TMP1}" &> /dev/null;
+		return 1;
+	fi
+
+# add in filelist exist files
+	while read -r LINE;
+	do
+		if [ -f "${LINE}" ];
+		then
+			local SIZE=$(stat --printf='%s' -- "${LINE}");
+			echo "${SIZE} ${LINE}" >> "${TMP1}";
+		fi
+	done < "${1}";
+
+
+# sort filelist
+	sort --unique -n "${TMP1}" | sed -e 's/^[0-9]*\ //g' > "${TMP2}";
+	rm -rf -- "${TMP1}" &> /dev/null;
+
+
+# compute line count
+	local COUNT_ALL=$(wc -l "${TMP2}" | { read a b; echo ${a}; });
+	local COUNT_CUR=1;
+
+
+# repack
+	while read -r LINE;
+	do
+		echo -n "[${COUNT_CUR}/${COUNT_ALL}] \"${LINE}\": ";
+
+		repack_file "${LINE}";
+
+		(( COUNT_CUR++ ));
+
+	done < "${TMP2}";
+	rm -rf -- "${TMP2}" &> /dev/null;
+
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# repack stdin
+function repack_stdin()
+{
+# create file for filelist
+	local TMP1=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "FATAL: can't make tmp file";
+		return 1;
+	fi
+
+
+# get current dir
+	local DIR_CUR="${PWD}";
+
+
+# create filelist
+	while read -r LINE;
+	do
+
+# scan and add files in dir
+		if [ -d "${LINE}" ];
+		then
+			cd -- "${LINE}";
+			SOURCE_DIRNAME="${PWD}"; #get absolute path
+			cd -- "${DIR_CUR}";
+			find "${SOURCE_DIRNAME}" -type f >> "${TMP1}" 2> /dev/null;
+		fi
+
+# add file
+		if [ -f "${LINE}" ];
+		then
+			echo "${LINE}" >> "${TMP1}";
+		fi
+	done
+
+
+	repack_filelist "${TMP1}";
+	rm -rf -- "${TMP1}" &> /dev/null;
+
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
 function main()
 {
-	FILE_COUNT="${#}";
+	local FILE_COUNT="${#}";
 	if [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
 	then
-		echo "example: ${0} FILE...";
+		echo "example: ${0} [FILE|DIR]...";
 		echo "example: cat FILELIST | ${0}";
 		return 1;
 	fi
 
 
 # check minimal depends tools
-	check_prog "basename dirname echo file ionice ln ls mktemp mv nice rm sed stat tar wc which";
+	check_prog "basename dirname echo file ionice ln ls mktemp mv nice rm sed sort stat tar wc which";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
@@ -803,77 +874,41 @@ function main()
 	fi
 
 
-# file repack
-	if [ "${FILE_COUNT}" != "0" ];
+# repack stdin
+	if [ "${FILE_COUNT}" == "0" ];
 	then
-		while true;
-		do
-			echo -n "\"${1}\": ";
-			repack "${1}";
-
-			(( FILE_COUNT-- ));
-			shift 1;
-
-			if [ "${FILE_COUNT}" == "0" ];
-			then
-				break;
-			fi
-		done
-
-		return 0;
+		repack_stdin;
+		return "${?}";
 	fi
 
-
-# filelist repack
 
 # create file for filelist
-	TMP1=$(mktemp);
+	local TMP1=$(mktemp);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
 		return 1;
 	fi
 
-# create file for sorted filelist
-	TMP2=$(mktemp);
-	if [ "${?}" != "0" ];
-	then
-		echo "FATAL: can't make tmp file";
-		rm -rf -- "${TMP1}" &> /dev/null;
-		return 1;
-	fi
 
-# add in filelist exist files
-	while read -r LINE;
+# create filelist
+	while true;
 	do
-		if [ -f "${LINE}" ];
+		echo "${1}" >> "${TMP1}";
+
+		(( FILE_COUNT-- ));
+		shift 1;
+
+		if [ "${FILE_COUNT}" == "0" ];
 		then
-			SIZE=$(stat --printf='%s' -- "${LINE}");
-			echo "${SIZE} ${LINE}" >> "${TMP1}";
+			break;
 		fi
 	done
 
 
-# sort filelist
-	sort -n "${TMP1}" | sed -e 's/^[0-9]*\ //g' > "${TMP2}";
+# repack args
+	repack_stdin < "${TMP1}";
 	rm -rf -- "${TMP1}" &> /dev/null;
-
-
-# compute line count
-	COUNT_ALL=$(wc -l "${TMP2}" | { read a b; echo ${a}; });
-	COUNT_CUR=1;
-
-# repack
-	while read -r LINE;
-	do
-		echo -n "[${COUNT_CUR}/${COUNT_ALL}] \"${LINE}\": ";
-
-		repack "${LINE}";
-
-		(( COUNT_CUR++ ));
-
-	done < "${TMP2}";
-	rm -rf -- "${TMP2}" &> /dev/null;
 
 
 	return 0;
