@@ -776,7 +776,7 @@ function repack_filelist()
 
 
 # sort filelist
-	sort --unique -n "${TMP1}" | sed -e 's/^[0-9]*\ //g' > "${TMP2}";
+	sort -n "${TMP1}" | sed -e 's/^[0-9]*\ //g' | uniq > "${TMP2}";
 	rm -rf -- "${TMP1}" &> /dev/null;
 
 
@@ -858,7 +858,7 @@ function main()
 
 
 # check minimal depends tools
-	check_prog "basename dirname echo file ionice ln ls mktemp mv nice rm sed sort stat tar wc which";
+	check_prog "basename dirname echo file ionice ln ls mktemp mv nice rm sed sort stat tar uniq wc which";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
