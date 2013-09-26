@@ -108,6 +108,8 @@ function strip_filename()
 		FILENAME="${OUT}";
 		OUT="$(echo "${FILENAME}" | sed -e 's/\.[lL][hH][aA]$//g')";
 		FILENAME="${OUT}";
+		OUT="$(echo "${FILENAME}" | sed -e 's/\.[hH][aA]$//g')";
+		FILENAME="${OUT}";
 
 		if [ "${SOURCE}" == "${FILENAME}" ];
 		then
