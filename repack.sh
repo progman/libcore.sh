@@ -124,7 +124,7 @@ function strip_filename()
 function check_file_type()
 {
 #	local MIME="$(file -L --mime-type "${1}" | sed -e 's/.*\ //g')";
-	local MIME="$(file -b -L --mime-type "${1}")";
+	local MIME="$(file -b -L --mime-type -- "${1}")";
 #	echo "MIME: ${MIME}";
 
 	FLAG_TAR=0;
@@ -204,7 +204,7 @@ function check_file_type()
 
 	if [ "${MIME}" == "application/octet-stream" ];
 	then
-		local MIMENAME="$(file -b -L "${1}")";
+		local MIMENAME="$(file -b -L -- "${1}")";
 
 		if [ "$(echo ${MIMENAME} | grep '^HA archive data' | wc -l)" != "0" ];
 		then
@@ -243,7 +243,7 @@ function unpack()
 
 # set correct suffix name
 # example may be file is 'GZIP' and have suffix name is NOT '.gz'
-		mv "${FILENAME}" "${FILENAME}.${EXT}";
+		mv -- "${FILENAME}" "${FILENAME}.${EXT}";
 		FILENAME_OLD="${FILENAME}";
 		FILENAME="${FILENAME}.${EXT}";
 
@@ -258,7 +258,7 @@ function unpack()
 				return 1;
 			fi
 
-			rm -rf "${FILENAME}" &> /dev/null;
+			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
@@ -271,14 +271,14 @@ function unpack()
 				return 1;
 			fi
 
-			gzip -df "${FILENAME}" &> /dev/null < /dev/null;
+			gzip -df -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "gzip unpack error";
 				return 1;
 			fi
 
-			rm -rf "${FILENAME}" &> /dev/null;
+			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
@@ -291,14 +291,14 @@ function unpack()
 				return 1;
 			fi
 
-			bzip2 -df "${FILENAME}" &> /dev/null < /dev/null;
+			bzip2 -df -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "bzip2 unpack error";
 				return 1;
 			fi
 
-			rm -rf "${FILENAME}" &> /dev/null;
+			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
@@ -311,14 +311,14 @@ function unpack()
 				return 1;
 			fi
 
-			xz -df "${FILENAME}" &> /dev/null < /dev/null;
+			xz -df -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "xz unpack error";
 				return 1;
 			fi
 
-			rm -rf "${FILENAME}" &> /dev/null;
+			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
@@ -331,14 +331,14 @@ function unpack()
 				return 1;
 			fi
 
-			unrar x "${FILENAME}" &> /dev/null < /dev/null;
+			unrar x -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "unrar unpack error";
 				return 1;
 			fi
 
-			rm -rf "${FILENAME}" &> /dev/null;
+			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
@@ -351,14 +351,14 @@ function unpack()
 				return 1;
 			fi
 
-			unzip "${FILENAME}" &> /dev/null < /dev/null;
+			unzip -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "unzip unpack error";
 				return 1;
 			fi
 
-			rm -rf "${FILENAME}" &> /dev/null;
+			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
@@ -371,14 +371,14 @@ function unpack()
 				return 1;
 			fi
 
-			arj x "${FILENAME}" &> /dev/null < /dev/null;
+			arj x -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "arj unpack error";
 				return 1;
 			fi
 
-			rm -rf "${FILENAME}" &> /dev/null;
+			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
@@ -398,7 +398,7 @@ function unpack()
 				return 1;
 			fi
 
-			rm -rf "${FILENAME}" &> /dev/null;
+			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
@@ -418,7 +418,7 @@ function unpack()
 				return 1;
 			fi
 
-			rm -rf "${FILENAME}" &> /dev/null;
+			rm -rf -- "${FILENAME}" &> /dev/null;
 		fi
 
 
@@ -460,14 +460,14 @@ function repack()
 	fi
 
 
-	SIZE_OLD=$(stat --printf '%s' "${1}");
+	SIZE_OLD=$(stat --printf '%s' -- "${1}");
 
 
-	SOURCE_FILENAME=$(basename "${1}");
+	SOURCE_FILENAME=$(basename -- "${1}");
 #	echo "SOURCE_FILENAME: ${SOURCE_FILENAME}";
 
 
-	SOURCE_DIRNAME=$(dirname "${1}");
+	SOURCE_DIRNAME=$(dirname -- "${1}");
 #	echo "SOURCE_DIRNAME: ${SOURCE_DIRNAME}";
 
 
@@ -476,7 +476,7 @@ function repack()
 
 
 # go to source dir
-	cd "${SOURCE_DIRNAME}";
+	cd -- "${SOURCE_DIRNAME}";
 	SOURCE_DIRNAME="${PWD}"; #get absolute path
 
 
@@ -512,7 +512,7 @@ function repack()
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
-		rm -rf "${TMP1}";
+		rm -rf -- "${TMP1}";
 		return 1;
 	fi
 
@@ -520,8 +520,8 @@ function repack()
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
-		rm -rf "${TMP1}";
-		rm -rf "${TMP2}";
+		rm -rf -- "${TMP1}";
+		rm -rf -- "${TMP2}";
 		return 1;
 	fi
 
@@ -529,9 +529,9 @@ function repack()
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
-		rm -rf "${TMP1}";
-		rm -rf "${TMP2}";
-		rm -rf "${TMP3}";
+		rm -rf -- "${TMP1}";
+		rm -rf -- "${TMP2}";
+		rm -rf -- "${TMP3}";
 		return 1;
 	fi
 
@@ -552,7 +552,7 @@ function repack()
 
 
 # go to temp dir
-	cd "${TMP1}";
+	cd -- "${TMP1}";
 
 
 # link to source file in tmp dir
@@ -563,11 +563,11 @@ function repack()
 	unpack;
 	if [ "${?}" != "0" ];
 	then
-		cd "${DIR_CUR}";
-		rm -rf "${TMP1}";
-		rm -rf "${TMP2}";
-		rm -rf "${TMP3}";
-		rm -rf "${TMP4}";
+		cd -- "${DIR_CUR}";
+		rm -rf -- "${TMP1}";
+		rm -rf -- "${TMP2}";
+		rm -rf -- "${TMP3}";
+		rm -rf -- "${TMP4}";
 		return 1;
 	fi
 	echo -n ".";
@@ -580,24 +580,24 @@ function repack()
 # add files to TAR
 	while read -r i;
 	do
-		ionice -c 3 nice -n 20 tar -rf "${TMP3}" "${i}" &> /dev/null < /dev/null;
+		ionice -c 3 nice -n 20 tar -rf "${TMP3}" -- "${i}" &> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " tar error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
-			cd "${SOURCE_DIRNAME}";
-			rm -rf "${TMP1}";
-			rm -rf "${TMP2}";
-			rm -rf "${TMP3}";
-			rm -rf "${TMP4}";
-			cd "${DIR_CUR}";
+			cd -- "${SOURCE_DIRNAME}";
+			rm -rf -- "${TMP1}";
+			rm -rf -- "${TMP2}";
+			rm -rf -- "${TMP3}";
+			rm -rf -- "${TMP4}";
+			cd -- "${DIR_CUR}";
 			return 1;
 		fi
 	done < "${TMP2}";
 
 
-	cd "${SOURCE_DIRNAME}";
-	rm -rf "${TMP1}";
-	rm -rf "${TMP2}";
+	cd -- "${SOURCE_DIRNAME}";
+	rm -rf -- "${TMP1}";
+	rm -rf -- "${TMP2}";
 	echo -n ".";
 
 
@@ -617,8 +617,8 @@ function repack()
 		if [ "${?}" != "0" ];
 		then
 			echo " xz error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
-			rm -rf "${TMP3}";
-			rm -rf "${TMP4}";
+			rm -rf -- "${TMP3}";
+			rm -rf -- "${TMP4}";
 			return 1;
 		fi
 
@@ -638,8 +638,8 @@ function repack()
 		if [ "${?}" != "0" ];
 		then
 			echo " bzip2 error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
-			rm -rf "${TMP3}";
-			rm -rf "${TMP4}";
+			rm -rf -- "${TMP3}";
+			rm -rf -- "${TMP4}";
 			return 1;
 		fi
 
@@ -659,8 +659,8 @@ function repack()
 		if [ "${?}" != "0" ];
 		then
 			echo " gzip error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
-			rm -rf "${TMP3}";
-			rm -rf "${TMP4}";
+			rm -rf -- "${TMP3}";
+			rm -rf -- "${TMP4}";
 			return 1;
 		fi
 
@@ -670,25 +670,25 @@ function repack()
 
 
 # kill TAR
-	rm -rf "${TMP3}";
+	rm -rf -- "${TMP3}";
 	echo -n ". ";
 
 
 # check pack tar
 	if [ "${FLAG_PACK}" == "0" ];
 	then
-		cd "${DIR_CUR}";
+		cd -- "${DIR_CUR}";
 		echo "install xz or bzip2 or gzip";
 		return 1;
 	fi
 
 
 # check pack size
-	SIZE_NEW=$(stat --printf '%s' "${TMP4}");
+	SIZE_NEW=$(stat --printf '%s' -- "${TMP4}");
 	if [ ${SIZE_NEW} -ge ${SIZE_OLD} ] && [ "${FLAG_REPACK_FORCE}" != "1" ]; # if SIZE_NEW >= SIZE_OLD
 	then
-		rm -rf "${TMP4}";
-		cd "${DIR_CUR}";
+		rm -rf -- "${TMP4}";
+		cd -- "${DIR_CUR}";
 		echo "-0 B";
 		return 0;
 	fi
@@ -701,8 +701,8 @@ function repack()
 
 	if [ -e "${TARGET_FILENAME}" ] && [ "${TARGET_FILENAME}" != "${SOURCE_FILENAME}" ];
 	then
-		rm -rf "${TMP4}";
-		cd "${DIR_CUR}";
+		rm -rf -- "${TMP4}";
+		cd -- "${DIR_CUR}";
 		echo "file already exist";
 		return 1;
 	fi
@@ -722,14 +722,14 @@ function repack()
 		echo "+${HUMAN_SIZE}";
 	fi
 
-	mv "${TMP4}" "${TARGET_FILENAME}";
+	mv -- "${TMP4}" "${TARGET_FILENAME}";
 
 	if [ "${TARGET_FILENAME}" != "${SOURCE_FILENAME}" ];
 	then
-		rm -rf "${SOURCE_FILENAME}";
+		rm -rf -- "${SOURCE_FILENAME}";
 	fi
 
-	cd "${DIR_CUR}";
+	cd -- "${DIR_CUR}";
 
 	return 0;
 }
@@ -799,7 +799,7 @@ function main()
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
-		rm -rf "${TMP1}" &> /dev/null;
+		rm -rf -- "${TMP1}" &> /dev/null;
 		return 1;
 	fi
 
@@ -808,7 +808,7 @@ function main()
 	do
 		if [ -f "${LINE}" ];
 		then
-			SIZE=$(stat --printf='%s' "${LINE}");
+			SIZE=$(stat --printf='%s' -- "${LINE}");
 			echo "${SIZE} ${LINE}" >> "${TMP1}";
 		fi
 	done
@@ -816,7 +816,7 @@ function main()
 
 # sort filelist
 	sort -n "${TMP1}" | sed -e 's/^[0-9]*\ //g' > "${TMP2}";
-	rm -rf "${TMP1}" &> /dev/null;
+	rm -rf -- "${TMP1}" &> /dev/null;
 
 
 # compute line count
@@ -833,7 +833,7 @@ function main()
 		(( COUNT_CUR++ ));
 
 	done < "${TMP2}";
-	rm -rf "${TMP2}" &> /dev/null;
+	rm -rf -- "${TMP2}" &> /dev/null;
 
 
 	return 0;
