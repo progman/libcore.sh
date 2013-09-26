@@ -1,7 +1,16 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.1
+# 0.0.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+GLOBAL_FLAG_FOUND_GZIP=0;
+GLOBAL_FLAG_FOUND_BZIP2=0;
+GLOBAL_FLAG_FOUND_XZ=0;
+GLOBAL_FLAG_FOUND_RAR=0;
+GLOBAL_FLAG_FOUND_ZIP=0;
+GLOBAL_FLAG_FOUND_ARJ=0;
+GLOBAL_FLAG_FOUND_LHA=0;
+GLOBAL_FLAG_FOUND_HA=0;
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
 function check_prog()
@@ -58,26 +67,47 @@ function human_size()
 	echo "${SIGN}${X} ${NAME[$NAME_INDEX]}";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# check exist compressors
-function check_compressor()
+# check exist tools
+function check_tool()
 {
-	FLAG_FOUND_GZIP=0;
-	FLAG_FOUND_BZIP2=0;
-	FLAG_FOUND_XZ=0;
-
 	if [ "$(which gzip)" != "" ];
 	then
-		FLAG_FOUND_GZIP=1;
+		GLOBAL_FLAG_FOUND_GZIP=1;
 	fi
 
 	if [ "$(which bzip2)" != "" ];
 	then
-		FLAG_FOUND_BZIP2=1;
+		GLOBAL_FLAG_FOUND_BZIP2=1;
 	fi
 
 	if [ "$(which xz)" != "" ];
 	then
-		FLAG_FOUND_XZ=1;
+		GLOBAL_FLAG_FOUND_XZ=1;
+	fi
+
+	if [ "$(which unrar)" != "" ];
+	then
+		GLOBAL_FLAG_FOUND_RAR=1;
+	fi
+
+	if [ "$(which unzip)" != "" ];
+	then
+		GLOBAL_FLAG_FOUND_ZIP=1;
+	fi
+
+	if [ "$(which arj)" != "" ];
+	then
+		GLOBAL_FLAG_FOUND_ARJ=1;
+	fi
+
+	if [ "$(which lha)" != "" ];
+	then
+		GLOBAL_FLAG_FOUND_LHA=1;
+	fi
+
+	if [ "$(which ha)" != "" ];
+	then
+		GLOBAL_FLAG_FOUND_HA=1;
 	fi
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -270,7 +300,7 @@ function unpack()
 # unpack GZIP
 		if [ "${FLAG_GZIP}" == "1" ];
 		then
-			if [ "${FLAG_FOUND_GZIP}" == "0" ];
+			if [ "${GLOBAL_FLAG_FOUND_GZIP}" == "0" ];
 			then
 				echo "gzip not found";
 				return 1;
@@ -290,7 +320,7 @@ function unpack()
 # unpack BZIP2
 		if [ "${FLAG_BZIP2}" == "1" ];
 		then
-			if [ "${FLAG_FOUND_BZIP2}" == "0" ];
+			if [ "${GLOBAL_FLAG_FOUND_BZIP2}" == "0" ];
 			then
 				echo "bzip2 not found";
 				return 1;
@@ -310,7 +340,7 @@ function unpack()
 # unpack XZ
 		if [ "${FLAG_XZ}" == "1" ];
 		then
-			if [ "${FLAG_FOUND_XZ}" == "0" ];
+			if [ "${GLOBAL_FLAG_FOUND_XZ}" == "0" ];
 			then
 				echo "xz not found";
 				return 1;
@@ -487,21 +517,21 @@ function repack()
 
 # select compressor
 	local FLAG_COMPRESSOR_SELECT=0;
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${FLAG_FOUND_XZ}" != "0" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_XZ}" != "0" ];
 	then
 		COMPRESSOR="xz";
 		FLAG_COMPRESSOR_SELECT=1;
 	fi
 
 
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${FLAG_FOUND_BZIP2}" != "0" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_BZIP2}" != "0" ];
 	then
 		COMPRESSOR="bz2";
 		FLAG_COMPRESSOR_SELECT=1;
 	fi
 
 
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${FLAG_FOUND_GZIP}" != "0" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_GZIP}" != "0" ];
 	then
 		COMPRESSOR="gz";
 		FLAG_COMPRESSOR_SELECT=1;
@@ -764,9 +794,9 @@ function main()
 	fi
 
 
-# check compressor
-	check_compressor;
-	if [ "${FLAG_FOUND_GZIP}" == "0" ] && [ "${FLAG_FOUND_BZIP2}" == "0" ] && [ "${FLAG_FOUND_XZ}" == "0" ];
+# check compressors
+	check_tool;
+	if [ "${GLOBAL_FLAG_FOUND_GZIP}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_BZIP2}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_XZ}" == "0" ];
 	then
 		echo "FATAL: install xz or bzip2 or gzip";
 		return 1;
