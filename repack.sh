@@ -121,7 +121,8 @@ function strip_filename()
 # check file type
 function check_file_type()
 {
-	local MIME="$(file -L --mime-type "${1}" | sed -e 's/.*\ //g')";
+#	local MIME="$(file -L --mime-type "${1}" | sed -e 's/.*\ //g')";
+	local MIME="$(file -b -L --mime-type "${1}")";
 #	echo "MIME: ${MIME}";
 
 	FLAG_TAR=0;
@@ -132,6 +133,7 @@ function check_file_type()
 	FLAG_ZIP=0;
 	FLAG_ARJ=0;
 	FLAG_LHA=0;
+	FLAG_HA=0;
 
 
 	if [ "${MIME}" == "application/x-tar" ];
@@ -196,6 +198,19 @@ function check_file_type()
 		EXT="lha";
 #		echo "INFO: LHA DETECT";
 		return 0;
+	fi
+
+	if [ "${MIME}" == "application/octet-stream" ];
+	then
+		local MIMENAME="$(file -b -L "${1}")";
+
+		if [ "$(echo ${MIMENAME} | grep '^HA archive data' | wc -l)" != "0" ];
+		then
+			FLAG_HA=1;
+			EXT="ha";
+#			echo "INFO: HA DETECT";
+			return 0;
+		fi
 	fi
 
 
@@ -378,6 +393,26 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 				echo "lha unpack error";
+				return 1;
+			fi
+
+			rm -rf "${FILENAME}" &> /dev/null;
+		fi
+
+
+# unpack HA
+		if [ "${FLAG_HA}" == "1" ];
+		then
+			if [ "$(which ha)" == "" ];
+			then
+				echo "ha not found";
+				return 1;
+			fi
+
+			ha e "${FILENAME}" &> /dev/null < /dev/null;
+			if [ "${?}" != "0" ];
+			then
+				echo "ha unpack error";
 				return 1;
 			fi
 
