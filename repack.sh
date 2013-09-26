@@ -84,7 +84,10 @@ function check_compressor()
 # strip filename
 function strip_filename()
 {
-	SOURCE="${1}";
+	local SOURCE="${1}";
+	local FILENAME;
+	local OUT;
+
 	while true;
 	do
 		FILENAME="${SOURCE}";
@@ -118,6 +121,8 @@ function strip_filename()
 
 		SOURCE="${FILENAME}";
 	done
+
+	echo "${SOURCE}";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check file type
@@ -504,13 +509,7 @@ function repack()
 
 
 # check exist file
-	strip_filename "${SOURCE_FILENAME}";
-
-	TARGET_FILENAME="${FILENAME}.tar.${COMPRESSOR}";
-
-#	TARGET_FILENAME="$(strip_filename "${SOURCE_FILENAME}").tar.${COMPRESSOR}";
-
-
+	TARGET_FILENAME="$(strip_filename "${SOURCE_FILENAME}").tar.${COMPRESSOR}";
 #	echo "${SOURCE_FILENAME} -> ${TARGET_FILENAME}";
 
 	if [ -e "${TARGET_FILENAME}" ] && [ "${TARGET_FILENAME}" != "${SOURCE_FILENAME}" ];
