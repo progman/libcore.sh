@@ -289,6 +289,7 @@ function unpack()
 
 
 # check file type
+		local DECOMPRESSOR;
 		DECOMPRESSOR="$(check_file_type "${FILENAME}")";
 		if [ "${?}" != "0" ];
 		then
@@ -309,7 +310,7 @@ function unpack()
 			tar -xf "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
-				echo "tar unpack error";
+				echo "tar unpack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 				return 1;
 			fi
 			rm -rf -- "${FILENAME}" &> /dev/null;
@@ -322,7 +323,7 @@ function unpack()
 			gzip -df -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
-				echo "gzip unpack error";
+				echo "gzip unpack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 				return 1;
 			fi
 			rm -rf -- "${FILENAME}" &> /dev/null;
@@ -335,7 +336,7 @@ function unpack()
 			bzip2 -df -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
-				echo "bzip2 unpack error";
+				echo "bzip2 unpack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 				return 1;
 			fi
 			rm -rf -- "${FILENAME}" &> /dev/null;
@@ -348,7 +349,7 @@ function unpack()
 			xz -df -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
-				echo "xz unpack error";
+				echo "xz unpack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 				return 1;
 			fi
 			rm -rf -- "${FILENAME}" &> /dev/null;
@@ -361,7 +362,7 @@ function unpack()
 			unrar x -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
-				echo "unrar unpack error";
+				echo "unrar unpack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 				return 1;
 			fi
 			rm -rf -- "${FILENAME}" &> /dev/null;
@@ -374,7 +375,7 @@ function unpack()
 			unzip -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
-				echo "unzip unpack error";
+				echo "unzip unpack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 				return 1;
 			fi
 			rm -rf -- "${FILENAME}" &> /dev/null;
@@ -387,7 +388,7 @@ function unpack()
 			arj x -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
-				echo "arj unpack error";
+				echo "arj unpack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 				return 1;
 			fi
 			rm -rf -- "${FILENAME}" &> /dev/null;
@@ -400,7 +401,7 @@ function unpack()
 			lha e "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
-				echo "lha unpack error";
+				echo "lha unpack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 				return 1;
 			fi
 			rm -rf -- "${FILENAME}" &> /dev/null;
@@ -413,7 +414,7 @@ function unpack()
 			ha e "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
-				echo "ha unpack error";
+				echo "ha unpack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 				return 1;
 			fi
 			rm -rf -- "${FILENAME}" &> /dev/null;
@@ -450,6 +451,7 @@ function repack_file()
 
 
 # check file type
+	local DECOMPRESSOR;
 	DECOMPRESSOR="$(check_file_type "${1}")";
 	if [ "${?}" != "0" ];
 	then
@@ -533,14 +535,16 @@ function repack_file()
 	fi
 
 
-	local TMP1="$(mktemp -d --tmpdir="${REPACK_TMPDIR}")";
+	local TMP1;
+	TMP1="$(mktemp -d --tmpdir="${REPACK_TMPDIR}")";
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
 		return 1;
 	fi
 
-	local TMP2="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
+	local TMP2;
+	TMP2="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -548,7 +552,8 @@ function repack_file()
 		return 1;
 	fi
 
-	local TMP3="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
+	local TMP3;
+	TMP3="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -557,7 +562,8 @@ function repack_file()
 		return 1;
 	fi
 
-	local TMP4="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
+	local TMP4;
+	TMP4="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -615,7 +621,7 @@ function repack_file()
 		ionice -c 3 nice -n 20 tar -rf "${TMP3}" -- "${i}" &> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
-			echo " tar error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
+			echo " tar pack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 			cd -- "${SOURCE_DIRNAME}";
 			rm -rf -- "${TMP1}";
 			rm -rf -- "${TMP2}";
@@ -645,7 +651,7 @@ function repack_file()
 		ionice -c 3 nice -n 20 xz -zc "${TMP3}" > "${TMP4}" 2> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
-			echo " xz error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
+			echo " xz pack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 			rm -rf -- "${TMP3}";
 			rm -rf -- "${TMP4}";
 			return 1;
@@ -663,7 +669,7 @@ function repack_file()
 		ionice -c 3 nice -n 20 bzip2 -zc "${TMP3}" > "${TMP4}" 2> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
-			echo " bzip2 error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
+			echo " bzip2 pack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 			rm -rf -- "${TMP3}";
 			rm -rf -- "${TMP4}";
 			return 1;
@@ -681,7 +687,7 @@ function repack_file()
 		ionice -c 3 nice -n 20 gzip -c "${TMP3}" > "${TMP4}" 2> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
-			echo " gzip error (may be pack dir is full), FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
+			echo " gzip pack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 			rm -rf -- "${TMP3}";
 			rm -rf -- "${TMP4}";
 			return 1;
@@ -748,7 +754,8 @@ function repack_filelist()
 
 
 # create file for filelist
-	local TMP1=$(mktemp);
+	local TMP1;
+	TMP1=$(mktemp);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
@@ -756,7 +763,8 @@ function repack_filelist()
 	fi
 
 # create file for sorted filelist
-	local TMP2=$(mktemp);
+	local TMP2;
+	TMP2=$(mktemp);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
@@ -805,7 +813,8 @@ function repack_filelist()
 function repack_stdin()
 {
 # create file for filelist
-	local TMP1=$(mktemp);
+	local TMP1;
+	TMP1=$(mktemp);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
@@ -883,7 +892,8 @@ function main()
 
 
 # create file for filelist
-	local TMP1=$(mktemp);
+	local TMP1;
+	TMP1=$(mktemp);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
