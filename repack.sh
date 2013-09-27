@@ -409,7 +409,7 @@ function unpack()
 # unpack ARJ
 		if [ "${DECOMPRESSOR}" == "arj" ];
 		then
-			arj x -- "${FILENAME}" &> /dev/null < /dev/null;
+			arj x -y -- "${FILENAME}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
 				echo "arj unpack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
