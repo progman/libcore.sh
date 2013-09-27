@@ -256,15 +256,15 @@ function check_file_type()
 	then
 		local MIMENAME="$(file -b -L -- "${1}")";
 
-		if [ "$(echo ${MIMENAME} | grep '^HA archive data' | wc -l)" != "0" ];
+		if [ "$(echo ${MIMENAME} | grep '^RAR archive data' | wc -l)" != "0" ];
 		then
-			if [ "GLOBAL_FLAG_FOUND_HA" == "0" ];
+			if [ "GLOBAL_FLAG_FOUND_RAR" == "0" ];
 			then
-				echo "ha not found";
+				echo "unrar not found";
 				return 1;
 			fi
 
-			echo "ha";
+			echo "rar";
 			return 0;
 		fi
 
@@ -277,6 +277,18 @@ function check_file_type()
 			fi
 
 			echo "zip";
+			return 0;
+		fi
+
+		if [ "$(echo ${MIMENAME} | grep '^HA archive data' | wc -l)" != "0" ];
+		then
+			if [ "GLOBAL_FLAG_FOUND_HA" == "0" ];
+			then
+				echo "ha not found";
+				return 1;
+			fi
+
+			echo "ha";
 			return 0;
 		fi
 	fi
