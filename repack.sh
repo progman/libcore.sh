@@ -824,7 +824,7 @@ function repack_filelist()
 # repack
 	while read -r LINE;
 	do
-		echo -n "[${COUNT_CUR}/${COUNT_ALL}] \"${LINE}\": ";
+		printf "[%0${#COUNT_ALL}u/${COUNT_ALL}] \"${LINE}\": " "${COUNT_CUR}";
 
 		repack_file "${LINE}";
 
