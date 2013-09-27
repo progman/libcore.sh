@@ -749,6 +749,10 @@ function repack_file()
 	fi
 
 
+# set old time
+	touch -r "${SOURCE_DIRNAME}/${SOURCE_FILENAME}" "${TMP4}";
+
+
 # move pack
 	mv -- "${TMP4}" "${TARGET_FILENAME}";
 
@@ -891,7 +895,7 @@ function main()
 
 
 # check minimal depends tools
-	check_prog "basename dirname echo file ionice ln ls mktemp mv nice rm sed sort stat tar uniq wc which";
+	check_prog "basename dirname echo file ionice ln ls mktemp mv nice rm sed sort stat tar touch uniq wc which";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
