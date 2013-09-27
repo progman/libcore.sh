@@ -22,7 +22,7 @@ import -window "${WINDOW}" "${FILENAME}";
 if [ "$(which pngcrush)" != "" ];
 then
 	TMP="$(mktemp)";
-	pngcrush -brute "${FILENAME}" "${TMP}" &> /dev/null;
+	pngcrush -brute -l 9 "${FILENAME}" "${TMP}" &> /dev/null;
 	if [ "${?}" == "0" ];
 	then
 		mv "${TMP}" "${FILENAME}";
