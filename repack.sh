@@ -267,6 +267,18 @@ function check_file_type()
 			echo "ha";
 			return 0;
 		fi
+
+		if [ "$(echo ${MIMENAME} | grep '^Zip archive data' | wc -l)" != "0" ];
+		then
+			if [ "GLOBAL_FLAG_FOUND_ZIP" == "0" ];
+			then
+				echo "unzip not found";
+				return 1;
+			fi
+
+			echo "zip";
+			return 0;
+		fi
 	fi
 
 
