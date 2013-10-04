@@ -11,6 +11,7 @@ GLOBAL_FLAG_FOUND_ZIP=0;
 GLOBAL_FLAG_FOUND_ARJ=0;
 GLOBAL_FLAG_FOUND_LHA=0;
 GLOBAL_FLAG_FOUND_HA=0;
+GLOBAL_DELTA_SIZE=0;
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
 function check_prog()
@@ -65,6 +66,19 @@ function human_size()
 
 
 	echo "${SIGN}${X} ${NAME[$NAME_INDEX]}";
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# view human size
+function view_size()
+{
+	local HUMAN_SIZE="$(human_size ${1})";
+
+	if [ "${HUMAN_SIZE:0:1}" == "-" ];
+	then
+		echo "${HUMAN_SIZE}";
+	else
+		echo "+${HUMAN_SIZE}";
+	fi
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check exist tools
@@ -738,15 +752,8 @@ function repack_file()
 # view pack size
 	local SIZE="${SIZE_NEW}";
 	(( SIZE-=SIZE_OLD ));
-
-	local HUMAN_SIZE="$(human_size ${SIZE})";
-
-	if [ "${HUMAN_SIZE:0:1}" == "-" ];
-	then
-		echo "${HUMAN_SIZE}";
-	else
-		echo "+${HUMAN_SIZE}";
-	fi
+	(( GLOBAL_DELTA_SIZE+=SIZE ));
+	view_size "${SIZE}";
 
 
 # set old time
@@ -915,6 +922,10 @@ function main()
 	if [ "${FILE_COUNT}" == "0" ];
 	then
 		repack_stdin;
+
+		echo -n "total: ";
+		view_size "${GLOBAL_DELTA_SIZE}";
+
 		return "${?}";
 	fi
 
@@ -948,6 +959,8 @@ function main()
 	repack_stdin < "${TMP1}";
 	rm -rf -- "${TMP1}" &> /dev/null;
 
+	echo -n "total: ";
+	view_size "${GLOBAL_DELTA_SIZE}";
 
 	return 0;
 }
