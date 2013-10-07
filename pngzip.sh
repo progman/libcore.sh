@@ -85,8 +85,6 @@ function do_file()
 	fi
 
 
-#	echo "${1}";
-
 	local SIZE_OLD=$(stat --printf '%s' -- "${1}");
 
 	pngcrush -brute -l 9 "${1}" "${TMP1}" &> /dev/null < /dev/null;
@@ -136,6 +134,7 @@ function do_filelist()
 		return 1;
 	fi
 
+
 # create file for sorted filelist
 	local TMP2;
 	TMP2=$(mktemp);
@@ -145,6 +144,7 @@ function do_filelist()
 		rm -rf -- "${TMP1}" &> /dev/null;
 		return 1;
 	fi
+
 
 # add in filelist exist files
 	while read -r LINE;
@@ -231,10 +231,6 @@ function do_stdin()
 # general function
 function main()
 {
-#	do_file "${1}";
-#	return 0;
-
-
 	local FILE_COUNT="${#}";
 	if [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
 	then
@@ -254,9 +250,9 @@ function main()
 
 # check compressors
 #	check_tool;
-#	if [ "${GLOBAL_FLAG_FOUND_GZIP}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_BZIP2}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_XZ}" == "0" ];
+#	if [ "${GLOBAL_FLAG_FOUND_PNGCRUSH}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_OPTIPNG}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_PNGNQ}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_PNGQUANT}" == "0" ];
 #	then
-#		echo "FATAL: install xz or bzip2 or gzip";
+#		echo "FATAL: install pngcrush optipng pngnq pngquant";
 #		return 1;
 #	fi
 
