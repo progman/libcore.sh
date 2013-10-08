@@ -488,6 +488,18 @@ function repack_file()
 	fi
 
 
+# get size
+	local SIZE_OLD=$(stat --printf '%s' -L -- "${1}");
+
+
+# skip big files if set
+	if [ "${REPACK_MAX_SIZE}" != "" ] && [ ${SIZE_OLD} -ge ${REPACK_MAX_SIZE} ]; # SIZE_OLD > REPACK_MAX_SIZE
+	then
+		echo "ignore, size(${SIZE}) > REPACK_MAX_SIZE (${REPACK_MAX_SIZE})";
+		return 1;
+	fi
+
+
 # check file type
 	local DECOMPRESSOR;
 	DECOMPRESSOR="$(check_file_type "${1}")";
@@ -496,9 +508,6 @@ function repack_file()
 		echo "${DECOMPRESSOR}";
 		return 1;
 	fi
-
-
-	local SIZE_OLD=$(stat --printf '%s' -- "${1}");
 
 
 	local SOURCE_FILENAME=$(basename -- "${1}");
@@ -739,7 +748,7 @@ function repack_file()
 
 
 # check pack size
-	local SIZE_NEW=$(stat --printf '%s' -- "${TMP4}");
+	local SIZE_NEW=$(stat --printf '%s' -L -- "${TMP4}");
 	if [ ${SIZE_NEW} -ge ${SIZE_OLD} ] && [ "${FLAG_REPACK_FORCE}" != "1" ]; # if SIZE_NEW >= SIZE_OLD
 	then
 		rm -rf -- "${TMP4}";
@@ -812,7 +821,7 @@ function repack_filelist()
 	do
 		if [ -f "${LINE}" ];
 		then
-			local SIZE=$(stat --printf='%s' -- "${LINE}");
+			local SIZE=$(stat --printf='%s' -L -- "${LINE}");
 			echo "${SIZE} ${LINE}" >> "${TMP1}";
 		fi
 	done < "${1}";
