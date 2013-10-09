@@ -495,7 +495,9 @@ function repack_file()
 # skip big files if set
 	if [ "${REPACK_MAX_SIZE}" != "" ] && [ ${SIZE_OLD} -ge ${REPACK_MAX_SIZE} ]; # SIZE_OLD > REPACK_MAX_SIZE
 	then
-		echo "ignore, size(${SIZE}) > REPACK_MAX_SIZE (${REPACK_MAX_SIZE})";
+		local HSIZE_OLD="$(human_size ${SIZE_OLD})";
+		local HREPACK_MAX_SIZE="$(human_size ${REPACK_MAX_SIZE})";
+		echo "ignore, size(${HSIZE_OLD}) > REPACK_MAX_SIZE (${HREPACK_MAX_SIZE})";
 		return 1;
 	fi
 
