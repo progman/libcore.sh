@@ -29,6 +29,14 @@ function main()
 	fi
 
 
+# check depends tools
+	check_prog "echo wc";
+	if [ "${?}" != "0" ];
+	then
+		return 1;
+	fi
+
+
 	if [ "${1}" != "" ] && [ "${2}" == "" ];
 	then
 		MIN=0;
