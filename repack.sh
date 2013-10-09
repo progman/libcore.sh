@@ -881,7 +881,6 @@ function repack_stdin()
 # create filelist
 	while read -r LINE;
 	do
-
 # scan and add files in dir
 		if [ -d "${LINE}" ];
 		then
@@ -889,12 +888,21 @@ function repack_stdin()
 			SOURCE_DIRNAME="${PWD}"; #get absolute path
 			cd -- "${DIR_CUR}";
 			find "${SOURCE_DIRNAME}" -type f >> "${TMP1}" 2> /dev/null;
+			continue;
+		fi
+
+		if [ -L "${LINE}" ];
+		then
+			local FILE="$(readlink -f "${LINE}")";
+			echo "${FILE}" >> "${TMP1}";
+			continue;
 		fi
 
 # add file
 		if [ -f "${LINE}" ];
 		then
 			echo "${LINE}" >> "${TMP1}";
+			continue;
 		fi
 	done
 
