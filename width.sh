@@ -1,60 +1,86 @@
 #!/bin/bash
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# 0.0.1
+# Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# check depends
+function check_prog()
+{
+	for i in ${1};
+	do
+		if [ "$(which ${i})" == "" ];
+		then
+			echo "FATAL: you must install \"${i}\"...";
+			return 1;
+		fi
+	done
 
-
-if [ "${1}" == "" ] && [ "${2}" == "" ];
-then
-	echo "width filter";
-	echo "example: echo -e \"1\n12\n123\" | ${0} [ MIN ] MAX";
-	exit 1;
-fi
-
-
-if [ "${1}" != "" ] && [ "${2}" == "" ];
-then
-	MIN=0;
-	MAX="${1}";
-fi
-
-
-if [ "${1}" != "" ] && [ "${2}" != "" ];
-then
-	MIN="${1}";
-	MAX="${2}";
-fi
-
-
-if [ "${MIN}" -gt "${MAX}" ]; # INTEGER1 is greater than INTEGER2
-then
-	TMP="${MIN}";
-	MIN="${MAX}";
-	MAX="${TMP}";
-fi
-
-
-#echo "MIN: \"${MIN}\"";
-#echo "MAX: \"${MAX}\"";
-
-while read -r LINE;
-do
-#echo "LINE: \"${LINE}\"";
-	WIDTH=$(echo -n "${LINE}" | wc -c);
-
-
-	if [ "${MIN}" != "" ] && [ "${MAX}" != "" ];
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# general function
+function main()
+{
+	if [ "${1}" == "" ] && [ "${2}" == "" ];
 	then
-		if [ ${MIN} -gt ${WIDTH} ]; # INTEGER1 is greater than INTEGER2
-		then
-			continue;
-		fi
-
-		if [ ${MAX} -lt ${WIDTH} ]; # INTEGER1 is less than INTEGER2
-		then
-			continue;
-		fi
+		echo "width filter";
+		echo "example: echo -e \"1\n12\n123\" | ${0} [ MIN ] MAX";
+		return 1;
 	fi
 
 
-	echo "${LINE}";
-done
+	if [ "${1}" != "" ] && [ "${2}" == "" ];
+	then
+		MIN=0;
+		MAX="${1}";
+	fi
 
-exit 0;
+
+	if [ "${1}" != "" ] && [ "${2}" != "" ];
+	then
+		MIN="${1}";
+		MAX="${2}";
+	fi
+
+
+	if [ "${MIN}" -gt "${MAX}" ]; # INTEGER1 is greater than INTEGER2
+	then
+		TMP="${MIN}";
+		MIN="${MAX}";
+		MAX="${TMP}";
+	fi
+
+
+#	echo "MIN: \"${MIN}\"";
+#	echo "MAX: \"${MAX}\"";
+
+	while read -r LINE;
+	do
+#		echo "LINE: \"${LINE}\"";
+		WIDTH=$(echo -n "${LINE}" | wc -c);
+
+
+		if [ "${MIN}" != "" ] && [ "${MAX}" != "" ];
+		then
+			if [ ${MIN} -gt ${WIDTH} ]; # INTEGER1 is greater than INTEGER2
+			then
+				continue;
+			fi
+
+			if [ ${MAX} -lt ${WIDTH} ]; # INTEGER1 is less than INTEGER2
+			then
+				continue;
+			fi
+		fi
+
+
+		echo "${LINE}";
+	done
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+main "${@}";
+
+exit "${?}";
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
