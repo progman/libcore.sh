@@ -1,51 +1,85 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-if [ ! -d "${1}" ] || [ ! -d "${2}" ];
-then
-	echo "example: ${0} DIR1 DIR2";
-	exit 0;
-fi
+# 0.0.1
+# Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# check depends
+function check_prog()
+{
+	for i in ${1};
+	do
+		if [ "$(which ${i})" == "" ];
+		then
+			echo "FATAL: you must install \"${i}\"...";
+			return 1;
+		fi
+	done
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# general function
+function main()
+{
+	if [ ! -d "${1}" ] || [ ! -d "${2}" ];
+	then
+		echo "example: ${0} DIR1 DIR2";
+		return 0;
+	fi
 
 
-D1=$(mktemp);
-if [ "${?}" != "0" ];
-then
-	echo "FATAL: can't make tmp file";
-	exit 1;
-fi
-
-D2=$(mktemp);
-if [ "${?}" != "0" ];
-then
-	echo "FATAL: can't make tmp file";
-	exit 1;
-fi
-
-cur_pwd=${PWD};
-
-cd "${cur_pwd}";
-cd "${1}"
-find ./ -type f | sort > "${D1}";
-
-cd "${cur_pwd}";
-cd "${2}"
-find ./ -type f | sort > "${D2}";
-
-cd "${cur_pwd}";
-
-diff -u --minimal ${D1} ${D2};
+# check depends tools
+	check_prog "echo mktemp find sort diff sha1sum rm";
+	if [ "${?}" != "0" ];
+	then
+		return 1;
+	fi
 
 
-D1_HASH=$(sha1sum "${D1}" | { read a b; echo ${a}; });
-D2_HASH=$(sha1sum "${D2}" | { read a b; echo ${a}; });
+	D1=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "FATAL: can't make tmp file";
+		return 1;
+	fi
 
-if [ "${D1_HASH}" == "${D2_HASH}" ];
-then
-	echo "dirs equal";
-fi
+	D2=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "FATAL: can't make tmp file";
+		return 1;
+	fi
 
-rm -rf ${D1} &> /dev/null;
-rm -rf ${D2} &> /dev/null;
+	cur_pwd=${PWD};
 
-exit 0;
+	cd "${cur_pwd}";
+	cd "${1}"
+	find ./ -type f | sort > "${D1}";
+
+	cd "${cur_pwd}";
+	cd "${2}"
+	find ./ -type f | sort > "${D2}";
+
+	cd "${cur_pwd}";
+
+	diff -u --minimal ${D1} ${D2};
+
+
+	D1_HASH=$(sha1sum "${D1}" | { read a b; echo ${a}; });
+	D2_HASH=$(sha1sum "${D2}" | { read a b; echo ${a}; });
+
+	if [ "${D1_HASH}" == "${D2_HASH}" ];
+	then
+		echo "dirs equal";
+	fi
+
+	rm -rf ${D1} &> /dev/null;
+	rm -rf ${D2} &> /dev/null;
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+main "${@}";
+
+exit "${?}";
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
