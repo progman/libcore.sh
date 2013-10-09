@@ -1,39 +1,80 @@
 #!/bin/bash
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# 0.0.1
+# Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# check depends
+function check_prog()
+{
+	for i in ${1};
+	do
+		if [ "$(which ${i})" == "" ];
+		then
+			echo "FATAL: you must install \"${i}\"...";
+			return 1;
+		fi
+	done
 
-WINDOW='root';
-if [ "${1}" != "" ];
-then
-	WINDOW="${1}";
-fi
-
-FILENAME="/tmp/screenshot-$(date '+%Y%m%d_%H%M%S').png";
-
-
-if [ "$(which import)" == "" ];
-then
-	echo "ERROR: imagemagick not found";
-	exit 1;
-fi
-
-
-import -window "${WINDOW}" "${FILENAME}";
-
-
-if [ "$(which pngcrush)" != "" ];
-then
-	TMP="$(mktemp)";
-	pngcrush -brute -l 9 "${FILENAME}" "${TMP}" &> /dev/null;
-	if [ "${?}" == "0" ];
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# general function
+function main()
+{
+# check depends tools
+	check_prog "date echo import mktemp mv rm";
+	if [ "${?}" != "0" ];
 	then
-		mv "${TMP}" "${FILENAME}";
-	else
-		rm -rf "${TMP}";
+		return 1;
 	fi
-fi
 
-if [ "$(which beep)" != "" ];
-then
-	beep;
-fi
 
-exit 0;
+	WINDOW='root';
+	if [ "${1}" != "" ];
+	then
+		WINDOW="${1}";
+	fi
+
+	FILENAME="/tmp/screenshot-$(date '+%Y%m%d_%H%M%S').png";
+
+
+	if [ "$(which import)" == "" ];
+	then
+		echo "ERROR: imagemagick not found";
+		return 1;
+	fi
+
+
+	import -window "${WINDOW}" "${FILENAME}";
+
+
+	if [ "$(which pngcrush)" != "" ];
+	then
+		TMP="$(mktemp)";
+		if [ "${?}" != "0" ];
+		then
+			echo "FATAL: can't make tmp file";
+			return 1;
+		fi
+
+		pngcrush -brute -l 9 "${FILENAME}" "${TMP}" &> /dev/null;
+		if [ "${?}" == "0" ];
+		then
+			mv "${TMP}" "${FILENAME}";
+		else
+			rm -rf "${TMP}";
+		fi
+	fi
+
+	if [ "$(which beep)" != "" ];
+	then
+		beep;
+	fi
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+main "${@}";
+
+exit "${?}";
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
