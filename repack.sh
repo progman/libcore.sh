@@ -477,7 +477,13 @@ function repack_file()
 
 	if [ -d "${1}" ];
 	then
-		echo "is dir";
+		echo "ignore, is dir";
+		return 1;
+	fi
+
+	if [ -L "${1}" ];
+	then
+		echo "ignore, is link";
 		return 1;
 	fi
 
