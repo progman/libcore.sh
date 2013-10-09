@@ -503,7 +503,7 @@ function repack_file()
 	then
 		local HSIZE_OLD="$(human_size ${SIZE_OLD})";
 		local HREPACK_MAX_SIZE="$(human_size ${REPACK_MAX_SIZE})";
-		echo "ignore, size(${HSIZE_OLD}) > REPACK_MAX_SIZE (${HREPACK_MAX_SIZE})";
+		echo "ignore, size(${HSIZE_OLD}) > REPACK_MAX_SIZE(${HREPACK_MAX_SIZE})";
 		return 1;
 	fi
 
