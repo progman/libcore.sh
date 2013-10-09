@@ -1,33 +1,66 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# 0.0.1
+# Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-if [ ! -d "${1}" ] || [ ! -d "${2}" ];
-then
-	echo "example: ${0} SOURCE_DIR TARGET_DIR";
-	exit 1;
-fi
+# check depends
+function check_prog()
+{
+	for i in ${1};
+	do
+		if [ "$(which ${i})" == "" ];
+		then
+			echo "FATAL: you must install \"${i}\"...";
+			return 1;
+		fi
+	done
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# general function
+function main()
+{
+	if [ ! -d "${1}" ] || [ ! -d "${2}" ];
+	then
+		echo "example: ${0} SOURCE_DIR TARGET_DIR";
+		return 1;
+	fi
+
+
+# check depends tools
+	check_prog "echo kill rsync";
+	if [ "${?}" != "0" ];
+	then
+		return 1;
+	fi
+
 
 # check race condition
-
-if [ "${RSYNC_PIDFILE}" == "" ];
-then
-	RSYNC_PIDFILE="/var/run/rsync.pid";
-fi
-
-if [ -e "${RSYNC_PIDFILE}" ];
-then
-	PID="$(cat ${RSYNC_PIDFILE})";
-
-	kill -0 "${PID}" &> /dev/null;
-	if [ "${?}" == "0" ];
+	if [ "${RSYNC_PIDFILE}" == "" ];
 	then
-		exit 1; # program already run
+		RSYNC_PIDFILE="/var/run/rsync.pid";
 	fi
-fi
-echo "${BASHPID}" > "${RSYNC_PIDFILE}";
 
-#rsync -azLv --safe-links
-rsync -av --delete "${1}" "${2}";
+	if [ -e "${RSYNC_PIDFILE}" ];
+	then
+		PID="$(cat ${RSYNC_PIDFILE})";
 
-exit 0;
+		kill -0 "${PID}" &> /dev/null;
+		if [ "${?}" == "0" ];
+		then
+			return 1; # program already run
+		fi
+	fi
+	echo "${BASHPID}" > "${RSYNC_PIDFILE}";
+
+#	rsync -azLv --safe-links
+	rsync -av --delete "${1}" "${2}";
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+main "${@}";
+
+exit "${?}";
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
