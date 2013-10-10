@@ -73,7 +73,7 @@ function main()
 	local SIZE_FILE;
 	while read -r LINE;
 	do
-		SIZE_FILE=$(stat --printf '%s' -- "${LINE}");
+		SIZE_FILE=$(stat --printf '%s' -L -- "${LINE}");
 		if [ "${?}" == "0" ];
 		then
 			(( SIZE += SIZE_FILE ));
