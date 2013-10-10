@@ -75,7 +75,7 @@ function main()
 	do
 		if [ -f "${LINE}" ];
 		then
-			SIZE=$(stat --printf='%s' "${LINE}");
+			SIZE=$(stat --printf='%s' -L -- "${LINE}");
 			echo "${SIZE} ${LINE}" >> "${TMP1}";
 		fi
 	done
