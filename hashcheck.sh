@@ -32,7 +32,7 @@ function main()
 	FILE_LIST="$(find ./ -type f | grep '\.md5$')";
 	for i in ${FILE_LIST};
 	do
-		echo -ne "check ${i}\n\t";
+		echo -ne "check md5   : ";
 		md5sum -c "${i}";
 	done
 
@@ -40,7 +40,7 @@ function main()
 	FILE_LIST="$(find ./ -type f | grep '\.sha1$')";
 	for i in ${FILE_LIST};
 	do
-		echo -ne "check ${i}\n\t";
+		echo -ne "check sha1  : ";
 		sha1sum -c "${i}";
 	done
 
@@ -48,7 +48,7 @@ function main()
 	FILE_LIST="$(find ./ -type f | grep '\.sha224$')";
 	for i in ${FILE_LIST};
 	do
-		echo -ne "check ${i}\n\t";
+		echo -ne "check sha224: ";
 		sha224sum -c "${i}";
 	done
 
@@ -56,7 +56,7 @@ function main()
 	FILE_LIST="$(find ./ -type f | grep '\.sha256$')";
 	for i in ${FILE_LIST};
 	do
-		echo -ne "check ${i}\n\t";
+		echo -ne "check sha256: ";
 		sha256sum -c "${i}";
 	done
 
@@ -64,7 +64,7 @@ function main()
 	FILE_LIST="$(find ./ -type f | grep '\.sha384$')";
 	for i in ${FILE_LIST};
 	do
-		echo -ne "check ${i}\n\t";
+		echo -ne "check sha384: ";
 		sha384sum -c "${i}";
 	done
 
@@ -72,7 +72,7 @@ function main()
 	FILE_LIST="$(find ./ -type f | grep '\.sha512$')";
 	for i in ${FILE_LIST};
 	do
-		echo -ne "check ${i}\n\t";
+		echo -ne "check sha512: ";
 		sha512sum -c "${i}";
 	done
 
