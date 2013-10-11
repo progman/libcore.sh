@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.3
+# 0.0.4
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # example:
@@ -44,58 +44,41 @@ function main()
 
 
 # check depends tools
-	check_prog "echo stat mktemp sort sed rm";
+	check_prog "echo grep wc stat sort";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
 	fi
 
 
-# create file for filelist
-	TMP1=$(mktemp);
-	if [ "${?}" != "0" ];
-	then
-		echo "FATAL: can't make tmp file";
-		return 1;
-	fi
-
-
-# create file for sorted filelist
-	TMP2=$(mktemp);
-	if [ "${?}" != "0" ];
-	then
-		echo "FATAL: can't make tmp file";
-		rm -rf "${TMP1}" &> /dev/null;
-		return 1;
-	fi
-
-
-# add in filelist exist files
-	while read -r LINE;
-	do
-		if [ -f "${LINE}" ];
-		then
-			SIZE=$(stat --printf='%s' -L -- "${LINE}");
-			echo "${SIZE} ${LINE}" >> "${TMP1}";
-		fi
-	done
-
-
-	R='';
+# check reverse option
+	local REVERSE='';
 	if [ "${1}" == "-r" ];
 	then
-		R='-r';
+		REVERSE='-r';
 	fi
 
-# sort filelist
-	sort -n ${R} "${TMP1}" | sed -e 's/^[0-9]*\ //g' > "${TMP2}";
-	rm -rf "${TMP1}" &> /dev/null;
 
-	while read -r LINE;
+# get CPU count
+	local CPU_COUNT=$(grep processor /proc/cpuinfo | wc -l);
+
+
+# read filename, get file size, sort list, print filename
+	while read -r FILENAME;
 	do
-		echo "${LINE}";
-	done < "${TMP2}";
-	rm -rf "${TMP2}" &> /dev/null;
+		local SIZE;
+		SIZE=$(stat --printf='%s' -L -- "${FILENAME}" 2> /dev/null);
+		if [ "${?}" == "0" ];
+		then
+			echo "${SIZE} ${FILENAME}";
+		fi
+	done | sort -n ${REVERSE} --parallel=${CPU_COUNT} |
+	{
+		while read -r SIZE FILENAME;
+		do
+			echo "${FILENAME}";
+		done
+	};
 
 
 	return 0;
