@@ -36,6 +36,13 @@ function main()
 		md5sum -c "${i}";
 	done
 
+	FILE_LIST="$(find ./ -type f | grep '\.md5sum$')";
+	for i in ${FILE_LIST};
+	do
+		echo -ne "check md5   : ";
+		md5sum -c "${i}";
+	done
+
 
 	FILE_LIST="$(find ./ -type f | grep '\.sha1$')";
 	for i in ${FILE_LIST};
