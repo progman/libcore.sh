@@ -191,17 +191,10 @@ function main()
 	fi
 
 
-# check postgresql
+# check sql server
 	if [ "${SQL_SERVER}" != "postgresql" ];
 	then
 		echo "FATAL: var \"SQL_SERVER\" must be set is \"postgresql\"";
-		return 1;
-	fi
-
-
-	if [ "$(which pg_dump)" == "" ];
-	then
-		echo "FATAL: you must install \"pg_dump\"...";
 		return 1;
 	fi
 
@@ -251,50 +244,89 @@ function main()
 	export TIMESTAMP=$(date +'%Y%m%d_%H%M%S');
 
 
+	if [ "${SQL_SERVER}" == "postgresql" ];
+	then
+
+# check pg_dump
+		if [ "$(which pg_dump)" == "" ];
+		then
+			echo "FATAL: you must install \"pg_dump\"...";
+			return 1;
+		fi
+
+
 # set password
-	PGPASSWORD="${SQL_PASSWORD}";
-	export PGPASSWORD;
+		PGPASSWORD="${SQL_PASSWORD}";
+		export PGPASSWORD;
 
 
 # create template dump
-	mkdir template &> /dev/null;
-	cd template;
+		mkdir "${SQL_SERVER}_template" &> /dev/null;
+		cd "${SQL_SERVER}_template";
 
-	FILENAME="gnuplanet_sql_template-${TIMESTAMP}.sql";
-	echo "$(get_time)make \"${SQL_DIR}/dump/${FILENAME}.${COMPRESSOR}\"";
-	pg_dump -s -C --compress=0 --format=p -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
-	if [ "${?}" != "0" ];
-	then
-		rm -rf -- "${FILENAME}.tmp";
-		echo "ERROR: unknown error";
-		return 1;
-	fi
-	mv "${FILENAME}.tmp" "${FILENAME}";
+		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_template-${TIMESTAMP}.sql";
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_template/${FILENAME}.${COMPRESSOR}\"";
+		pg_dump -s -C --compress=0 --format=p -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+		if [ "${?}" != "0" ];
+		then
+			rm -rf -- "${FILENAME}.tmp";
+			echo "ERROR: unknown error";
+			return 1;
+		fi
+		mv "${FILENAME}.tmp" "${FILENAME}";
 
-	compress "${COMPRESSOR}" "${FILENAME}";
-	kill_ring "${SQL_DUMP_MAX_COUNT}";
-	cd ..;
+		compress "${COMPRESSOR}" "${FILENAME}";
+		kill_ring "${SQL_DUMP_MAX_COUNT}";
+		cd ..;
 
 
 # create full dump
-	mkdir dump &> /dev/null;
-	cd dump;
+		mkdir "${SQL_SERVER}_dump" &> /dev/null;
+		cd "${SQL_SERVER}_dump";
 
-	FILENAME="gnuplanet_sql_dump-${TIMESTAMP}.sql";
-	echo "$(get_time)make \"${SQL_DIR}/dump/${FILENAME}.${COMPRESSOR}\"";
-	pg_dump -b -C --compress=0 --format=p -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
-	if [ "${?}" != "0" ];
-	then
-		rm -rf -- "${FILENAME}.tmp";
-		echo "ERROR: unknown error";
-		return 1;
+		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_dump/${FILENAME}.${COMPRESSOR}\"";
+		pg_dump -b -C --compress=0 --format=p -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+		if [ "${?}" != "0" ];
+		then
+			rm -rf -- "${FILENAME}.tmp";
+			echo "ERROR: unknown error";
+			return 1;
+		fi
+		mv "${FILENAME}.tmp" "${FILENAME}";
+
+
+		compress "${COMPRESSOR}" "${FILENAME}";
+		kill_ring "${SQL_DUMP_MAX_COUNT}";
+		cd ..;
 	fi
-	mv "${FILENAME}.tmp" "${FILENAME}";
 
 
-	compress "${COMPRESSOR}" "${FILENAME}";
-	kill_ring "${SQL_DUMP_MAX_COUNT}";
-	cd ..;
+
+	if [ "${SQL_SERVER}" == "mysql" ];
+	then
+
+# check mysql
+		if [ "$(which mysqldump)" == "" ];
+		then
+			echo "FATAL: you must install \"mysqldump\"...";
+			return 1;
+		fi
+
+
+# create full dump
+		mkdir "${SQL_SERVER}_dump" &> /dev/null;
+		cd "${SQL_SERVER}_dump";
+
+		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_dump/${FILENAME}.${COMPRESSOR}\"";
+#		OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql -t --compact --opt --skip-opt --ignore-table=xxxxxx';
+#		TABLES='xxxxxxxxxx';
+#		TABLES='';
+#		mysqldump "${OPTIONS}" --host="${SQL_HOST}" --port="${SQL_PORT}" --user="${SQL_LOGIN}" --password="${SQL_PASSWORD}" "${SQL_DATABASE}" "${TABLES}" > "${FILENAME}.tmp" 2> /dev/null;
+		cd ..;
+	fi
+
 
 
 	return 0;
