@@ -262,8 +262,7 @@ function main()
 
 	FILENAME="gnuplanet_sql_template-${TIMESTAMP}.sql";
 	echo "$(get_time)make \"${SQL_DIR}/dump/${FILENAME}.${COMPRESSOR}\"";
-#	pg_dump -s -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" | gzip -1c > "${FILENAME}.tmp";
-	pg_dump -s -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+	pg_dump -s -C --compress=0 --format=p -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
@@ -283,9 +282,7 @@ function main()
 
 	FILENAME="gnuplanet_sql_dump-${TIMESTAMP}.sql";
 	echo "$(get_time)make \"${SQL_DIR}/dump/${FILENAME}.${COMPRESSOR}\"";
-#	pg_dump -b -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" | gzip -1c > "${FILENAME}.tmp";
-#pg_dump -h '127.0.0.1' -U 'postgres' --compress=0 --format=p -b -C -N test relive | gzip -c9 > "${FILE}.tmp";
-	pg_dump -b -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+	pg_dump -b -C --compress=0 --format=p -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
