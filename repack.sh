@@ -922,6 +922,10 @@ function main()
 	then
 		echo "example: ${0} [FILE|DIR]...";
 		echo "example: cat FILELIST | ${0}";
+		echo "vars:";
+		echo -e "\tFLAG_USE_TMPDIR   : [0|1]";
+		echo -e "\tFLAG_REPACK_FORCE : [0|1]";
+		echo -e "\tREPACK_MAX_SIZE   : [SIZE]";
 		return 1;
 	fi
 
