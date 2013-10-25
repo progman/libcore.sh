@@ -11,6 +11,7 @@ GLOBAL_FLAG_FOUND_ZIP=0;
 GLOBAL_FLAG_FOUND_ARJ=0;
 GLOBAL_FLAG_FOUND_LHA=0;
 GLOBAL_FLAG_FOUND_HA=0;
+GLOBAL_FLAG_FOUND_7Z=0;
 GLOBAL_DELTA_SIZE=0;
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -123,6 +124,11 @@ function check_tool()
 	then
 		GLOBAL_FLAG_FOUND_HA=1;
 	fi
+
+	if [ "$(which 7z)" != "" ];
+	then
+		GLOBAL_FLAG_FOUND_7Z=1;
+	fi
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # strip filename
@@ -156,6 +162,8 @@ function strip_filename()
 		OUT="$(echo "${FILENAME}" | sed -e 's/\.[lL][hH][aA]$//g')";
 		FILENAME="${OUT}";
 		OUT="$(echo "${FILENAME}" | sed -e 's/\.[hH][aA]$//g')";
+		FILENAME="${OUT}";
+		OUT="$(echo "${FILENAME}" | sed -e 's/\.[7][zZ]$//g')";
 		FILENAME="${OUT}";
 
 		if [ "${SOURCE}" == "${FILENAME}" ];
@@ -263,6 +271,18 @@ function check_file_type()
 		fi
 
 		echo "lha";
+		return 0;
+	fi
+
+	if [ "${MIME}" == "application/x-7z-compressed" ];
+	then
+		if [ "GLOBAL_FLAG_FOUND_7Z" == "0" ];
+		then
+			echo "7z not found";
+			return 1;
+		fi
+
+		echo "7z";
 		return 0;
 	fi
 
@@ -453,6 +473,19 @@ function unpack()
 			if [ "${?}" != "0" ];
 			then
 				echo "ha unpack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
+				return 1;
+			fi
+			rm -rf -- "${FILENAME}" &> /dev/null;
+		fi
+
+
+# unpack 7z
+		if [ "${DECOMPRESSOR}" == "7z" ];
+		then
+			7z x -- "${FILENAME}" &> /dev/null < /dev/null;
+			if [ "${?}" != "0" ];
+			then
+				echo "7z unpack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
 				return 1;
 			fi
 			rm -rf -- "${FILENAME}" &> /dev/null;
