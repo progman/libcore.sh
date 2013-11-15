@@ -18,35 +18,19 @@ function check_prog()
 	return 0;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# general function
-function main()
+function do_it()
 {
-	if [ "${1}" == "" ] || [ ! -e "${1}" ];
-	then
-		echo "example: ${0} FILE";
-		return 1;
-	fi
+	local HASH=$(md5sum "${1}" | awk '{print $1}');
 
-
-# check depends tools
-	check_prog "echo md5sum awk sed mv";
-	if [ "${?}" != "0" ];
-	then
-		return 1;
-	fi
-
-
-	HASH=$(md5sum "${1}" | awk '{print $1}');
-
-#	EXT=$(echo "${1}" | sed -e 's/^[^\.]*//g');
-	EXT=$(echo "${1}" | sed -e 's/.*\.//g');
+#	local EXT=$(echo "${1}" | sed -e 's/^[^\.]*//g');
+	local EXT=$(echo "${1}" | sed -e 's/.*\.//g');
 
 	if [ "${1}" == "${EXT}" ];
 	then
 		EXT="";
 	fi
 
-	NEW="${HASH}";
+	local NEW="${HASH}";
 	if [ "${EXT}" != "" ];
 	then
 		NEW="${HASH}.${EXT}";
@@ -64,6 +48,44 @@ function main()
 	then
 		return 3;
 	fi
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# general function
+function main()
+{
+	local FILE_COUNT="${#}";
+
+	if [ "${1}" == "" ] || [ ! -e "${1}" ];
+	then
+		echo "example: ${0} FILE";
+		return 1;
+	fi
+
+
+# check depends tools
+	check_prog "echo md5sum awk sed mv";
+	if [ "${?}" != "0" ];
+	then
+		return 1;
+	fi
+
+
+# do list
+	while true;
+	do
+		do_it "${1}";
+
+		(( FILE_COUNT-- ));
+		shift 1;
+
+		if [ "${FILE_COUNT}" == "0" ];
+		then
+			break;
+		fi
+	done
+
 
 	return 0;
 }
