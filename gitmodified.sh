@@ -66,7 +66,12 @@ function main()
 		then
 			if [ "$(git status --porcelain --ignore-submodules 2>/dev/null | grep -v '^??' | grep -v '^AD' | wc -l)" != "0" ];
 			then
-				echo "${DIR}";
+				echo "(+)${DIR}";
+			else
+				if [ "$(git status --porcelain --ignore-submodules 2>/dev/null | grep '^??' | wc -l)" != "0" ];
+				then
+					echo "(?)${DIR}";
+				fi
 			fi
 		fi
 
