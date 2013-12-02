@@ -23,6 +23,7 @@ function main()
 	if [ ! -d "${1}" ] || [ ! -d "${2}" ];
 	then
 		echo "example: ${0} GITDIR1 GITDIR2";
+		return 1;
 	fi
 
 

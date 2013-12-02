@@ -23,6 +23,7 @@ function main()
 	if [ ! -d "${1}" ];
 	then
 		echo "example: ${0} DIR";
+		return 1;
 	fi
 
 
