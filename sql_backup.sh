@@ -320,10 +320,11 @@ function main()
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
 		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_dump/${FILENAME}.${COMPRESSOR}\"";
-#		OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql -t --compact --opt --skip-opt --ignore-table=xxxxxx';
+		OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql -t --compact --skip-opt --compact';
+#		OPTIONS='--ignore-table=xxxxxx';
 #		TABLES='xxxxxxxxxx';
-#		TABLES='';
-#		mysqldump "${OPTIONS}" --host="${SQL_HOST}" --port="${SQL_PORT}" --user="${SQL_LOGIN}" --password="${SQL_PASSWORD}" "${SQL_DATABASE}" "${TABLES}" > "${FILENAME}.tmp" 2> /dev/null;
+		TABLES='';
+		mysqldump "${OPTIONS}" --host="${SQL_HOST}" --port="${SQL_PORT}" --user="${SQL_LOGIN}" --password="${SQL_PASSWORD}" "${SQL_DATABASE}" "${TABLES}" > "${FILENAME}.tmp" 2> /dev/null;
 		cd ..;
 	fi
 
