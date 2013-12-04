@@ -23,6 +23,7 @@ function main()
 	if [ ! -d "${1}" ];
 	then
 		echo "example: ${0} DIR";
+		echo "find Git repos with untracked or modified files";
 		return 1;
 	fi
 
@@ -36,7 +37,7 @@ function main()
 
 
 # save current dir
-	DIR_CUR="${PWD}";
+	local DIR_CUR="${PWD}";
 
 
 # create tmp file
@@ -45,6 +46,17 @@ function main()
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
+		return 1;
+	fi
+
+
+# create tmp file
+	local TMP2;
+	TMP2="$(mktemp)";
+	if [ "${?}" != "0" ];
+	then
+		echo "can't make tmp file";
+		rm -rf -- "${TMP1}";
 		return 1;
 	fi
 
@@ -60,27 +72,50 @@ function main()
 # check git dir list
 	while read -r DIR;
 	do
+		cd -- "${DIR_CUR}";
+		cd -- "${DIR}";
 
-		cd "${DIR}";
-		BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
-		if [ "${BRANCH}" != "" ];
+
+		local BRANCH="$(git branch 2>/dev/null | grep '^\*' | sed -e 's/^\*\ //g')";
+		if [ "${BRANCH}" == "" ];
 		then
-			if [ "$(git status --porcelain --ignore-submodules 2>/dev/null | grep -v '^??' | grep -v '^AD' | wc -l)" != "0" ];
-			then
-				echo "(+)${DIR}";
-			else
-				if [ "$(git status --porcelain --ignore-submodules 2>/dev/null | grep '^??' | wc -l)" != "0" ];
-				then
-					echo "(?)${DIR}";
-				fi
-			fi
+			continue;
 		fi
+
+
+		local GIT_STATUS;
+		while true;
+		do
+			$(git status --porcelain --ignore-submodules 2> /dev/null > "${TMP2}");
+			if [ "${?}" != "0" ];
+			then
+				GIT_STATUS="(?)";
+				break;
+			fi
+
+			if [ "$(grep -v '^??' "${TMP2}" | grep -v '^AD' | wc -l)" != "0" ];
+			then
+				GIT_STATUS="(+)";
+				break;
+			fi
+
+			if [ "$(grep '^??' "${TMP2}" | wc -l)" != "0" ] && [ "${G}" != "false" ] && [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
+			then
+				GIT_STATUS="(-)";
+				break;
+			fi
+
+			break;
+		done
+
+		echo "${GIT_STATUS}${PWD}";
 
 	done < "${TMP1}";
 
 
 	cd -- "${DIR_CUR}";
 	rm -rf -- "${TMP1}";
+	rm -rf -- "${TMP2}";
 
 
 	return 0;
