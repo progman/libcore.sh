@@ -28,7 +28,7 @@ function main()
 
 
 # check minimal depends tools
-	check_prog "echo git head grep wc sed sha1sum";
+	check_prog "echo git head grep wc sed sha1sum cat";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
@@ -125,8 +125,54 @@ function main()
 	echo;
 
 
-	cat "${TMP1}";
-	cat "${TMP2}";
+#	cat "${TMP1}";
+#	cat "${TMP2}";
+
+
+	while read -r BRANCH1 HASH1;
+	do
+		local FLAG_FOUND=0;
+		while read -r BRANCH2 HASH2;
+		do
+			if [ "${BRANCH1}" == "${BRANCH2}" ];
+			then
+				FLAG_FOUND=1;
+				break;
+			fi
+		done < "${TMP2}";
+
+		if [ "${FLAG_FOUND}" == "0" ];
+		then
+			echo "${BRANCH1}    !=    null";
+		else
+			if [ "${HASH1}" != "${HASH2}" ];
+			then
+				echo "${BRANCH1}    !=    ${BRANCH2}";
+			else
+				echo "${BRANCH1}    ==    ${BRANCH2}";
+			fi
+		fi
+	done < "${TMP1}";
+
+
+	while read -r BRANCH2 HASH2;
+	do
+		local FLAG_FOUND=0;
+		while read -r BRANCH1 HASH1;
+		do
+			if [ "${BRANCH1}" == "${BRANCH2}" ];
+			then
+				FLAG_FOUND=1;
+				break;
+			fi
+		done < "${TMP1}";
+
+		if [ "${FLAG_FOUND}" == "0" ];
+		then
+			echo "null    !=    ${BRANCH2}";
+		fi
+	done < "${TMP2}";
+
 
 
 	rm -rf -- "${TMP1}";
