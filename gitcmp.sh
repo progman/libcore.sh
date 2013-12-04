@@ -57,7 +57,7 @@ function main()
 
 
 # check minimal depends tools
-	check_prog "echo git head grep wc sed sha1sum cat";
+	check_prog "cat echo git grep head mktemp rm sed sha1sum wc";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
