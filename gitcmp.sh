@@ -111,6 +111,7 @@ function main()
 
 		done > "${TMP1}";
 	}
+	cd -- "${DIR_CUR}";
 
 
 # create branch list for dir2
@@ -135,6 +136,7 @@ function main()
 
 		done > "${TMP2}";
 	}
+	cd -- "${DIR_CUR}";
 
 
 # check stupid equals
