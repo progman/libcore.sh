@@ -29,7 +29,7 @@ function main()
 
 
 # check minimal depends tools
-	check_prog "echo git head grep wc sed sha1sum";
+	check_prog "echo find git grep mktemp rm sed wc";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
@@ -99,7 +99,7 @@ function main()
 				break;
 			fi
 
-			if [ "$(grep '^??' "${TMP2}" | wc -l)" != "0" ] && [ "${G}" != "false" ] && [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
+			if [ "$(grep '^??' "${TMP2}" | wc -l)" != "0" ] && [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
 			then
 				GIT_STATUS="(-)";
 				break;
