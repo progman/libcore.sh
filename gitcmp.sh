@@ -17,6 +17,35 @@ function check_prog()
 	return 0;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# show line
+function show()
+{
+	local MAX_LINE_WIDTH="${1}";
+	local BRANCH1="${2}";
+	local TOKEN="${3}";
+	local BRANCH2="${4}";
+
+
+	echo -n "${BRANCH1}";
+
+
+	local LINE_WIDTH=${#BRANCH1};
+	while true;
+	do
+		if [ ${LINE_WIDTH} -ge ${MAX_LINE_WIDTH} ]; # LINE_WIDTH >= MAX_LINE_WIDTH
+		then
+			break;
+		fi
+
+		echo -n " ";
+
+		(( LINE_WIDTH++ ));
+	done;
+
+
+	echo "    ${TOKEN}    ${BRANCH2}";
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
 function main()
 {
@@ -108,6 +137,7 @@ function main()
 	}
 
 
+# check stupid equals
 	LIST1_SHA=$(sha1sum "${TMP1}" | { read a b; echo "${a}"; });
 	LIST2_SHA=$(sha1sum "${TMP2}" | { read a b; echo "${a}"; });
 
@@ -125,10 +155,26 @@ function main()
 	echo;
 
 
-#	cat "${TMP1}";
-#	cat "${TMP2}";
+# compute max line width
+	local MAX_LINE_WIDTH=0;
+
+	while read -r BRANCH HASH;
+	do
+		if [ ${#BRANCH} -gt ${MAX_LINE_WIDTH} ]; # strlen(BRANCH) > MAX_LINE_WIDTH
+		then
+			MAX_LINE_WIDTH=${#BRANCH};
+		fi
+	done < "${TMP1}";
+	while read -r BRANCH HASH;
+	do
+		if [ ${#BRANCH} -gt ${MAX_LINE_WIDTH} ]; # strlen(BRANCH) > MAX_LINE_WIDTH
+		then
+			MAX_LINE_WIDTH=${#BRANCH};
+		fi
+	done < "${TMP2}";
 
 
+# compare GITDIR1 and GITDIR2
 	while read -r BRANCH1 HASH1;
 	do
 		local FLAG_FOUND=0;
@@ -143,18 +189,19 @@ function main()
 
 		if [ "${FLAG_FOUND}" == "0" ];
 		then
-			echo "${BRANCH1}    !=    null";
+			show "${MAX_LINE_WIDTH}" "${BRANCH1}" "!=" "null";
 		else
 			if [ "${HASH1}" != "${HASH2}" ];
 			then
-				echo "${BRANCH1}    !=    ${BRANCH2}";
+				show "${MAX_LINE_WIDTH}" "${BRANCH1}" "!=" "${BRANCH2}";
 			else
-				echo "${BRANCH1}    ==    ${BRANCH2}";
+				show "${MAX_LINE_WIDTH}" "${BRANCH1}" "==" "${BRANCH2}";
 			fi
 		fi
 	done < "${TMP1}";
 
 
+# compare GITDIR2 and GITDIR1
 	while read -r BRANCH2 HASH2;
 	do
 		local FLAG_FOUND=0;
@@ -169,7 +216,7 @@ function main()
 
 		if [ "${FLAG_FOUND}" == "0" ];
 		then
-			echo "null    !=    ${BRANCH2}";
+			show "${MAX_LINE_WIDTH}" "null" "!=" "${BRANCH2}";
 		fi
 	done < "${TMP2}";
 
