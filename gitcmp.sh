@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.2
+# 0.0.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -262,7 +262,39 @@ function main()
 		else
 			if [ "${HASH1}" != "${HASH2}" ];
 			then
-				show_cmp_branch "${MAX_LINE_WIDTH}" "${BRANCH1}" "!=" "${BRANCH2}";
+
+# search old commit in GITDIR1
+				local FLAG_FOUND1=0;
+				cd -- "${1}";
+				if [ "$(git log "${BRANCH1}" 2> /dev/null | grep commit | grep "${HASH2}" | wc -l)" != "0" ];
+				then
+					FLAG_FOUND1=1;
+				fi
+				cd -- "${DIR_CUR}";
+
+
+# search old commit in GITDIR2
+				local FLAG_FOUND2=0;
+				cd -- "${2}";
+				if [ "$(git log "${BRANCH2}" 2> /dev/null | grep commit | grep "${HASH1}" | wc -l)" != "0" ];
+				then
+					FLAG_FOUND2=1;
+				fi
+				cd -- "${DIR_CUR}";
+
+				local EQUAL="!=";
+
+				if [ "${FLAG_FOUND1}" == "1" ];
+				then
+					EQUAL=">=";
+				fi
+
+				if [ "${FLAG_FOUND2}" == "1" ];
+				then
+					EQUAL="<=";
+				fi
+
+				show_cmp_branch "${MAX_LINE_WIDTH}" "${BRANCH1}" "${EQUAL}" "${BRANCH2}";
 			else
 				show_cmp_branch "${MAX_LINE_WIDTH}" "${BRANCH1}" "==" "${BRANCH2}";
 			fi
