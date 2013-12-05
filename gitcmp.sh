@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.1
+# 0.0.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -17,8 +17,64 @@ function check_prog()
 	return 0;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# show line
-function show()
+# show status
+function show_status()
+{
+	GITDIR1_STATUS="${1}";
+	GITDIR2_STATUS="${2}";
+	EQUAL="${3}";
+
+	echo "${GITDIR1_STATUS}GITDIR1 ${EQUAL} ${GITDIR2_STATUS}GITDIR2";
+
+
+	if [ "${GITDIR1_STATUS}" != "" ] || [ "${GITDIR2_STATUS}" != "" ];
+	then
+		echo "WARNING: find UNCOMMINTED files!";
+	fi
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# get status
+function get_status()
+{
+	local TMP=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		return;
+	fi
+
+
+	local GIT_STATUS;
+		while true;
+	do
+		$(git status --porcelain --ignore-submodules 2> /dev/null > "${TMP}");
+		if [ "${?}" != "0" ];
+		then
+			GIT_STATUS="(?)";
+			break;
+		fi
+
+		if [ "$(grep -v '^??' "${TMP}" | grep -v '^AD' | wc -l)" != "0" ];
+		then
+			GIT_STATUS="(+)";
+			break;
+		fi
+
+		if [ "$(grep '^??' "${TMP}" | wc -l)" != "0" ] && [ "${GITBASH_FLAG_UNTRACKED}" != "false" ];
+		then
+			GIT_STATUS="(-)";
+			break;
+		fi
+
+		break;
+	done
+	echo -n "${GIT_STATUS}";
+
+
+	rm -rf "${TMP}";
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# show compare branches
+function show_cmp_branch()
 {
 	local MAX_LINE_WIDTH="${1}";
 	local BRANCH1="${2}";
@@ -99,7 +155,8 @@ function main()
 		rm -rf -- "${TMP2}";
 		return 1;
 	fi
-
+	GITDIR1_STATUS="$(get_status)";
+	GITDIR1_INODE="$(stat ./ --format='%i')";
 
 	git branch | sed -e 's/^*\ //g' |
 	{
@@ -124,7 +181,8 @@ function main()
 		rm -rf -- "${TMP2}";
 		return 1;
 	fi
-
+	GITDIR2_STATUS="$(get_status)";
+	GITDIR2_INODE="$(stat ./ --format='%i')";
 
 	git branch | sed -e 's/^*\ //g' |
 	{
@@ -139,21 +197,30 @@ function main()
 	cd -- "${DIR_CUR}";
 
 
-# check stupid equals
-	LIST1_SHA=$(sha1sum "${TMP1}" | { read a b; echo "${a}"; });
-	LIST2_SHA=$(sha1sum "${TMP2}" | { read a b; echo "${a}"; });
-
-
-	if [ "${LIST1_SHA}" == "${LIST2_SHA}" ];
+# check inode dirs
+	if [ "${GITDIR1_INODE}" == "${GITDIR2_INODE}" ];
 	then
-		echo "GITDIR1 == GITDIR2";
+		echo "WARNING: GITDIR1 and GITDIR2 is ONE DIR!";
+		cd -- "${DIR_CUR}";
 		rm -rf -- "${TMP1}";
 		rm -rf -- "${TMP2}";
 		return 0;
 	fi
 
 
-	echo "GITDIR1 != GITDIR2";
+# check stupid equals
+	LIST1_SHA=$(sha1sum "${TMP1}" | { read a b; echo "${a}"; });
+	LIST2_SHA=$(sha1sum "${TMP2}" | { read a b; echo "${a}"; });
+	if [ "${LIST1_SHA}" == "${LIST2_SHA}" ];
+	then
+		show_status "${GITDIR1_STATUS}" "${GITDIR2_STATUS}" "==";
+		rm -rf -- "${TMP1}";
+		rm -rf -- "${TMP2}";
+		return 0;
+	fi
+
+
+	show_status "${GITDIR1_STATUS}" "${GITDIR2_STATUS}" "!=";
 	echo;
 
 
@@ -191,13 +258,13 @@ function main()
 
 		if [ "${FLAG_FOUND}" == "0" ];
 		then
-			show "${MAX_LINE_WIDTH}" "${BRANCH1}" "!=" "null";
+			show_cmp_branch "${MAX_LINE_WIDTH}" "${BRANCH1}" "!=" "null";
 		else
 			if [ "${HASH1}" != "${HASH2}" ];
 			then
-				show "${MAX_LINE_WIDTH}" "${BRANCH1}" "!=" "${BRANCH2}";
+				show_cmp_branch "${MAX_LINE_WIDTH}" "${BRANCH1}" "!=" "${BRANCH2}";
 			else
-				show "${MAX_LINE_WIDTH}" "${BRANCH1}" "==" "${BRANCH2}";
+				show_cmp_branch "${MAX_LINE_WIDTH}" "${BRANCH1}" "==" "${BRANCH2}";
 			fi
 		fi
 	done < "${TMP1}";
@@ -218,10 +285,9 @@ function main()
 
 		if [ "${FLAG_FOUND}" == "0" ];
 		then
-			show "${MAX_LINE_WIDTH}" "null" "!=" "${BRANCH2}";
+			show_cmp_branch "${MAX_LINE_WIDTH}" "null" "!=" "${BRANCH2}";
 		fi
 	done < "${TMP2}";
-
 
 
 	rm -rf -- "${TMP1}";
