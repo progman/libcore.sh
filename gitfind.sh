@@ -83,7 +83,7 @@ function main()
 		fi
 
 
-		local GIT_STATUS;
+		local GIT_STATUS="";
 		while true;
 		do
 			$(git status --porcelain --ignore-submodules 2> /dev/null > "${TMP2}");
