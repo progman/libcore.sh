@@ -75,7 +75,7 @@ function compress()
 		fi
 
 		TARGET="${FILENAME}.xz";
-		ionice -c 3 nice -n 20 xz -zc "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
+		ionice -c 3 nice -n 19 xz -zc "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " xz pack error";
@@ -95,7 +95,7 @@ function compress()
 		fi
 
 		TARGET="${FILENAME}.bz2";
-		ionice -c 3 nice -n 20 bzip2 -zc "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
+		ionice -c 3 nice -n 19 bzip2 -zc "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " bzip2 pack error";
@@ -115,7 +115,7 @@ function compress()
 		fi
 
 		TARGET="${FILENAME}.gz";
-		ionice -c 3 nice -n 20 gzip -c "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
+		ionice -c 3 nice -n 19 gzip -c "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " gzip pack error";

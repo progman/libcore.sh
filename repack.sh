@@ -705,7 +705,7 @@ function repack_file()
 # add files to TAR
 	while read -r i;
 	do
-		ionice -c 3 nice -n 20 tar -rf "${TMP3}" -- "${i}" &> /dev/null < /dev/null;
+		ionice -c 3 nice -n 19 tar -rf "${TMP3}" -- "${i}" &> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " tar pack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
@@ -735,7 +735,7 @@ function repack_file()
 			export XZ_OPT='--lzma2=preset=9e,dict=512MiB';
 		fi
 
-		ionice -c 3 nice -n 20 xz -zc "${TMP3}" > "${TMP4}" 2> /dev/null < /dev/null;
+		ionice -c 3 nice -n 19 xz -zc "${TMP3}" > "${TMP4}" 2> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " xz pack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
@@ -753,7 +753,7 @@ function repack_file()
 			export BZIP2='-9';
 		fi
 
-		ionice -c 3 nice -n 20 bzip2 -zc "${TMP3}" > "${TMP4}" 2> /dev/null < /dev/null;
+		ionice -c 3 nice -n 19 bzip2 -zc "${TMP3}" > "${TMP4}" 2> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " bzip2 pack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
@@ -771,7 +771,7 @@ function repack_file()
 			export GZIP='-9';
 		fi
 
-		ionice -c 3 nice -n 20 gzip -c "${TMP3}" > "${TMP4}" 2> /dev/null < /dev/null;
+		ionice -c 3 nice -n 19 gzip -c "${TMP3}" > "${TMP4}" 2> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " gzip pack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
