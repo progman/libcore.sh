@@ -962,8 +962,8 @@ function main()
 	fi
 
 
-# check minimal depends tools
-	check_prog "basename dirname echo file find ionice ln ls mktemp mv nice printf readlink rm sed sort stat tar touch uniq wc which";
+# check depends tools
+	check_prog "basename dirname echo file find grep ionice ln ls mktemp mv nice printf readlink rm sed sort stat tar touch uniq wc which";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
