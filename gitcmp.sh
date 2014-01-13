@@ -326,8 +326,97 @@ function cmp_repo()
 # compare all branch
 function cmp_branch()
 {
-	echo "not implimented";
-	return 1;
+# save current dir
+	DIR_CUR="${PWD}";
+
+
+# create tmp file
+	local TMP1;
+	TMP1="$(mktemp)";
+	if [ "${?}" != "0" ];
+	then
+		echo "can't make tmp file";
+		return 1;
+	fi
+
+
+# create branch list for dir1
+	cd -- "${1}";
+	if [ "$(git log 2> /dev/null | head -n 1 | grep commit | wc -l)" == "0" ];
+	then
+		echo "ERROR: \"${1}\" is not GIT dir";
+		cd -- "${DIR_CUR}";
+		rm -rf -- "${TMP1}";
+		return 1;
+	fi
+	GITDIR1_STATUS="$(get_status)";
+
+	git branch | sed -e 's/^*\ //g' |
+	{
+		while read -r BRANCH;
+		do
+
+			echo -n "${BRANCH} ";
+			git log "${BRANCH}" 2> /dev/null | head -n 1 | grep commit | { read a b; echo ${b}; };
+
+		done > "${TMP1}";
+	}
+	cd -- "${DIR_CUR}";
+
+
+# show status
+	if [ "${GITDIR1_STATUS}" != "(?)" ] && [ "${GITDIR1_STATUS}" != "" ];
+	then
+		echo "WARNING: find UNCOMMINTED files!";
+	fi
+
+
+# compare branch
+	while read -r BRANCH1 HASH1;
+	do
+		local FLAG_FOUND1=0;
+		while read -r BRANCH2 HASH2;
+		do
+			if [ "${FLAG_FOUND1}" == "0" ];
+			then
+				if [ "${BRANCH1}" == "${BRANCH2}" ];
+				then
+					FLAG_FOUND1=1;
+				fi
+				continue;
+			fi
+
+			if [ "${HASH1}" == "${HASH2}" ];
+			then
+				echo "${BRANCH1} == ${BRANCH2}";
+				continue;
+			fi
+
+
+# search old commit in GITDIR1
+			local FLAG_FOUND2=0;
+			cd -- "${1}";
+			if [ "$(git log "${BRANCH1}" 2> /dev/null | grep commit | grep "${HASH2}" | wc -l)" != "0" ];
+			then
+				FLAG_FOUND2=1;
+			fi
+			cd -- "${DIR_CUR}";
+
+
+			if [ "${FLAG_FOUND2}" == "1" ];
+			then
+				echo "${BRANCH1} >= ${BRANCH2}";
+			fi
+
+
+		done < "${TMP1}";
+	done < "${TMP1}";
+
+
+	rm -rf -- "${TMP1}";
+
+
+	return 0;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # view help
