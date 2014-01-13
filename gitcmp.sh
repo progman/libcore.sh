@@ -374,15 +374,10 @@ function cmp_branch()
 # compare branch
 	while read -r BRANCH1 HASH1;
 	do
-		local FLAG_FOUND1=0;
 		while read -r BRANCH2 HASH2;
 		do
-			if [ "${FLAG_FOUND1}" == "0" ];
+			if [ "${BRANCH1}" == "${BRANCH2}" ];
 			then
-				if [ "${BRANCH1}" == "${BRANCH2}" ];
-				then
-					FLAG_FOUND1=1;
-				fi
 				continue;
 			fi
 
@@ -395,16 +390,16 @@ function cmp_branch()
 
 
 # search old commit in GITDIR1
-			local FLAG_FOUND2=0;
+			local FLAG_FOUND1=0;
 			cd -- "${1}";
 			if [ "$(git log "${BRANCH1}" 2> /dev/null | grep '^commit' | grep "${HASH2}" | wc -l)" != "0" ];
 			then
-				FLAG_FOUND2=1;
+				FLAG_FOUND1=1;
 			fi
 			cd -- "${DIR_CUR}";
 
 
-			if [ "${FLAG_FOUND2}" == "1" ];
+			if [ "${FLAG_FOUND1}" == "1" ];
 			then
 				echo "${BRANCH1} >= ${BRANCH2}";
 			fi
