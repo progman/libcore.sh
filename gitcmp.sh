@@ -136,7 +136,7 @@ function cmp_repo()
 
 # create branch list for dir1
 	cd -- "${1}";
-	if [ "$(git log 2> /dev/null | head -n 1 | grep commit | wc -l)" == "0" ];
+	if [ "$(git log 2> /dev/null | head -n 1 | grep '^commit' | wc -l)" == "0" ];
 	then
 		echo "ERROR: \"${1}\" is not GIT dir";
 		cd -- "${DIR_CUR}";
@@ -153,7 +153,7 @@ function cmp_repo()
 		do
 
 			echo -n "${BRANCH} ";
-			git log "${BRANCH}" 2> /dev/null | head -n 1 | grep commit | { read a b; echo ${b}; };
+			git log "${BRANCH}" 2> /dev/null | head -n 1 | grep '^commit' | { read a b; echo ${b}; };
 
 		done > "${TMP1}";
 	}
@@ -162,7 +162,7 @@ function cmp_repo()
 
 # create branch list for dir2
 	cd -- "${2}";
-	if [ "$(git log 2> /dev/null | head -n 1 | grep commit | wc -l)" == "0" ];
+	if [ "$(git log 2> /dev/null | head -n 1 | grep '^commit' | wc -l)" == "0" ];
 	then
 		echo "ERROR: \"${2}\" is not GIT dir";
 		cd -- "${DIR_CUR}";
@@ -179,7 +179,7 @@ function cmp_repo()
 		do
 
 			echo -n "${BRANCH} ";
-			git log "${BRANCH}" 2> /dev/null | head -n 1 | grep commit | { read a b; echo ${b}; };
+			git log "${BRANCH}" 2> /dev/null | head -n 1 | grep '^commit' | { read a b; echo ${b}; };
 
 		done > "${TMP2}";
 	}
@@ -263,7 +263,7 @@ function cmp_repo()
 # search old commit in GITDIR1
 		local FLAG_FOUND1=0;
 		cd -- "${1}";
-		if [ "$(git log "${BRANCH1}" 2> /dev/null | grep commit | grep "${HASH2}" | wc -l)" != "0" ];
+		if [ "$(git log "${BRANCH1}" 2> /dev/null | grep '^commit' | grep "${HASH2}" | wc -l)" != "0" ];
 		then
 			FLAG_FOUND1=1;
 		fi
@@ -272,7 +272,7 @@ function cmp_repo()
 # search old commit in GITDIR2
 		local FLAG_FOUND2=0;
 		cd -- "${2}";
-		if [ "$(git log "${BRANCH2}" 2> /dev/null | grep commit | grep "${HASH1}" | wc -l)" != "0" ];
+		if [ "$(git log "${BRANCH2}" 2> /dev/null | grep '^commit' | grep "${HASH1}" | wc -l)" != "0" ];
 		then
 			FLAG_FOUND2=1;
 		fi
@@ -342,7 +342,7 @@ function cmp_branch()
 
 # create branch list for dir1
 	cd -- "${1}";
-	if [ "$(git log 2> /dev/null | head -n 1 | grep commit | wc -l)" == "0" ];
+	if [ "$(git log 2> /dev/null | head -n 1 | grep '^commit' | wc -l)" == "0" ];
 	then
 		echo "ERROR: \"${1}\" is not GIT dir";
 		cd -- "${DIR_CUR}";
@@ -357,7 +357,7 @@ function cmp_branch()
 		do
 
 			echo -n "${BRANCH} ";
-			git log "${BRANCH}" 2> /dev/null | head -n 1 | grep commit | { read a b; echo ${b}; };
+			git log "${BRANCH}" 2> /dev/null | head -n 1 | grep '^commit' | { read a b; echo ${b}; };
 
 		done > "${TMP1}";
 	}
@@ -386,6 +386,7 @@ function cmp_branch()
 				continue;
 			fi
 
+
 			if [ "${HASH1}" == "${HASH2}" ];
 			then
 				echo "${BRANCH1} == ${BRANCH2}";
@@ -396,7 +397,7 @@ function cmp_branch()
 # search old commit in GITDIR1
 			local FLAG_FOUND2=0;
 			cd -- "${1}";
-			if [ "$(git log "${BRANCH1}" 2> /dev/null | grep commit | grep "${HASH2}" | wc -l)" != "0" ];
+			if [ "$(git log "${BRANCH1}" 2> /dev/null | grep '^commit' | grep "${HASH2}" | wc -l)" != "0" ];
 			then
 				FLAG_FOUND2=1;
 			fi
