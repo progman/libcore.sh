@@ -510,19 +510,14 @@ function cmp_branch_inner()
 
 	while read -r HASH1;
 	do
-		while read -r HASH2;
-		do
+		if [ "$(grep "${HASH1}" "${TMP2}" | wc -l)" != "0" ];
+		then
+			echo "${HASH1}";
 
-			if [ "${HASH1}" == "${HASH2}" ];
-			then
-				echo "${HASH1}";
-
-				rm -rf -- "${TMP1}";
-				rm -rf -- "${TMP2}";
-				return 0;
-			fi
-
-		done < "${TMP2}";
+			rm -rf -- "${TMP1}";
+			rm -rf -- "${TMP2}";
+			return 0;
+		fi
 	done < "${TMP1}";
 
 
