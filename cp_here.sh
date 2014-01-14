@@ -39,13 +39,11 @@ function main()
 
 	while read -r FILE;
 	do
-		if [ ! -f "${FILE}" ];
+		if [ -f "${FILE}" ] && [ ! -L "${FILE}" ];
 		then
-			continue;
+			NAME="$(date +'%s%N')";
+			cp -ax "${FILE}" "${NAME}";
 		fi
-
-		NAME="$(date +'%s%N')";
-		cp -ax "${FILE}" "${NAME}";
 	done
 
 
