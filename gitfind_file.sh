@@ -20,6 +20,12 @@ function check_prog()
 # find file
 function find_file()
 {
+	if [ ! -f "${2}" ];
+	then
+		echo "- ERROR: file not found \"${2}\"";
+		return 1;
+	fi
+
 	local HASH=$(git hash-object "${2}");
 
 
@@ -28,24 +34,42 @@ function find_file()
 	cd -- "${1}";
 
 
-	git rev-list --all |
-	{
-		while read -r COMMIT;
-		do
-			local TREE=$(git cat-file commit "${COMMIT}" | head -n 1 | grep '^tree' | { read a b; echo ${b}; });
 
-			if [ "$(git ls-tree -r "${TREE}" | grep blob | grep "${HASH}" | wc -l)" != "0" ];
-			then
-				echo "ok, commit ${COMMIT}";
-				cd -- "${DIR_CUR}";
-				return 0;
-			fi
+# create file for filelist
+	local TMP1;
+	TMP1=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "FATAL: can't make tmp file";
+		return 1;
+	fi
 
-		done
-	}
+
+	git rev-list --all &> "${TMP1}";
+
+
+	while read -r COMMIT;
+	do
+		local TREE=$(git cat-file commit "${COMMIT}" | head -n 1 | grep '^tree' | { read a b; echo ${b}; });
+
+		if [ "$(git ls-tree -r "${TREE}" | grep blob | grep "${HASH}" | wc -l)" != "0" ];
+		then
+			echo "+ found commit ${COMMIT} for \"${2}\"";
+			cd -- "${DIR_CUR}";
+			rm -rf -- "${TMP1}" &> /dev/null;
+			return 0;
+		fi
+
+	done < "${TMP1}";
+
+
+	echo "- ERROR: commit not found for \"${2}\"";
 
 
 	cd -- "${DIR_CUR}";
+	rm -rf -- "${TMP1}" &> /dev/null;
+
+
 	return 1;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -54,7 +78,7 @@ function main()
 {
 	if [ ! -d "${1}" ] || [ ! -f "${2}" ];
 	then
-		echo "example: ${0} GITDIR FILE";
+		echo "example: ${0} GITDIR FILE...";
 		return 1;
 	fi
 
@@ -67,7 +91,23 @@ function main()
 	fi
 
 
-	find_file "${@}";
+	local GIT="${1}";
+	local FILE_COUNT="${#}";
+	(( FILE_COUNT-- ));
+
+
+	while true;
+	do
+		find_file "${GIT}" "${2}";
+
+		(( FILE_COUNT-- ));
+		shift 1;
+
+		if [ "${FILE_COUNT}" == "0" ];
+		then
+			break;
+		fi
+	done
 
 
 	return "${?}";
