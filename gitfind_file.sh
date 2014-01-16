@@ -52,7 +52,7 @@ function find_file()
 	do
 		local TREE=$(git cat-file commit "${COMMIT}" | head -n 1 | grep '^tree' | { read a b; echo ${b}; });
 
-		if [ "$(git ls-tree -r "${TREE}" | grep blob | grep "${HASH}" | wc -l)" != "0" ];
+		if [ "$(git ls-tree -r "${TREE}" | grep "${HASH}" | grep blob | wc -l)" != "0" ];
 		then
 			echo "+ found commit ${COMMIT} for \"${2}\"";
 			cd -- "${DIR_CUR}";
