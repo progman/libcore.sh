@@ -29,6 +29,19 @@ function find_file()
 	local HASH=$(git hash-object "${2}");
 
 
+	if [ "${FLAG_TURBO}" == "1" ];
+	then
+		if [ "$(git rev-list --all --objects | grep ${HASH} | wc -l)" != "0" ];
+		then
+			echo "+ found commit for \"${2}\"";
+			return 0;
+		fi
+
+		echo "- ERROR: commit not found for \"${2}\"";
+		return 1;
+	fi
+
+
 # save current dir
 	DIR_CUR="${PWD}";
 	cd -- "${1}";
