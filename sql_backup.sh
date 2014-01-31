@@ -302,11 +302,10 @@ function main()
 	fi
 
 
-
 	if [ "${SQL_SERVER}" == "mysql" ];
 	then
 
-# check mysql
+# check mysqldump
 		if [ "$(which mysqldump)" == "" ];
 		then
 			echo "FATAL: you must install \"mysqldump\"...";
@@ -325,9 +324,19 @@ function main()
 #		TABLES='xxxxxxxxxx';
 		TABLES='';
 		mysqldump "${OPTIONS}" --host="${SQL_HOST}" --port="${SQL_PORT}" --user="${SQL_LOGIN}" --password="${SQL_PASSWORD}" "${SQL_DATABASE}" "${TABLES}" > "${FILENAME}.tmp" 2> /dev/null;
+		if [ "${?}" != "0" ];
+		then
+			rm -rf -- "${FILENAME}.tmp";
+			echo "ERROR: unknown error";
+			return 1;
+		fi
+		mv "${FILENAME}.tmp" "${FILENAME}";
+
+
+		compress "${COMPRESSOR}" "${FILENAME}";
+		kill_ring "${SQL_DUMP_MAX_COUNT}";
 		cd ..;
 	fi
-
 
 
 	return 0;
