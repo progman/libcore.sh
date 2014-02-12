@@ -38,6 +38,11 @@ function main()
 
 
 	TMP="$(mktemp)";
+	if [ "${?}" != "0" ];
+	then
+		echo "can't make tmp file";
+		return 1;
+	fi
 
 
 	find "${1}" -type f > "${TMP}";

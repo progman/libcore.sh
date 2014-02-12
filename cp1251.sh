@@ -2,6 +2,12 @@
 
 
 TMP="$(mktemp)";
+if [ "${?}" != "0" ];
+then
+	echo "can't make tmp file";
+	exit 1;
+fi
+
 
 ls -1 > "${TMP}";
 

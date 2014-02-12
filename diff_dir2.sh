@@ -36,12 +36,46 @@ function main()
 
 
 	D1=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "can't make tmp file";
+		return 1;
+	fi
+
 	D2=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "can't make tmp file";
+		return 1;
+	fi
+
 	D3=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "can't make tmp file";
+		return 1;
+	fi
 
 	D4=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "can't make tmp file";
+		return 1;
+	fi
+
 	D5=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "can't make tmp file";
+		return 1;
+	fi
+
 	D6=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "can't make tmp file";
+		return 1;
+	fi
 
 	cur_pwd=${PWD};
 
