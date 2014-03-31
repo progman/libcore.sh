@@ -1,5 +1,20 @@
 #!/bin/sh
 
+function lock()
+{
+	if [ "$(which xlock)" != "" ];
+	then
+		xlock -mode blank -dpmsstandby 1 -dpmssuspend 1 -dpmsoff 1 +resetsaver;
+		return;
+	fi
+
+	if [ "$(which i3lock)" != "" ];
+	then
+		i3lock -c 000000;
+		return;
+	fi
+}
+
 export LANG='ru_RU.UTF-8';
 export LANGUAGE="${LANG}";
 export LC_CTYPE="${LANG}";
@@ -22,6 +37,8 @@ sleep 1;
 xset +dpms;
 xset dpms force on;
 #beep -l 0.1 -r 3
-xlock -mode blank -dpmsstandby 1 -dpmssuspend 1 -dpmsoff 1 +resetsaver;
+
+lock;
+
 xset s off;
 xset -dpms;
