@@ -2,15 +2,15 @@
 
 function do_lock()
 {
-	if [ "$(which xlock)" != "" ];
-	then
-		xlock -mode blank -dpmsstandby 1 -dpmssuspend 1 -dpmsoff 1 +resetsaver;
-		return;
-	fi
-
 	if [ "$(which i3lock)" != "" ];
 	then
 		i3lock -c 000000;
+		return;
+	fi
+
+	if [ "$(which xlock)" != "" ];
+	then
+		xlock -mode blank -dpmsstandby 1 -dpmssuspend 1 -dpmsoff 1 +resetsaver;
 		return;
 	fi
 }
@@ -32,11 +32,8 @@ export LC_IDENTIFICATION="${LANG}";
 export LC_ALL="${LANG}";
 
 sleep 1;
-#xlock -mode blank;
-#xset s off;
 xset +dpms;
 xset dpms force on;
-#beep -l 0.1 -r 3
 
 do_lock;
 
