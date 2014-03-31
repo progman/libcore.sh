@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-function lock()
+function do_lock()
 {
 	if [ "$(which xlock)" != "" ];
 	then
@@ -38,7 +38,7 @@ xset +dpms;
 xset dpms force on;
 #beep -l 0.1 -r 3
 
-lock;
+do_lock;
 
 xset s off;
 xset -dpms;
