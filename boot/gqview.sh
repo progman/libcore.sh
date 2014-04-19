@@ -18,4 +18,4 @@ export LC_ALL="${LANG}";
 
 export G_BROKEN_FILENAMES=1;
 
-gqview "${@}" &> /dev/null < /dev/null &
+geeqie "${@}" &> /dev/null < /dev/null &
