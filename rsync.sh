@@ -36,6 +36,13 @@ function main()
 	fi
 
 
+# check flag disable
+	if [ -e /tmp/FLAG_RSYNC_DISABLE ];
+	then
+		return 0;
+	fi
+
+
 # check race condition
 	if [ "${RSYNC_PIDFILE}" == "" ];
 	then
