@@ -71,7 +71,7 @@ function compress()
 		if [ "${XZ_OPT}" == "" ];
 		then
 #			export XZ_OPT='-9 --extreme';
-			export XZ_OPT='--lzma2=preset=9e,dict=512MiB';
+			export XZ_OPT='--lzma2=preset=9e,dict=1024MiB';
 		fi
 
 		TARGET="${FILENAME}.xz";
