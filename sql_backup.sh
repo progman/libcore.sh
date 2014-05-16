@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.1
+# 0.0.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # view current time
@@ -74,15 +74,16 @@ function compress()
 			export XZ_OPT='--lzma2=preset=9e,dict=1024MiB';
 		fi
 
-		TARGET="${FILENAME}.xz";
-		ionice -c 3 nice -n 19 xz -zc "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
+		TARGET="${FILENAME}.tar.${COMPRESSOR}";
+#		ionice -c 3 nice -n 19 xz -zc "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
+		ionice -c 3 nice -n 19 tar cvfJ "${TARGET}.tmp" "${FILENAME}" &> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " xz pack error";
 			rm -rf -- "${TARGET}.tmp";
 			return 1;
 		fi
-		mv "${TARGET}.tmp" "${TARGET}";
+		mv -- "${TARGET}.tmp" "${TARGET}";
 		rm -rf -- "${FILENAME}";
 	fi
 
@@ -94,15 +95,16 @@ function compress()
 			export BZIP2='-9';
 		fi
 
-		TARGET="${FILENAME}.bz2";
-		ionice -c 3 nice -n 19 bzip2 -zc "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
+		TARGET="${FILENAME}.tar.${COMPRESSOR}";
+#		ionice -c 3 nice -n 19 bzip2 -zc "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
+		ionice -c 3 nice -n 19 tar cvfj "${TARGET}.tmp" "${FILENAME}" &> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " bzip2 pack error";
 			rm -rf -- "${TARGET}.tmp";
 			return 1;
 		fi
-		mv "${TARGET}.tmp" "${TARGET}";
+		mv -- "${TARGET}.tmp" "${TARGET}";
 		rm -rf -- "${FILENAME}";
 	fi
 
@@ -114,15 +116,16 @@ function compress()
 			export GZIP='-9';
 		fi
 
-		TARGET="${FILENAME}.gz";
-		ionice -c 3 nice -n 19 gzip -c "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
+		TARGET="${FILENAME}.tar.${COMPRESSOR}";
+#		ionice -c 3 nice -n 19 gzip -c "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
+		ionice -c 3 nice -n 19 tar cvfz "${TARGET}.tmp" "${FILENAME}" &> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo " gzip pack error";
 			rm -rf -- "${TARGET}.tmp";
 			return 1;
 		fi
-		mv "${TARGET}.tmp" "${TARGET}";
+		mv -- "${TARGET}.tmp" "${TARGET}";
 		rm -rf -- "${FILENAME}";
 	fi
 
@@ -134,7 +137,7 @@ function compress()
 function main()
 {
 # check minimal depends tools
-	check_prog "date echo find ionice mkdir mv nice rm sed sort touch";
+	check_prog "date echo find ionice mkdir mv nice rm sed sort tar touch";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
@@ -265,7 +268,7 @@ function main()
 		cd "${SQL_SERVER}_template";
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_template-${TIMESTAMP}.sql";
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_template/${FILENAME}.${COMPRESSOR}\"";
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_template/${FILENAME}.tar.${COMPRESSOR}\"";
 		pg_dump -s -C --compress=0 --format=p -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
@@ -285,7 +288,7 @@ function main()
 		cd "${SQL_SERVER}_dump";
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_dump/${FILENAME}.${COMPRESSOR}\"";
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_dump/${FILENAME}.tar.${COMPRESSOR}\"";
 		pg_dump -b -C --compress=0 --format=p -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
@@ -318,7 +321,7 @@ function main()
 		cd "${SQL_SERVER}_dump";
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_dump/${FILENAME}.${COMPRESSOR}\"";
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_dump/${FILENAME}.tar.${COMPRESSOR}\"";
 		OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql -t --compact --skip-opt --compact';
 #		OPTIONS='--ignore-table=xxxxxx';
 #		TABLES='xxxxxxxxxx';
