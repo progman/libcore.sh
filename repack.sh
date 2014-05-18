@@ -332,6 +332,33 @@ function check_file_type()
 	return 1;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# correct suffix name, may be file is 'GZIP' and have suffix name is NOT '.gz'
+function correct_suffix()
+{
+	local FILENAME="${1}";
+	local DECOMPRESSOR="${2}";
+
+
+	if [ ${#DECOMPRESSOR} -lt ${#FILENAME} ]; # strlen(DECOMPRESSOR) < strlen(FILENAME)
+	then
+		local OFFSET=${#FILENAME};
+		(( OFFSET-=${#DECOMPRESSOR} ));
+		local PART="${FILENAME:${OFFSET}}";
+
+		if [ "${PART}" == "${DECOMPRESSOR}" ];
+		then
+			echo "${FILENAME}";
+			return 0;
+		fi
+	fi
+
+
+	mv -- "${FILENAME}" "${FILENAME}${DECOMPRESSOR}" &> /dev/null;
+	echo "${FILENAME}${DECOMPRESSOR}";
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # unpack
 function unpack()
 {
@@ -357,9 +384,7 @@ function unpack()
 
 
 # set correct suffix name
-# example may be file is 'GZIP' and have suffix name is NOT '.gz'
-		mv -- "${FILENAME}" "${FILENAME}.${DECOMPRESSOR}";
-		FILENAME="${FILENAME}.${DECOMPRESSOR}";
+		FILENAME="$(correct_suffix "${FILENAME}" ".${DECOMPRESSOR}")";
 
 
 # unpack TAR
