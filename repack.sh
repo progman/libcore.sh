@@ -757,7 +757,7 @@ function repack_file()
 		if [ "${XZ_OPT}" == "" ];
 		then
 #			export XZ_OPT='-9 --extreme';
-			export XZ_OPT='--lzma2=preset=9e,dict=1024MiB';
+			export XZ_OPT='--lzma2=preset=9e,dict=1024MiB --memlimit-compress=7GiB';
 		fi
 
 		ionice -c 3 nice -n 19 xz -zc "${TMP3}" > "${TMP4}" 2> /dev/null < /dev/null;

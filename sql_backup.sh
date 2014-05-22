@@ -71,7 +71,7 @@ function compress()
 		if [ "${XZ_OPT}" == "" ];
 		then
 #			export XZ_OPT='-9 --extreme';
-			export XZ_OPT='--lzma2=preset=9e,dict=1024MiB';
+			export XZ_OPT='--lzma2=preset=9e,dict=1024MiB --memlimit-compress=7GiB';
 		fi
 
 		TARGET="${FILENAME}.tar.${COMPRESSOR}";
