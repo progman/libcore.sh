@@ -42,6 +42,17 @@ function main()
 	fi
 
 
+	if [ ! -f /etc/debian_version ];
+	then
+		echo "ERROR: is not Debian GNU/Linux";
+		return 1;
+	fi
+
+
+	local BRANCH;
+	BRANCH="$(sed -e 's/.*\///g' /etc/debian_version)";
+
+
 	local FLAG_OK=0;
 	local NAME="";
 	local ARCH="";
@@ -95,8 +106,9 @@ function main()
 	fi
 
 
-	echo "NAME:\"${NAME}\"";
-	echo "ARCH:\"${ARCH}\"";
+	echo "BRANCH : \"${BRANCH}\"";
+	echo "ARCH   : \"${ARCH}\"";
+	echo "NAME   : \"${NAME}\"";
 
 
 	TMP="$(mktemp)";
@@ -106,7 +118,7 @@ function main()
 		return 1;
 	fi
 
-	wget -O "${TMP}" -q -c "https://packages.debian.org/sid/${ARCH}/${NAME}/download" &> /dev/null;
+	wget -O "${TMP}" -q -c "https://packages.debian.org/${BRANCH}/${ARCH}/${NAME}/download" &> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: wget";
@@ -133,7 +145,7 @@ function main()
 	echo;
 
 
-	dpkg -i --force-all "${FULLNAME}" &> /dev/null;
+	dpkg -i --force-all "${FULLNAME}" &> /dev/null < /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: dpkg";
