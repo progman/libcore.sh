@@ -36,8 +36,15 @@ function main()
 	fi
 
 
+# check TMPDIR
+	if [ "${TMPDIR}" == "" ];
+	then
+		TMPDIR='/tmp/';
+	fi
+
+
 # check flag disable
-	if [ -e /tmp/FLAG_RSYNC_DISABLE ];
+	if [ -e "${TMPDIR}/FLAG_RSYNC_DISABLE" ];
 	then
 		return 0;
 	fi
