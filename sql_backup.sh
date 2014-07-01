@@ -269,7 +269,7 @@ function main()
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_template-${TIMESTAMP}.sql";
 		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_template/${FILENAME}.tar.${COMPRESSOR}\"";
-		pg_dump -s -C --compress=0 --format=p -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+		pg_dump --exclude-schema="not_backup" -s -C --compress=0 --format=p -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			rm -rf -- "${FILENAME}.tmp";
@@ -289,7 +289,7 @@ function main()
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
 		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_dump/${FILENAME}.tar.${COMPRESSOR}\"";
-		pg_dump -b -C --compress=0 --format=p -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+		pg_dump --exclude-schema="not_backup" -b -C --compress=0 --format=p -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			rm -rf -- "${FILENAME}.tmp";
