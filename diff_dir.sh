@@ -108,9 +108,9 @@ function test2()
 
 	if [ "${D1_HASH}" == "${D2_HASH}" ];
 	then
-		echo "dir  list == dir list";
+		echo "dir  list == dir  list";
 	else
-		echo "dir  list != dir list";
+		echo "dir  list != dir  list";
 
 		echo;
 		diff -u --minimal ${D1} ${D2} | grep -v '^---' | grep -v '^+++' | grep -v '^@@' | grep '^-\|^+';
