@@ -243,7 +243,7 @@ function test3()
 	cd "${cur_pwd}";
 
 	diff -u --minimal ${D3} ${D6} > "${D7}";
-	local LOG_SIZE=$(cat "${D7}" | { read a b; echo ${a}; });
+	local LOG_SIZE=$(wc -c "${D7}" | { read a b; echo ${a}; });
 
 	if [ "${LOG_SIZE}" == "0" ];
 	then
