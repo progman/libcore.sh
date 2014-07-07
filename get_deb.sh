@@ -118,6 +118,7 @@ function main()
 		return 1;
 	fi
 
+
 	wget -O "${TMP}" -q -c "https://packages.debian.org/${BRANCH}/${ARCH}/${NAME}/download" &> /dev/null;
 	if [ "${?}" != "0" ];
 	then
@@ -130,7 +131,9 @@ function main()
 
 	rm -rf "${TMP}" &> /dev/null;
 
+	echo "cd /var/cache/apt/archives/;";
 	cd /var/cache/apt/archives/;
+	echo "wget -q -c \"${FILE};\"";
 	wget -q -c "${FILE}" &> /dev/null;
 	if [ "${?}" != "0" ];
 	then
@@ -140,20 +143,14 @@ function main()
 
 	FULLNAME=$(echo "${FILE}" | sed -e 's/.*\///g');
 
-	echo "dpkg -i --force-all /var/cache/apt/archives/${FULLNAME}";
+	echo "dpkg -i --force-all /var/cache/apt/archives/${FULLNAME} && apt-get install -f";
 	echo;
-	echo;
 
 
-	dpkg -i --force-all "${FULLNAME}" &> /dev/null < /dev/null;
-	if [ "${?}" != "0" ];
-	then
-		echo "ERROR: dpkg";
-		return 1;
-	fi
+	dpkg -i --force-all "${FULLNAME}" && apt-get install -f;
 
 
-	return 0;
+	return "${?}";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 main "${@}";
