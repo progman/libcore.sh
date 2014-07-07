@@ -133,7 +133,7 @@ function main()
 
 	echo "cd /var/cache/apt/archives/;";
 	cd /var/cache/apt/archives/;
-	echo "wget -q -c \"${FILE};\"";
+	echo "wget -c \"${FILE}\";";
 	wget -q -c "${FILE}" &> /dev/null;
 	if [ "${?}" != "0" ];
 	then
