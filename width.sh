@@ -37,6 +37,13 @@ function main()
 	fi
 
 
+	local MIN;
+	local MAX;
+	local TMP;
+	local LINE;
+	local WIDTH;
+
+
 	if [ "${1}" != "" ] && [ "${2}" == "" ];
 	then
 		MIN=0;
@@ -65,7 +72,7 @@ function main()
 	while read -r LINE;
 	do
 #		echo "LINE: \"${LINE}\"";
-		WIDTH=$(echo -n "${LINE}" | wc -c);
+		WIDTH="${#LINE}";
 
 
 		if [ "${MIN}" != "" ] && [ "${MAX}" != "" ];
