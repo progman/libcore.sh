@@ -21,13 +21,6 @@ function check_prog()
 # general function
 function main()
 {
-	if [ "${1}" == "" ];
-	then
-		echo "example: ${0} FILE.WAV";
-		return 1;
-	fi
-
-
 # check depends tools
 	check_prog "echo lame";
 	if [ "${?}" != "0" ];
@@ -36,8 +29,21 @@ function main()
 	fi
 
 
+	if [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
+	then
+		echo "example: ls -1 *.wav | ${0}";
+		return 1;
+	fi
+
+
 # convert
-	lame -h -q 0 -v -V 3 -B 320 "${1}" "${1}.mp3" < /dev/null;
+	while read -r FILE;
+	do
+		if [ -e "${FILE}" ];
+		then
+			lame -h -q 0 -v -V 0 -B 320 "${FILE}" "${FILE}.mp3" < /dev/null;
+		fi
+	done
 
 
 	return "${?}";
