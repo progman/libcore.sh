@@ -60,7 +60,7 @@ function main()
 
 
 # get config dir
-	DIR_CONFIG="${XDG_CONFIG_HOME}";
+	local DIR_CONFIG="${XDG_CONFIG_HOME}";
 	if [ ! -d "${DIR_CONFIG}" ];
 	then
 		DIR_CONFIG="${HOME}/.config/";
@@ -83,7 +83,7 @@ function main()
 	then
 		if [ -f "${DIR_CONFIG}/${2}" ];
 		then
-			DIR="$(cat ${DIR_CONFIG}/${2})";
+			local DIR="$(cat ${DIR_CONFIG}/${2})";
 			if [ -d "${DIR}" ];
 			then
 				cd "${DIR}";
