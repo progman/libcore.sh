@@ -29,6 +29,7 @@ function main()
 	fi
 
 
+	local LINE;
 	while read -r LINE;
 	do
 		if [ -f "${LINE}" ];
