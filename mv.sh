@@ -36,6 +36,7 @@ function main()
 	fi
 
 
+	local FILE;
 	while read -r FILE;
 	do
 		if [ -e "${FILE}" ];
