@@ -112,7 +112,7 @@ function main()
 		return 1;
 	fi
 
-	echo -en "\x00\x00"  2>/dev/null  >> "${NVRAM_NEW}" < /dev/null; # this bad cmos crc
+	echo -en "\x00\x00"  2>/dev/null  >> "${NVRAM_NEW}" < /dev/null; # this bad cmos crc, for example http://www.pixelbeat.org/docs/bios/
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: can't make new image";
