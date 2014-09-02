@@ -77,6 +77,13 @@ function main()
 	fi
 
 
+	if  [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
+	then
+		echo "example: ${0} VAR_FILE";
+		return 0;
+	fi
+
+
 	if [ "${1}" != "" ] && [ -e "${1}" ];
 	then
 		source "${1}";
