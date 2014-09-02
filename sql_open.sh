@@ -79,7 +79,7 @@ function main()
 
 	if  [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
 	then
-		echo "example: ${0} VAR_FILE";
+		echo "example: ${0} ENV_FILE";
 		return 0;
 	fi
 
