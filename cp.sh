@@ -42,7 +42,7 @@ function main()
 		if [ -e "${FILE}" ];
 		then
 			cp -ax "${FILE}" "${1}" &> /dev/null;
-			echo "cp -ax ${FILE} ${1}";
+			echo "cp -ax \"${FILE}\" ${1}";
 		fi
 	done
 

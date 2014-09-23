@@ -42,7 +42,7 @@ function main()
 		if [ -e "${FILE}" ];
 		then
 			mv "${FILE}" "${1}" &> /dev/null;
-			echo "mv ${FILE} ${1}";
+			echo "mv \"${FILE}\" ${1}";
 		fi
 	done
 

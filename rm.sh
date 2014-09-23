@@ -42,7 +42,7 @@ function main()
 		if [ -e "${FILE}" ];
 		then
 			rm -rf "${FILE}" &> /dev/null;
-			echo "rm -rf ${FILE}";
+			echo "rm -rf \"${FILE}\"";
 		fi
 	done
 
