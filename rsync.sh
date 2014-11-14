@@ -29,7 +29,7 @@ function main()
 
 
 # check depends tools
-	check_prog "echo kill rsync";
+	check_prog "echo ionice kill nice rsync";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
@@ -68,8 +68,8 @@ function main()
 	fi
 	echo "${BASHPID}" > "${RSYNC_PIDFILE}";
 
-#	rsync -azLv --safe-links
-	rsync -av --delete "${1}" "${2}";
+#	ionice -c 3 nice -n 19 rsync -azLv --safe-links
+	ionice -c 3 nice -n 19 rsync -av --delete "${1}" "${2}";
 
 	return "${?}";
 }
