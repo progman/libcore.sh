@@ -52,6 +52,10 @@ function main()
 
 	local BRANCH;
 	BRANCH="$(sed -e 's/.*\///g' /etc/debian_version)";
+	if [ "${BRANCH}" != "wheezy" ] && [ "${BRANCH}" != "jessie" ] && [ "${BRANCH}" != "sid" ];
+	then
+		BRANCH="sid";
+	fi
 
 
 	local FLAG_OK=0;
