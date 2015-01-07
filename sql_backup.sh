@@ -269,7 +269,7 @@ function main()
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_template-${TIMESTAMP}.sql";
 		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_template/${FILENAME}.tar.${COMPRESSOR}\"";
-		pg_dump --exclude-schema="not_backup" -s -c --compress=0 --format=p -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+		pg_dump --exclude-schema="not_backup" -s -c --if-exists --compress=0 --format=p -i --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			rm -rf -- "${FILENAME}.tmp";
@@ -283,13 +283,13 @@ function main()
 		cd ..;
 
 
-# create full dump
+# create dump
 		mkdir "${SQL_SERVER}_dump" &> /dev/null;
 		cd "${SQL_SERVER}_dump";
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
 		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_dump/${FILENAME}.tar.${COMPRESSOR}\"";
-		pg_dump --exclude-schema="not_backup" -b -c --compress=0 --format=p -i -h "${SQL_HOST}" -p "${SQL_PORT}" -U "${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+		pg_dump --exclude-schema="not_backup" -b -c --if-exists --compress=0 --format=p -i --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			rm -rf -- "${FILENAME}.tmp";
@@ -298,6 +298,25 @@ function main()
 		fi
 		mv "${FILENAME}.tmp" "${FILENAME}";
 
+		compress "${COMPRESSOR}" "${FILENAME}";
+		kill_ring "${SQL_DUMP_MAX_COUNT}";
+		cd ..;
+
+
+# create clear dump
+		mkdir "${SQL_SERVER}_cdump" &> /dev/null;
+		cd "${SQL_SERVER}_cdump";
+
+		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_cdump-${TIMESTAMP}.sql";
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_dump/${FILENAME}.tar.${COMPRESSOR}\"";
+		pg_dump --exclude-schema="not_backup" -b -C -c --if-exists --compress=0 --format=p -i --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+		if [ "${?}" != "0" ];
+		then
+			rm -rf -- "${FILENAME}.tmp";
+			echo "ERROR: unknown error";
+			return 1;
+		fi
+		mv "${FILENAME}.tmp" "${FILENAME}";
 
 		compress "${COMPRESSOR}" "${FILENAME}";
 		kill_ring "${SQL_DUMP_MAX_COUNT}";
@@ -316,7 +335,7 @@ function main()
 		fi
 
 
-# create full dump
+# create dump
 		mkdir "${SQL_SERVER}_dump" &> /dev/null;
 		cd "${SQL_SERVER}_dump";
 
