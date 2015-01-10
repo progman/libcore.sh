@@ -22,7 +22,7 @@ function check_prog()
 function main()
 {
 # check depends tools
-	check_prog "echo lame";
+	check_prog "echo cat lame mktemp";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
@@ -36,14 +36,36 @@ function main()
 	fi
 
 
+	local TMP;
+	TMP=$(mktemp);
+
+
+	while read -r FILE;
+	do
+		echo "${FILE}" >> "${TMP}";
+	done
+
+
+	local COUNT_CUR=1;
+	local COUNT_ALL;
+	COUNT_ALL=$(wc -l "${TMP}" | { read a b; echo ${a}; });
+
+
 # convert
 	while read -r FILE;
 	do
 		if [ -e "${FILE}" ];
 		then
-			lame -h -q 0 -v -V 0 -B 320 "${FILE}" "${FILE}.mp3" < /dev/null;
+			echo "[${COUNT_CUR}/${COUNT_ALL}] ${FILE}";
+			lame --quiet -h -q 0 -v -V 0 -B 320 "${FILE}" "${FILE}.mp3" < /dev/null;
 		fi
-	done
+
+		(( COUNT_CUR++ ));
+
+	done < "${TMP}";
+
+
+	rm -- -rf "${TMP}" &> /dev/null;
 
 
 	return "${?}";
