@@ -195,9 +195,9 @@ function main()
 
 
 # check sql server
-	if [ "${SQL_SERVER}" != "postgresql" ];
+	if [ "${SQL_SERVER}" != "postgresql" ] && [ "${SQL_SERVER}" != "mysql" ];
 	then
-		echo "FATAL: var \"SQL_SERVER\" must be set is \"postgresql\"";
+		echo "FATAL: var \"SQL_SERVER\" must be set is \"postgresql\" or \"mysql\"";
 		return 1;
 	fi
 
