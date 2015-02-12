@@ -345,7 +345,8 @@ function main()
 #		OPTIONS='--ignore-table=xxxxxx';
 #		TABLES='xxxxxxxxxx';
 		TABLES='';
-		mysqldump "${OPTIONS}" --host="${SQL_HOST}" --port="${SQL_PORT}" --user="${SQL_LOGIN}" --password="${SQL_PASSWORD}" "${SQL_DATABASE}" "${TABLES}" > "${FILENAME}.tmp" 2> /dev/null;
+		export MYSQL_PWD="${SQL_PASSWORD}";
+		mysqldump "${OPTIONS}" --host="${SQL_HOST}" --port="${SQL_PORT}" --user="${SQL_LOGIN}" "${SQL_DATABASE}" "${TABLES}" > "${FILENAME}.tmp" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			rm -rf -- "${FILENAME}.tmp";
