@@ -27,9 +27,9 @@ function var_check()
 		return 1;
 	fi
 
-	if [ "${SQL_SERVER}" != "postgresql" ];
+	if [ "${SQL_SERVER}" != "postgresql" ] || [ "${SQL_SERVER}" != "mysql" ];
 	then
-		echo "FATAL: var \"SQL_SERVER\" is not \"postgresql\"";
+		echo "FATAL: var \"SQL_SERVER\" is not \"postgresql\" or \"mysql\"";
 		return 1;
 	fi
 
@@ -70,7 +70,7 @@ function var_check()
 function main()
 {
 # check depends tools
-	check_prog "echo psql";
+	check_prog "echo";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
