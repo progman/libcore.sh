@@ -97,8 +97,29 @@ function main()
 	fi
 
 
-	export PGPASSWORD="${SQL_PASSWORD}";
-	psql --host="${SQL_HOST}" --port="${SQL_PORT}" --dbname="${SQL_DATABASE}" --username="${SQL_LOGIN}" -w;
+	if [ "${SQL_SERVER}" == "postgresql" ];
+	then
+		check_prog "psql";
+		if [ "${?}" != "0" ];
+		then
+			return 1;
+		fi
+
+		export PGPASSWORD="${SQL_PASSWORD}";
+		psql --host="${SQL_HOST}" --port="${SQL_PORT}" --dbname="${SQL_DATABASE}" --username="${SQL_LOGIN}" -w;
+	fi
+
+
+	if [ "${SQL_SERVER}" == "mysql" ];
+	then
+		check_prog "mysql";
+		if [ "${?}" != "0" ];
+		then
+			return 1;
+		fi
+
+		mysql --host="${SQL_HOST}" --port="${SQL_PORT}" --dbname="${SQL_DATABASE}" --username="${SQL_LOGIN}" -p;
+	fi
 
 
 	return 0;
