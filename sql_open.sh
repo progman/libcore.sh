@@ -27,7 +27,7 @@ function var_check()
 		return 1;
 	fi
 
-	if [ "${SQL_SERVER}" != "postgresql" ] || [ "${SQL_SERVER}" != "mysql" ];
+	if [ "${SQL_SERVER}" != "postgresql" ] && [ "${SQL_SERVER}" != "mysql" ];
 	then
 		echo "FATAL: var \"SQL_SERVER\" is not \"postgresql\" or \"mysql\"";
 		return 1;
@@ -118,7 +118,7 @@ function main()
 			return 1;
 		fi
 
-		mysql --host="${SQL_HOST}" --port="${SQL_PORT}" --dbname="${SQL_DATABASE}" --username="${SQL_LOGIN}" -p;
+		mysql --host="${SQL_HOST}" --port="${SQL_PORT}" --database="${SQL_DATABASE}" --user="${SQL_LOGIN}" -p;
 	fi
 
 
