@@ -118,7 +118,8 @@ function main()
 			return 1;
 		fi
 
-		mysql --host="${SQL_HOST}" --port="${SQL_PORT}" --database="${SQL_DATABASE}" --user="${SQL_LOGIN}" -p;
+		export MYSQL_PWD="${SQL_PASSWORD}";
+		mysql --host="${SQL_HOST}" --port="${SQL_PORT}" --database="${SQL_DATABASE}" --user="${SQL_LOGIN}";
 	fi
 
 
