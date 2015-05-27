@@ -137,9 +137,18 @@ function cmp_repo()
 
 # create branch list for dir1
 	cd -- "${1}";
-	if [ "$(git branch -a 2> /dev/null | wc -l)" == "0" ];
+	git branch -a &> /dev/null;
+	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: \"${1}\" is not GIT dir";
+		cd -- "${DIR_CUR}";
+		rm -rf -- "${TMP1}";
+		rm -rf -- "${TMP2}";
+		return 1;
+	fi
+	if [ "$(git branch -a 2> /dev/null | wc -l)" == "0" ];
+	then
+		echo "ERROR: \"${1}\" is empty GIT repo";
 		cd -- "${DIR_CUR}";
 		rm -rf -- "${TMP1}";
 		rm -rf -- "${TMP2}";
@@ -163,9 +172,18 @@ function cmp_repo()
 
 # create branch list for dir2
 	cd -- "${2}";
+	git branch -a &> /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: \"${1}\" is not GIT dir";
+		cd -- "${DIR_CUR}";
+		rm -rf -- "${TMP1}";
+		rm -rf -- "${TMP2}";
+		return 1;
+	fi
 	if [ "$(git branch -a 2> /dev/null | wc -l)" == "0" ];
 	then
-		echo "ERROR: \"${2}\" is not GIT dir";
+		echo "ERROR: \"${2}\" is empty GIT repo";
 		cd -- "${DIR_CUR}";
 		rm -rf -- "${TMP1}";
 		rm -rf -- "${TMP2}";
