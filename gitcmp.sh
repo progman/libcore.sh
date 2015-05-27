@@ -1,6 +1,6 @@
 #!/bin/bash
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.6
+# 0.0.7
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -18,6 +18,17 @@ function check_prog()
 	return 0;
 }
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# show uncommited status
+function show_uncommited()
+{
+	local GITDIR1_STATUS="${1}";
+
+	if [ "${GITDIR1_STATUS}" != "(empty)" ] && [ "${GITDIR1_STATUS}" != "(?)" ] && [ "${GITDIR1_STATUS}" != "" ];
+	then
+		echo "WARNING: find UNCOMMITED files!";
+	fi
+}
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # show status
 function show_status()
 {
@@ -32,10 +43,9 @@ function show_status()
 		return;
 	fi
 
-	if [ "${GITDIR1_STATUS}" != "(?)" ] || [ "${GITDIR2_STATUS}" != "(?)" ];
-	then
-		echo "WARNING: find UNCOMMINTED files!";
-	fi
+	show_uncommited "${GITDIR1_STATUS}";
+
+	show_uncommited "${GITDIR2_STATUS}";
 }
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # get status
@@ -51,6 +61,12 @@ function get_status()
 	local GIT_STATUS;
 	while true;
 	do
+		if [ "$(git branch -a 2> /dev/null | wc -l)" == "0" ];
+		then
+			GIT_STATUS="(empty)";
+			break;
+		fi
+
 		$(git status --porcelain --ignore-submodules 2> /dev/null > "${TMP}");
 		if [ "${?}" != "0" ];
 		then
@@ -146,14 +162,6 @@ function cmp_repo()
 		rm -rf -- "${TMP2}";
 		return 1;
 	fi
-	if [ "$(git branch -a 2> /dev/null | wc -l)" == "0" ];
-	then
-		echo "ERROR: \"${1}\" is empty GIT repo";
-		cd -- "${DIR_CUR}";
-		rm -rf -- "${TMP1}";
-		rm -rf -- "${TMP2}";
-		return 1;
-	fi
 	GITDIR1_STATUS="$(get_status)";
 	GITDIR1_INODE="$(stat ./ --format='%i')";
 
@@ -175,15 +183,7 @@ function cmp_repo()
 	git branch -a &> /dev/null;
 	if [ "${?}" != "0" ];
 	then
-		echo "ERROR: \"${1}\" is not GIT dir";
-		cd -- "${DIR_CUR}";
-		rm -rf -- "${TMP1}";
-		rm -rf -- "${TMP2}";
-		return 1;
-	fi
-	if [ "$(git branch -a 2> /dev/null | wc -l)" == "0" ];
-	then
-		echo "ERROR: \"${2}\" is empty GIT repo";
+		echo "ERROR: \"${2}\" is not GIT dir";
 		cd -- "${DIR_CUR}";
 		rm -rf -- "${TMP1}";
 		rm -rf -- "${TMP2}";
@@ -361,7 +361,8 @@ function cmp_branch_cross()
 
 # create branch list for dir1
 	cd -- "${1}";
-	if [ "$(git log 2> /dev/null | head -n 1 | grep '^commit' | wc -l)" == "0" ];
+	git branch -a &> /dev/null;
+	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: \"${1}\" is not GIT dir";
 		cd -- "${DIR_CUR}";
@@ -384,10 +385,7 @@ function cmp_branch_cross()
 
 
 # show status
-	if [ "${GITDIR1_STATUS}" != "(?)" ] && [ "${GITDIR1_STATUS}" != "" ];
-	then
-		echo "WARNING: find UNCOMMINTED files!";
-	fi
+	show_uncommited "${GITDIR1_STATUS}";
 
 
 # compare branch
@@ -464,7 +462,8 @@ function cmp_branch_inner()
 
 # create branch list for dir1
 	cd -- "${1}";
-	if [ "$(git log 2> /dev/null | head -n 1 | grep '^commit' | wc -l)" == "0" ];
+	git branch -a &> /dev/null;
+	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: \"${1}\" is not GIT dir";
 		cd -- "${DIR_CUR}";
@@ -516,11 +515,7 @@ function cmp_branch_inner()
 
 
 # show status
-	if [ "${GITDIR1_STATUS}" != "(?)" ] && [ "${GITDIR1_STATUS}" != "" ];
-	then
-		echo "WARNING: find UNCOMMINTED files!";
-	fi
-
+	show_uncommited "${GITDIR1_STATUS}";
 
 
 	git log "${2}" 2> /dev/null | grep '^commit' | { while read a b; do echo ${b}; done } > "${TMP1}";
