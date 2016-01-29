@@ -52,7 +52,7 @@ function show_status()
 function get_status()
 {
 	local TMP;
-	TMP=$(mktemp);
+	TMP=$(mktemp &> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		return;
@@ -133,20 +133,20 @@ function cmp_repo()
 
 # create tmp file
 	local TMP1;
-	TMP1="$(mktemp)";
+	TMP1="$(mktemp &> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
-		echo "can't make tmp file";
+		echo "ERROR: can't make tmp file";
 		return 1;
 	fi
 
 
 # create tmp file
 	local TMP2;
-	TMP2="$(mktemp)";
+	TMP2="$(mktemp &> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
-		echo "can't make tmp file";
+		echo "ERROR: can't make tmp file";
 		rm -rf -- "${TMP1}";
 		return 1;
 	fi
@@ -352,10 +352,10 @@ function cmp_branch_cross()
 
 # create tmp file
 	local TMP1;
-	TMP1="$(mktemp)";
+	TMP1="$(mktemp &> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
-		echo "can't make tmp file";
+		echo "ERROR: can't make tmp file";
 		return 1;
 	fi
 
@@ -442,20 +442,20 @@ function cmp_branch_inner()
 
 # create tmp file
 	local TMP1;
-	TMP1="$(mktemp)";
+	TMP1="$(mktemp &> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
-		echo "can't make tmp file";
+		echo "ERROR: can't make tmp file";
 		return 1;
 	fi
 
 
 # create tmp file
 	local TMP2;
-	TMP2="$(mktemp)";
+	TMP2="$(mktemp &> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
-		echo "can't make tmp file";
+		echo "ERROR: can't make tmp file";
 		rm -rf -- "${TMP1}";
 		return 1;
 	fi
