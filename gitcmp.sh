@@ -51,7 +51,8 @@ function show_status()
 # get status
 function get_status()
 {
-	local TMP=$(mktemp);
+	local TMP;
+	TMP=$(mktemp);
 	if [ "${?}" != "0" ];
 	then
 		return;
