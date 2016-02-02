@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.0.3
+# 1.0.4
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 GLOBAL_FLAG_FOUND_GZIP=0;
@@ -649,7 +649,7 @@ function repack_file()
 
 
 	local TMP1;
-	TMP1="$(mktemp -d --tmpdir="${REPACK_TMPDIR}")";
+	TMP1="$(mktemp -d --tmpdir="${REPACK_TMPDIR}" 2> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -657,7 +657,7 @@ function repack_file()
 	fi
 
 	local TMP2;
-	TMP2="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
+	TMP2="$(mktemp --tmpdir="${REPACK_TMPDIR}" 2> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -666,7 +666,7 @@ function repack_file()
 	fi
 
 	local TMP3;
-	TMP3="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
+	TMP3="$(mktemp --tmpdir="${REPACK_TMPDIR}" 2> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -676,7 +676,7 @@ function repack_file()
 	fi
 
 	local TMP4;
-	TMP4="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
+	TMP4="$(mktemp --tmpdir="${REPACK_TMPDIR}" 2> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -864,7 +864,7 @@ function repack_filelist()
 
 # create file for filelist
 	local TMP1;
-	TMP1=$(mktemp);
+	TMP1=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
@@ -873,7 +873,7 @@ function repack_filelist()
 
 # create file for sorted filelist
 	local TMP2;
-	TMP2=$(mktemp);
+	TMP2=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
@@ -923,7 +923,7 @@ function repack_stdin()
 {
 # create file for filelist
 	local TMP1;
-	TMP1=$(mktemp);
+	TMP1=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
@@ -1018,7 +1018,7 @@ function main()
 
 # create file for filelist
 	local TMP1;
-	TMP1=$(mktemp);
+	TMP1=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";

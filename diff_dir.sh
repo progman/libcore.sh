@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.1
+# 0.0.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -22,7 +22,7 @@ function check_prog()
 function test1()
 {
 	local D1;
-	D1=$(mktemp);
+	D1=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
@@ -30,7 +30,7 @@ function test1()
 	fi
 
 	local D2;
-	D2=$(mktemp);
+	D2=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
@@ -74,7 +74,7 @@ function test1()
 function test2()
 {
 	local D1;
-	D1=$(mktemp);
+	D1=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
@@ -82,7 +82,7 @@ function test2()
 	fi
 
 	local D2;
-	D2=$(mktemp);
+	D2=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
@@ -126,7 +126,7 @@ function test2()
 function test3()
 {
 	local D1;
-	D1=$(mktemp);
+	D1=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -134,7 +134,7 @@ function test3()
 	fi
 
 	local D2;
-	D2=$(mktemp);
+	D2=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -143,7 +143,7 @@ function test3()
 	fi
 
 	local D3;
-	D3=$(mktemp);
+	D3=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -153,7 +153,7 @@ function test3()
 	fi
 
 	local D4;
-	D4=$(mktemp);
+	D4=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -164,7 +164,7 @@ function test3()
 	fi
 
 	local D5;
-	D5=$(mktemp);
+	D5=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -176,7 +176,7 @@ function test3()
 	fi
 
 	local D6;
-	D6=$(mktemp);
+	D6=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -189,7 +189,7 @@ function test3()
 	fi
 
 	local D7;
-	D7=$(mktemp);
+	D7=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";

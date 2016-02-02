@@ -1,6 +1,6 @@
 #!/bin/bash
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.7
+# 0.0.8
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -52,7 +52,7 @@ function show_status()
 function get_status()
 {
 	local TMP;
-	TMP=$(mktemp &> /dev/null);
+	TMP=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		return;
@@ -133,7 +133,7 @@ function cmp_repo()
 
 # create tmp file
 	local TMP1;
-	TMP1="$(mktemp &> /dev/null)";
+	TMP1="$(mktemp 2> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: can't make tmp file";
@@ -143,7 +143,7 @@ function cmp_repo()
 
 # create tmp file
 	local TMP2;
-	TMP2="$(mktemp &> /dev/null)";
+	TMP2="$(mktemp 2> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: can't make tmp file";
@@ -352,7 +352,7 @@ function cmp_branch_cross()
 
 # create tmp file
 	local TMP1;
-	TMP1="$(mktemp &> /dev/null)";
+	TMP1="$(mktemp 2> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: can't make tmp file";
@@ -442,7 +442,7 @@ function cmp_branch_inner()
 
 # create tmp file
 	local TMP1;
-	TMP1="$(mktemp &> /dev/null)";
+	TMP1="$(mktemp 2> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: can't make tmp file";
@@ -452,7 +452,7 @@ function cmp_branch_inner()
 
 # create tmp file
 	local TMP2;
-	TMP2="$(mktemp &> /dev/null)";
+	TMP2="$(mktemp 2> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: can't make tmp file";

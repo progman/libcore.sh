@@ -37,7 +37,7 @@ function main()
 	fi
 
 
-	TMP="$(mktemp)";
+	TMP="$(mktemp 2> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";

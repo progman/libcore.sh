@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.1
+# 0.0.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 GLOBAL_DELTA_SIZE=0;
@@ -77,7 +77,7 @@ function view_size()
 function do_file()
 {
 	local TMP1;
-	TMP1="$(mktemp --tmpdir="${REPACK_TMPDIR}")";
+	TMP1="$(mktemp --tmpdir="${REPACK_TMPDIR}" 2> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
 		echo "can't make tmp file";
@@ -127,7 +127,7 @@ function do_filelist()
 
 # create file for filelist
 	local TMP1;
-	TMP1=$(mktemp);
+	TMP1=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
@@ -137,7 +137,7 @@ function do_filelist()
 
 # create file for sorted filelist
 	local TMP2;
-	TMP2=$(mktemp);
+	TMP2=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
@@ -188,7 +188,7 @@ function do_stdin()
 {
 # create file for filelist
 	local TMP1;
-	TMP1=$(mktemp);
+	TMP1=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
@@ -271,7 +271,7 @@ function main()
 
 # create file for filelist
 	local TMP1;
-	TMP1=$(mktemp);
+	TMP1=$(mktemp 2> /dev/null);
 	if [ "${?}" != "0" ];
 	then
 		echo "FATAL: can't make tmp file";
