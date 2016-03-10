@@ -138,7 +138,7 @@ function main()
 	FILE="$(cat "${TMP}" | grep href | grep '\.deb"' | head -n 1 | sed -e 's/">.*//g' | sed -e 's/.*"//g')";
 	if [ "${FILE}" == "" ];
 	then
-		echo "ERROR: deb not found";
+		echo "ERROR: deb not found in \"${URL}\"";
 		rm -rf "${TMP}" &> /dev/null;
 		return 1;
 	fi
