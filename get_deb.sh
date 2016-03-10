@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.2
+# 0.0.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -61,6 +61,7 @@ function main()
 	local FLAG_OK=0;
 	local NAME="";
 	local ARCH="";
+	local URL="";
 
 	if [ "${FLAG_OK}" == "0" ];
 	then
@@ -124,7 +125,8 @@ function main()
 	fi
 
 
-	wget -O "${TMP}" -q -c "https://packages.debian.org/${BRANCH}/${ARCH}/${NAME}/download" &> /dev/null;
+	URL="https://packages.debian.org/${BRANCH}/${ARCH}/${NAME}/download";
+	wget -O "${TMP}" -q -c "${URL}" &> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: wget";
@@ -132,10 +134,17 @@ function main()
 		return 1;
 	fi
 
+
 	FILE="$(cat "${TMP}" | grep href | grep '\.deb"' | head -n 1 | sed -e 's/">.*//g' | sed -e 's/.*"//g')";
+	if [ "${FILE}" == "" ];
+	then
+		echo "ERROR: deb not found";
+		rm -rf "${TMP}" &> /dev/null;
+		return 1;
+	fi
+
 
 	rm -rf "${TMP}" &> /dev/null;
-
 	echo "cd /var/cache/apt/archives/;";
 	cd /var/cache/apt/archives/;
 	echo "wget -c \"${FILE}\";";
