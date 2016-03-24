@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.4
+# 0.0.5
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # view current time
@@ -206,19 +206,19 @@ function main()
 	local COMPRESSOR;
 	local FLAG_COMPRESSOR_SELECT=0;
 
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which xz)" != "" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which xz)" != "" ] && [ "${SQL_BACKUP_FLAG_DISABLE_XZ}" != "1" ];
 	then
 		COMPRESSOR="xz";
 		FLAG_COMPRESSOR_SELECT=1;
 	fi
 
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which bzip2)" != "" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which bzip2)" != "" ] && [ "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" != "1" ];
 	then
 		COMPRESSOR="bz2";
 		FLAG_COMPRESSOR_SELECT=1;
 	fi
 
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which gzip)" != "" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which gzip)" != "" ] && [ "${SQL_BACKUP_FLAG_DISABLE_GZIP}" != "1" ];
 	then
 		COMPRESSOR="gz";
 		FLAG_COMPRESSOR_SELECT=1;
