@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.5
+# 0.0.6
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # view current time
@@ -59,78 +59,102 @@ function kill_ring()
 	};
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# compress dump
-function compress()
+# pack name
+function pack_name()
 {
-	local COMPRESSOR="${1}";
-	local FILENAME="${2}";
+	local FILENAME="${1}";
+	local FLAG_DISABLE_XZ="${2}";
+	local FLAG_DISABLE_BZIP2="${3}";
+	local FLAG_DISABLE_GZIP="${4}";
 
+# select compressor
+	local FLAG_COMPRESSOR_SELECT=0;
+	local COMPRESSOR="tar";
 
-	if [ "${COMPRESSOR}" == "xz" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which xz)" != "" ] && [ "${FLAG_DISABLE_XZ}" != "1" ];
 	then
+		FLAG_COMPRESSOR_SELECT=1;
+		COMPRESSOR="tar.xz";
+	fi
+
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which bzip2)" != "" ] && [ "${FLAG_DISABLE_BZIP2}" != "1" ];
+	then
+		FLAG_COMPRESSOR_SELECT=1;
+		COMPRESSOR="tar.bz2";
+	fi
+
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which gzip)" != "" ] && [ "${FLAG_DISABLE_GZIP}" != "1" ];
+	then
+		FLAG_COMPRESSOR_SELECT=1;
+		COMPRESSOR="tar.gz";
+	fi
+
+	echo "${FILENAME}.${COMPRESSOR}";
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# compress dump
+function pack()
+{
+	local FILENAME="${1}";
+	local FLAG_DISABLE_XZ="${2}";
+	local FLAG_DISABLE_BZIP2="${3}";
+	local FLAG_DISABLE_GZIP="${4}";
+
+# select compressor
+	local FLAG_COMPRESSOR_SELECT=0;
+	local COMPRESSOR="tar";
+	local COMPRESSOR_OPT="cf";
+
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which xz)" != "" ] && [ "${FLAG_DISABLE_XZ}" != "1" ];
+	then
+		FLAG_COMPRESSOR_SELECT=1;
+		COMPRESSOR="tar.xz";
+		COMPRESSOR_OPT="cfJ";
+
 		if [ "${XZ_OPT}" == "" ];
 		then
 #			export XZ_OPT='-9 --extreme';
 			export XZ_OPT='--lzma2=preset=9e,dict=1024MiB --memlimit-compress=7GiB';
 		fi
-
-		TARGET="${FILENAME}.tar.${COMPRESSOR}";
-#		ionice -c 3 nice -n 19 xz -zc "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
-		ionice -c 3 nice -n 19 tar cvfJ "${TARGET}.tmp" "${FILENAME}" &> /dev/null < /dev/null;
-		if [ "${?}" != "0" ];
-		then
-			echo " xz pack error";
-			rm -rf -- "${TARGET}.tmp";
-			return 1;
-		fi
-		mv -- "${TARGET}.tmp" "${TARGET}";
-		rm -rf -- "${FILENAME}";
 	fi
 
-
-	if [ "${COMPRESSOR}" == "bz2" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which bzip2)" != "" ] && [ "${FLAG_DISABLE_BZIP2}" != "1" ];
 	then
+		FLAG_COMPRESSOR_SELECT=1;
+		COMPRESSOR="tar.bz2";
+		COMPRESSOR_OPT="cfj";
+
 		if [ "${BZIP2}" == "" ];
 		then
 			export BZIP2='-9';
 		fi
-
-		TARGET="${FILENAME}.tar.${COMPRESSOR}";
-#		ionice -c 3 nice -n 19 bzip2 -zc "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
-		ionice -c 3 nice -n 19 tar cvfj "${TARGET}.tmp" "${FILENAME}" &> /dev/null < /dev/null;
-		if [ "${?}" != "0" ];
-		then
-			echo " bzip2 pack error";
-			rm -rf -- "${TARGET}.tmp";
-			return 1;
-		fi
-		mv -- "${TARGET}.tmp" "${TARGET}";
-		rm -rf -- "${FILENAME}";
 	fi
 
-
-	if [ "${COMPRESSOR}" == "gz" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which gzip)" != "" ] && [ "${FLAG_DISABLE_GZIP}" != "1" ];
 	then
+		FLAG_COMPRESSOR_SELECT=1;
+		COMPRESSOR="tar.gz";
+		COMPRESSOR_OPT="cfz";
+
 		if [ "${GZIP}" == "" ];
 		then
 			export GZIP='-9';
 		fi
-
-		TARGET="${FILENAME}.tar.${COMPRESSOR}";
-#		ionice -c 3 nice -n 19 gzip -c "${FILENAME}" > "${TARGET}.tmp" 2> /dev/null < /dev/null;
-		ionice -c 3 nice -n 19 tar cvfz "${TARGET}.tmp" "${FILENAME}" &> /dev/null < /dev/null;
-		if [ "${?}" != "0" ];
-		then
-			echo " gzip pack error";
-			rm -rf -- "${TARGET}.tmp";
-			return 1;
-		fi
-		mv -- "${TARGET}.tmp" "${TARGET}";
-		rm -rf -- "${FILENAME}";
 	fi
 
+	TARGETNAME="${FILENAME}.${COMPRESSOR}"
+	rm -rf -- "${TARGETNAME}.tmp";
 
-	return 0;
+	ionice -c 3 nice -n 20 tar "${COMPRESSOR_OPT}" "${TARGETNAME}.tmp" "${FILENAME}" &> /dev/null < /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		rm -rf "${TARGETNAME}.tmp" &> /dev/null;
+		echo " ERROR pack";
+	else
+		mv "${TARGETNAME}.tmp" "${TARGETNAME}";
+	fi
+
+	rm -rf -- "${FILENAME}";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
@@ -202,35 +226,6 @@ function main()
 	fi
 
 
-# select compressor
-	local COMPRESSOR;
-	local FLAG_COMPRESSOR_SELECT=0;
-
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which xz)" != "" ] && [ "${SQL_BACKUP_FLAG_DISABLE_XZ}" != "1" ];
-	then
-		COMPRESSOR="xz";
-		FLAG_COMPRESSOR_SELECT=1;
-	fi
-
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which bzip2)" != "" ] && [ "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" != "1" ];
-	then
-		COMPRESSOR="bz2";
-		FLAG_COMPRESSOR_SELECT=1;
-	fi
-
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which gzip)" != "" ] && [ "${SQL_BACKUP_FLAG_DISABLE_GZIP}" != "1" ];
-	then
-		COMPRESSOR="gz";
-		FLAG_COMPRESSOR_SELECT=1;
-	fi
-
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ];
-	then
-		echo "FATAL: you must install \"xz\" or \"bzip2\" or \"gzip\"...";
-		return 1;
-	fi
-
-
 # go to backup dir
 	mkdir -p "${SQL_DUMP_DIR}";
 	if [ ! -d "${SQL_DUMP_DIR}" ];
@@ -268,7 +263,8 @@ function main()
 		cd "${SQL_SERVER}_template";
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_template-${TIMESTAMP}.sql";
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_template/${FILENAME}.tar.${COMPRESSOR}\"";
+		PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${PACK_NAME}\"";
 		pg_dump --exclude-schema="not_backup" -s -c --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
@@ -278,7 +274,7 @@ function main()
 		fi
 		mv "${FILENAME}.tmp" "${FILENAME}";
 
-		compress "${COMPRESSOR}" "${FILENAME}";
+		pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
 		kill_ring "${SQL_DUMP_MAX_COUNT}";
 		cd ..;
 
@@ -288,7 +284,8 @@ function main()
 		cd "${SQL_SERVER}_dump";
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_dump/${FILENAME}.tar.${COMPRESSOR}\"";
+		PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${PACK_NAME}\"";
 		pg_dump --exclude-schema="not_backup" -b -c --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
@@ -298,7 +295,7 @@ function main()
 		fi
 		mv "${FILENAME}.tmp" "${FILENAME}";
 
-		compress "${COMPRESSOR}" "${FILENAME}";
+		pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
 		kill_ring "${SQL_DUMP_MAX_COUNT}";
 		cd ..;
 
@@ -308,7 +305,8 @@ function main()
 		cd "${SQL_SERVER}_cdump";
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_cdump-${TIMESTAMP}.sql";
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_cdump/${FILENAME}.tar.${COMPRESSOR}\"";
+		PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${PACK_NAME}\"";
 		pg_dump --exclude-schema="not_backup" -b -C -c --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
@@ -318,7 +316,7 @@ function main()
 		fi
 		mv "${FILENAME}.tmp" "${FILENAME}";
 
-		compress "${COMPRESSOR}" "${FILENAME}";
+		pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
 		kill_ring "${SQL_DUMP_MAX_COUNT}";
 		cd ..;
 	fi
@@ -340,7 +338,8 @@ function main()
 		cd "${SQL_SERVER}_dump";
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_dump/${FILENAME}.tar.${COMPRESSOR}\"";
+		PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${PACK_NAME}\"";
 		OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql -t --compact --skip-opt --compact';
 #		OPTIONS='--ignore-table=xxxxxx';
 #		TABLES='xxxxxxxxxx';
@@ -356,8 +355,7 @@ function main()
 		fi
 		mv "${FILENAME}.tmp" "${FILENAME}";
 
-
-		compress "${COMPRESSOR}" "${FILENAME}";
+		pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
 		kill_ring "${SQL_DUMP_MAX_COUNT}";
 		cd ..;
 	fi
