@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.3
+# 0.0.4
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # view current time
@@ -308,7 +308,7 @@ function main()
 		cd "${SQL_SERVER}_cdump";
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_cdump-${TIMESTAMP}.sql";
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_dump/${FILENAME}.tar.${COMPRESSOR}\"";
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${SQL_SERVER}_cdump/${FILENAME}.tar.${COMPRESSOR}\"";
 		pg_dump --exclude-schema="not_backup" -b -C -c --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
