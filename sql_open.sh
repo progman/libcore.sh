@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.1
+# 0.0.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -79,7 +79,7 @@ function main()
 
 	if  [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
 	then
-		echo "example: ${0} ENV_FILE";
+		echo "example: ${0} ENV_FILE [ INPORT_FILE ]";
 		return 0;
 	fi
 
@@ -106,7 +106,13 @@ function main()
 		fi
 
 		export PGPASSWORD="${SQL_PASSWORD}";
-		psql --host="${SQL_HOST}" --port="${SQL_PORT}" --dbname="${SQL_DATABASE}" --username="${SQL_LOGIN}" -w;
+
+		if [ "${2}" == "" ] || [ ! -e "${2}" ];
+		then
+			psql --host="${SQL_HOST}" --port="${SQL_PORT}" --dbname="${SQL_DATABASE}" --username="${SQL_LOGIN}" -w;
+		else
+			psql --host="${SQL_HOST}" --port="${SQL_PORT}" --dbname="${SQL_DATABASE}" --username="${SQL_LOGIN}" -w -f "${2}";
+		fi
 	fi
 
 
