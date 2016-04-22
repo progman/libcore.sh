@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.6
+# 0.0.7
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # view current time
@@ -157,33 +157,18 @@ function pack()
 	rm -rf -- "${FILENAME}";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# general function
-function main()
+# check var list
+function var_check()
 {
-# check minimal depends tools
-	check_prog "date echo find ionice mkdir mv nice rm sed sort tar touch";
-	if [ "${?}" != "0" ];
-	then
-		return 1;
-	fi
-
-
-# check env variables
-	if [ "${SQL_DUMP_DIR}" == "" ];
-	then
-		echo "FATAL: var \"SQL_DUMP_DIR\" is not set";
-		return 1;
-	fi
-
-	if [ "${SQL_DUMP_MAX_COUNT}" == "" ];
-	then
-		echo "FATAL: var \"SQL_DUMP_MAX_COUNT\" is not set";
-		return 1;
-	fi
-
 	if [ "${SQL_SERVER}" == "" ];
 	then
 		echo "FATAL: var \"SQL_SERVER\" is not set";
+		return 1;
+	fi
+
+	if [ "${SQL_SERVER}" != "postgresql" ] && [ "${SQL_SERVER}" != "mysql" ];
+	then
+		echo "FATAL: var \"SQL_SERVER\" is not \"postgresql\" or \"mysql\"";
 		return 1;
 	fi
 
@@ -217,11 +202,49 @@ function main()
 		return 1;
 	fi
 
-
-# check sql server
-	if [ "${SQL_SERVER}" != "postgresql" ] && [ "${SQL_SERVER}" != "mysql" ];
+	if [ "${SQL_DUMP_DIR}" == "" ];
 	then
-		echo "FATAL: var \"SQL_SERVER\" must be set is \"postgresql\" or \"mysql\"";
+		echo "FATAL: var \"SQL_DUMP_DIR\" is not set";
+		return 1;
+	fi
+
+	if [ "${SQL_DUMP_MAX_COUNT}" == "" ];
+	then
+		echo "FATAL: var \"SQL_DUMP_MAX_COUNT\" is not set";
+		return 1;
+	fi
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# general function
+function main()
+{
+# check minimal depends tools
+	check_prog "date echo find ionice mkdir mv nice rm sed sort tar touch";
+	if [ "${?}" != "0" ];
+	then
+		return 1;
+	fi
+
+
+	if  [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
+	then
+		echo "example: ${0} ENV_FILE";
+		return 0;
+	fi
+
+
+	if [ "${1}" != "" ] && [ -e "${1}" ];
+	then
+		source "${1}";
+	fi
+
+
+# check env variables
+	var_check;
+	if [ "${?}" != "0" ];
+	then
 		return 1;
 	fi
 
@@ -260,11 +283,12 @@ function main()
 
 # create template dump
 		mkdir "${SQL_SERVER}_template" &> /dev/null;
-		cd "${SQL_SERVER}_template";
+		CUR_DIR="${SQL_SERVER}_template";
+		cd "${CUR_DIR}";
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_template-${TIMESTAMP}.sql";
 		PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${PACK_NAME}\"";
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 		pg_dump --exclude-schema="not_backup" -s -c --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
@@ -281,11 +305,12 @@ function main()
 
 # create dump
 		mkdir "${SQL_SERVER}_dump" &> /dev/null;
-		cd "${SQL_SERVER}_dump";
+		CUR_DIR="${SQL_SERVER}_dump";
+		cd "${CUR_DIR}";
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
 		PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${PACK_NAME}\"";
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 		pg_dump --exclude-schema="not_backup" -b -c --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
@@ -302,11 +327,12 @@ function main()
 
 # create clear dump
 		mkdir "${SQL_SERVER}_cdump" &> /dev/null;
-		cd "${SQL_SERVER}_cdump";
+		CUR_DIR="${SQL_SERVER}_cdump";
+		cd "${CUR_DIR}";
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_cdump-${TIMESTAMP}.sql";
 		PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${PACK_NAME}\"";
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 		pg_dump --exclude-schema="not_backup" -b -C -c --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 		if [ "${?}" != "0" ];
 		then
@@ -335,11 +361,12 @@ function main()
 
 # create dump
 		mkdir "${SQL_SERVER}_dump" &> /dev/null;
-		cd "${SQL_SERVER}_dump";
+		CUR_DIR="${SQL_SERVER}_dump";
+		cd "${CUR_DIR}";
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
 		PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${PACK_NAME}\"";
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 		OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql -t --compact --skip-opt';
 #		OPTIONS='--ignore-table=xxxxxx';
 #		TABLES='xxxxxxxxxx';
@@ -362,11 +389,12 @@ function main()
 
 # create clear dump
 		mkdir "${SQL_SERVER}_cdump" &> /dev/null;
-		cd "${SQL_SERVER}_cdump";
+		CUR_DIR="${SQL_SERVER}_cdump";
+		cd "${CUR_DIR}";
 
 		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
 		PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${PACK_NAME}\"";
+		echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 		OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql --opt';
 		TABLES='';
 
