@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.3
+# 0.0.4
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -23,7 +23,7 @@ function main()
 {
 	if [ "${1}" == "" ];
 	then
-		echo "example: ${0} [packet_name:amd64|packet_name:i386]";
+		echo "example: ${0} [BRANCH] [packet_name:amd64|packet_name:i386]";
 		return 1;
 	fi
 
@@ -58,6 +58,14 @@ function main()
 	fi
 
 
+	local ARG=${1};
+	if [ "${2}" != "" ];
+	then
+		BRANCH=${1};
+		ARG=${2};
+	fi
+
+
 	local FLAG_OK=0;
 	local NAME="";
 	local ARCH="";
@@ -66,20 +74,20 @@ function main()
 	if [ "${FLAG_OK}" == "0" ];
 	then
 		ARCH="i386";
-		if [ ${#1} -lt ${#ARCH} ]; # strlen(1) < strlen(ARCH)
+		if [ ${#ARG} -lt ${#ARCH} ]; # strlen(1) < strlen(ARCH)
 		then
 			echo "ERROR: broken packet_name";
 			return 1;
 		fi
 
-		local OFFSET=${#1};
+		local OFFSET=${#ARG};
 		(( OFFSET-=${#ARCH} ));
 
-		if [ "${1:${OFFSET}}" == "${ARCH}" ];
+		if [ "${ARG:${OFFSET}}" == "${ARCH}" ];
 		then
 			FLAG_OK=1;
 			(( OFFSET-- ));
-			NAME="${1:0:${OFFSET}}";
+			NAME="${ARG:0:${OFFSET}}";
 		fi
 	fi
 
@@ -87,20 +95,20 @@ function main()
 	if [ "${FLAG_OK}" == "0" ];
 	then
 		ARCH="amd64";
-		if [ ${#1} -lt ${#ARCH} ]; # strlen(1) < strlen(ARCH)
+		if [ ${#ARG} -lt ${#ARCH} ]; # strlen(1) < strlen(ARCH)
 		then
 			echo "ERROR: broken packet_name";
 			return 1;
 		fi
 
-		local OFFSET=${#1};
+		local OFFSET=${#ARG};
 		(( OFFSET-=${#ARCH} ));
 
-		if [ "${1:${OFFSET}}" == "${ARCH}" ];
+		if [ "${ARG:${OFFSET}}" == "${ARCH}" ];
 		then
 			FLAG_OK=1;
 			(( OFFSET-- ));
-			NAME="${1:0:${OFFSET}}";
+			NAME="${ARG:0:${OFFSET}}";
 		fi
 	fi
 
