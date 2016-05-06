@@ -71,7 +71,7 @@ function main()
 	local NAME="";
 
 	local REAL_ARCH="i386";
-	if [ "${uname -m}" == "x86_64" ];
+	if [ "$(uname -m)" == "x86_64" ];
 	then
 		REAL_ARCH="amd64";
 	fi
