@@ -23,7 +23,7 @@ function main()
 {
 	if [ "${1}" == "" ];
 	then
-		echo "example: ${0} [BRANCH] [packet_name:amd64|packet_name:i386]";
+		echo "example: ${0} [wheezy | jessie | sid] [packet_name | packet_name:amd64 | packet_name:i386]";
 		return 1;
 	fi
 
@@ -67,57 +67,81 @@ function main()
 
 
 	local FLAG_OK=0;
-	local NAME="";
-	local ARCH="";
 	local URL="";
+	local NAME="";
 
-	if [ "${FLAG_OK}" == "0" ];
+	local REAL_ARCH="i386";
+	if [ "${uname -m}" == "x86_64" ];
 	then
-		ARCH="i386";
-		if [ ${#ARG} -lt ${#ARCH} ]; # strlen(1) < strlen(ARCH)
-		then
-			echo "ERROR: broken packet_name";
-			return 1;
-		fi
-
-		local OFFSET=${#ARG};
-		(( OFFSET-=${#ARCH} ));
-
-		if [ "${ARG:${OFFSET}}" == "${ARCH}" ];
-		then
-			FLAG_OK=1;
-			(( OFFSET-- ));
-			NAME="${ARG:0:${OFFSET}}";
-		fi
+		REAL_ARCH="amd64";
 	fi
+	local ARCH="${REAL_ARCH}";
 
 
-	if [ "${FLAG_OK}" == "0" ];
-	then
-		ARCH="amd64";
-		if [ ${#ARG} -lt ${#ARCH} ]; # strlen(1) < strlen(ARCH)
+	while true;
+	do
+		if [ "$(echo "${ARG}" | grep ':' | wc -l | { read a b; echo ${a}; })" == "0" ];
 		then
-			echo "ERROR: broken packet_name";
-			return 1;
+			NAME="${ARG}";
+			break;
 		fi
 
-		local OFFSET=${#ARG};
-		(( OFFSET-=${#ARCH} ));
 
-		if [ "${ARG:${OFFSET}}" == "${ARCH}" ];
+		while true;
+		do
+			ARCH="i386";
+			if [ ${#ARG} -lt ${#ARCH} ]; # strlen(1) < strlen(ARCH)
+			then
+				break;
+			fi
+
+			local OFFSET=${#ARG};
+			(( OFFSET-=${#ARCH} ));
+
+			if [ "${ARG:${OFFSET}}" == "${ARCH}" ];
+			then
+				FLAG_OK=1;
+				(( OFFSET-- ));
+				NAME="${ARG:0:${OFFSET}}";
+			fi
+
+			break;
+		done
+		if [ "${FLAG_OK}" != "0" ];
 		then
-			FLAG_OK=1;
-			(( OFFSET-- ));
-			NAME="${ARG:0:${OFFSET}}";
+			break;
 		fi
-	fi
 
 
-	if [ "${FLAG_OK}" == "0" ];
-	then
+		while true
+		do
+			ARCH="amd64";
+			if [ ${#ARG} -lt ${#ARCH} ]; # strlen(1) < strlen(ARCH)
+			then
+				break;
+			fi
+
+			local OFFSET=${#ARG};
+			(( OFFSET-=${#ARCH} ));
+
+			if [ "${ARG:${OFFSET}}" == "${ARCH}" ];
+			then
+				FLAG_OK=1;
+				(( OFFSET-- ));
+				NAME="${ARG:0:${OFFSET}}";
+			fi
+
+			break;
+		done
+		if [ "${FLAG_OK}" != "0" ];
+		then
+			break;
+		fi
+
+
 		echo "ERROR: broken packet_name";
 		return 1;
-	fi
+	done
 
 
 	echo "BRANCH : \"${BRANCH}\"";
@@ -162,14 +186,19 @@ function main()
 		echo "ERROR: wget";
 		return 1;
 	fi
-
 	FULLNAME=$(echo "${FILE}" | sed -e 's/.*\///g');
 
-	echo "dpkg -i --force-all /var/cache/apt/archives/${FULLNAME} && apt-get install -f";
-	echo;
 
-
-	dpkg -i --force-all "${FULLNAME}" && apt-get install -f;
+	if [ "${REAL_ARCH}" == "${ARCH}" ];
+	then
+		echo "dpkg -i /var/cache/apt/archives/${FULLNAME} && apt-get install -f";
+		echo;
+		dpkg -i "${FULLNAME}" && apt-get install -f;
+	else
+		echo "dpkg -i --force-all /var/cache/apt/archives/${FULLNAME} && apt-get install -f";
+		echo;
+		dpkg -i --force-all "${FULLNAME}" && apt-get install -f;
+	fi
 
 
 	return "${?}";
