@@ -1,6 +1,6 @@
 #!/bin/bash
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.8
+# 0.0.9
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -218,8 +218,8 @@ function cmp_repo()
 
 
 # check stupid equals
-	LIST1_SHA=$(sha1sum "${TMP1}" | { read a b; echo "${a}"; });
-	LIST2_SHA=$(sha1sum "${TMP2}" | { read a b; echo "${a}"; });
+	LIST1_SHA=$(shasum -a 1 "${TMP1}" | { read a b; echo "${a}"; });
+	LIST2_SHA=$(shasum -a 1 "${TMP2}" | { read a b; echo "${a}"; });
 	if [ "${LIST1_SHA}" == "${LIST2_SHA}" ];
 	then
 		show_status "${GITDIR1_STATUS}" "${GITDIR2_STATUS}" "==";
@@ -561,7 +561,7 @@ function help()
 function main()
 {
 # check minimal depends tools
-	check_prog "cat echo git grep head mktemp rm sed sha1sum wc";
+	check_prog "cat echo git grep head mktemp rm sed shasum wc";
 	if [ "${?}" != "0" ];
 	then
 		return 1;

@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.2
+# 0.0.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -51,8 +51,8 @@ function test1()
 	cd "${cur_pwd}";
 
 
-	local D1_HASH=$(sha1sum "${D1}" | { read a b; echo ${a}; });
-	local D2_HASH=$(sha1sum "${D2}" | { read a b; echo ${a}; });
+	local D1_HASH=$(shasum -a 1 "${D1}" | { read a b; echo ${a}; });
+	local D2_HASH=$(shasum -a 1 "${D2}" | { read a b; echo ${a}; });
 
 	if [ "${D1_HASH}" == "${D2_HASH}" ];
 	then
@@ -103,8 +103,8 @@ function test2()
 	cd "${cur_pwd}";
 
 
-	local D1_HASH=$(sha1sum "${D1}" | { read a b; echo ${a}; });
-	local D2_HASH=$(sha1sum "${D2}" | { read a b; echo ${a}; });
+	local D1_HASH=$(shasum -a 1 "${D1}" | { read a b; echo ${a}; });
+	local D2_HASH=$(shasum -a 1 "${D2}" | { read a b; echo ${a}; });
 
 	if [ "${D1_HASH}" == "${D2_HASH}" ];
 	then
@@ -278,7 +278,7 @@ function main()
 
 
 # check depends tools
-	check_prog "diff echo find md5sum mktemp rm sha1sum sort stat wc";
+	check_prog "diff echo find md5sum mktemp rm shasum sort stat wc";
 	if [ "${?}" != "0" ];
 	then
 		return 1;

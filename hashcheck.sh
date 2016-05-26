@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.2
+# 0.0.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -22,7 +22,7 @@ function check_prog()
 function main()
 {
 # check depends tools
-	check_prog "echo find grep md5sum sha1sum sha224sum sha256sum sha384sum sha512sum";
+	check_prog "echo find grep md5sum shasum";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
@@ -48,7 +48,7 @@ function main()
 	for i in ${FILE_LIST};
 	do
 		echo -ne "check sha1  : ";
-		sha1sum -c "${i}";
+		shasum -a 1 -c "${i}";
 	done
 
 
@@ -56,7 +56,7 @@ function main()
 	for i in ${FILE_LIST};
 	do
 		echo -ne "check sha224: ";
-		sha224sum -c "${i}";
+		shasum -a 224 -c "${i}";
 	done
 
 
@@ -64,7 +64,7 @@ function main()
 	for i in ${FILE_LIST};
 	do
 		echo -ne "check sha256: ";
-		sha256sum -c "${i}";
+		shasum -a 256 -c "${i}";
 	done
 
 
@@ -72,7 +72,7 @@ function main()
 	for i in ${FILE_LIST};
 	do
 		echo -ne "check sha384: ";
-		sha384sum -c "${i}";
+		shasum -a 384 -c "${i}";
 	done
 
 
@@ -80,7 +80,7 @@ function main()
 	for i in ${FILE_LIST};
 	do
 		echo -ne "check sha512: ";
-		sha512sum -c "${i}";
+		shasum -a 512 -c "${i}";
 	done
 
 
