@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.3
+# 0.0.4
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -22,7 +22,7 @@ function check_prog()
 function main()
 {
 # check depends tools
-	check_prog "echo find grep md5sum shasum";
+	check_prog "echo find grep md5sum shasum sha3sum";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
@@ -81,6 +81,62 @@ function main()
 	do
 		echo -ne "check sha512: ";
 		shasum -a 512 -c "${i}";
+	done
+
+
+	FILE_LIST="$(find ./ -type f | grep '\.sha3$')";
+	for i in ${FILE_LIST};
+	do
+		echo -ne "check sha3: ";
+		sha3sum -c "${i}";
+	done
+
+
+	FILE_LIST="$(find ./ -type f | grep '\.sha3_224$')";
+	for i in ${FILE_LIST};
+	do
+		echo -ne "check sha3_224: ";
+		sha3sum -a 224 -c "${i}";
+	done
+
+
+	FILE_LIST="$(find ./ -type f | grep '\.sha3_256$')";
+	for i in ${FILE_LIST};
+	do
+		echo -ne "check sha3_256: ";
+		sha3sum -a 256 -c "${i}";
+	done
+
+
+	FILE_LIST="$(find ./ -type f | grep '\.sha3_384$')";
+	for i in ${FILE_LIST};
+	do
+		echo -ne "check sha3_384: ";
+		sha3sum -a 384 -c "${i}";
+	done
+
+
+	FILE_LIST="$(find ./ -type f | grep '\.sha3_512$')";
+	for i in ${FILE_LIST};
+	do
+		echo -ne "check sha3_512: ";
+		sha3sum -a 512 -c "${i}";
+	done
+
+
+	FILE_LIST="$(find ./ -type f | grep '\.sha3_128000$')";
+	for i in ${FILE_LIST};
+	do
+		echo -ne "check sha3_128000: ";
+		sha3sum -a 128000 -c "${i}";
+	done
+
+
+	FILE_LIST="$(find ./ -type f | grep '\.sha3_256000$')";
+	for i in ${FILE_LIST};
+	do
+		echo -ne "check sha3_256000: ";
+		sha3sum -a 256000 -c "${i}";
 	done
 
 
