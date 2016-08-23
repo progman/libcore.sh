@@ -68,7 +68,7 @@ function main()
 
 	if [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
 	then
-		echo "example: ls -1 *.* | ${0}";
+		echo "example: cat FILELIST | ${0}";
 		return 1;
 	fi
 
