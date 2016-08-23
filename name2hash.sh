@@ -53,6 +53,7 @@ function do_it()
 		then
 			return 3;
 		fi
+		echo "${OLD}";
 	fi
 
 
@@ -105,9 +106,9 @@ function main()
 	done
 
 
-	local COUNT_CUR=1;
-	local COUNT_ALL;
-	COUNT_ALL=$(wc -l "${TMP}" | { read a b; echo ${a}; });
+#	local COUNT_CUR=1;
+#	local COUNT_ALL;
+#	COUNT_ALL=$(wc -l "${TMP}" | { read a b; echo ${a}; });
 
 
 # convert
@@ -115,11 +116,11 @@ function main()
 	do
 		if [ -e "${FILE}" ];
 		then
-			echo "[${COUNT_CUR}/${COUNT_ALL}] ${FILE}";
+#			echo "[${COUNT_CUR}/${COUNT_ALL}] ${FILE}";
 			do_it "${FILE}";
 		fi
 
-		(( COUNT_CUR++ ));
+#		(( COUNT_CUR++ ));
 
 	done < "${TMP}";
 
