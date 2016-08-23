@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.2
+# 0.0.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 GLOBAL_DELTA_SIZE=0;
@@ -82,6 +82,14 @@ function do_file()
 	then
 		echo "can't make tmp file";
 		return 1;
+	fi
+
+
+	local FILE_TYPE=$(file --mime-type "${1}" | awk '{ print $2 }');
+	if [ "${FILE_TYPE}" != "image/png" ];
+	then
+		echo "NOT PNG";
+		return;
 	fi
 
 
@@ -241,7 +249,7 @@ function main()
 
 
 # check minimal depends tools
-	check_prog "echo find mktemp mv pngcrush printf rm sed sort stat uniq wc which";
+	check_prog "echo file find mktemp mv pngcrush printf rm sed sort stat uniq wc which";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
