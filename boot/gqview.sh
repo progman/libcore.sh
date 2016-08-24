@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 export LANG='ru_RU.UTF-8';
 export LANGUAGE="${LANG}";
