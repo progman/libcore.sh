@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.5
+# 0.0.6
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -18,14 +18,16 @@ function check_prog()
 	return 0;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+#TODO: fix name2hash /path/path/file
 function do_it()
 {
 	local OLD="${1}";
 
-	local HASH=$(sha3sum -a 224 "${OLD}" | awk '{print $1}');
+	local HASH=$(sha3sum -a 224 "${OLD}" | { read a b; echo ${a}; });
 
 #	local EXT=$(echo "${OLD}" | sed -e 's/^[^\.]*//g');
-	local EXT=$(echo "${OLD}" | sed -e 's/.*\.//g');
+#	local EXT=$(echo "${OLD}" | sed -e 's/.*\.//g');
+	local EXT=$(sed -e 's/.*\.//g' <<< "${OLD}");
 
 	if [ "${OLD}" == "${EXT}" ];
 	then
@@ -48,7 +50,7 @@ function do_it()
 
 	if [ "${OLD}" != "${NEW}" ];
 	then
-		mv "${OLD}" "${NEW}";
+		mv -- "${OLD}" "${NEW}";
 		if [ "${?}" != "0" ];
 		then
 			return 3;
@@ -74,7 +76,7 @@ function main()
 
 
 # check depends tools
-	check_prog "echo awk sed sha3sum mv mktemp wc"; # sha3sum from libdigest-sha3-perl
+	check_prog "echo sed sha3sum mv mktemp wc"; # sha3sum from libdigest-sha3-perl
 	if [ "${?}" != "0" ];
 	then
 		return 1;
@@ -96,14 +98,14 @@ function main()
 #	done
 
 
-	local TMP;
-	TMP=$(mktemp 2> /dev/null);
+#	local TMP;
+#	TMP=$(mktemp 2> /dev/null);
 
 
-	while read -r FILE;
-	do
-		echo "${FILE}" >> "${TMP}";
-	done
+#	while read -r FILE;
+#	do
+#		echo "${FILE}" >> "${TMP}";
+#	done
 
 
 #	local COUNT_CUR=1;
@@ -126,10 +128,11 @@ function main()
 
 #		(( COUNT_CUR++ ));
 
-	done < "${TMP}";
+#	done < "${TMP}";
+	done;
 
 
-	rm -- -rf "${TMP}" &> /dev/null;
+#	rm -- -rf "${TMP}" &> /dev/null;
 
 
 	return 0;
@@ -139,4 +142,3 @@ main "${@}";
 
 exit "${?}";
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-#TODO: fix name2hash /path/path/file
