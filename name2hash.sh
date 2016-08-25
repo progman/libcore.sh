@@ -27,7 +27,9 @@ function do_it()
 
 #	local EXT=$(echo "${OLD}" | sed -e 's/^[^\.]*//g');
 #	local EXT=$(echo "${OLD}" | sed -e 's/.*\.//g');
-	local EXT=$(sed -e 's/.*\.//g' <<< "${OLD}");
+#	local EXT=$(sed -e 's/.*\.//g' <<< "${OLD}");
+	local EXT=${OLD/*./};
+
 
 	if [ "${OLD}" == "${EXT}" ];
 	then
