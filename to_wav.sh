@@ -53,7 +53,7 @@ function main()
 	mv -- "${WAV}.tmp" "${WAV}" &> /dev/null < /dev/null;
 	if [ "${?}" != "0" ];
 	then
-		echo "ERROR: unknown error";
+		echo "ERROR[rename()]: unknown error";
 		return 1;
 	fi
 

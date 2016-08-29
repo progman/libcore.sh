@@ -57,7 +57,20 @@ function main()
 		if [ -e "${FILE}" ];
 		then
 			echo "[${COUNT_CUR}/${COUNT_ALL}] ${FILE}";
-			lame --quiet -h -q 0 -v -V 0 -B 320 "${FILE}" "${FILE}.mp3" < /dev/null;
+			lame --quiet -h -q 0 -v -V 0 -B 320 "${FILE}" "${FILE}.mp3.tmp" < /dev/null;
+			if [ "${?}" != "0" ];
+			then
+				echo "ERROR[lame()]: unknown error";
+				return 1;
+			fi
+
+# rename
+			mv -- "${FILE}.mp3.tmp" "${FILE}.mp3" &> /dev/null < /dev/null;
+			if [ "${?}" != "0" ];
+			then
+				echo "ERROR[rename()]: unknown error";
+				return 1;
+			fi
 		fi
 
 		(( COUNT_CUR++ ));
