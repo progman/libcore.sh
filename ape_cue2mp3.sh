@@ -56,10 +56,18 @@ function main()
 
 	echo "convert APE to WAV...";
 
-	mac "${APE}" "${WAV}" -d;
+	mac "${APE}" "${WAV}.tmp" -d;
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR[mac()]: unknown error";
+		return 1;
+	fi
+
+# rename
+	mv -- "${WAV}.tmp" "${WAV}" &> /dev/null < /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR[rename()]: unknown error";
 		return 1;
 	fi
 
@@ -141,13 +149,20 @@ function main()
 
 
 		echo "[${CUR_TRACK}/${TRACK_COUNT}] ${TRACK_TITLE}";
-		lame --quiet -h -q 0 -v -V 0 -B 320 "${TRACK_WAV}" "${TRACK_MP3}" < /dev/null;
+		lame --quiet -h -q 0 -v -V 0 -B 320 "${TRACK_WAV}" "${TRACK_MP3}.tmp" < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo "ERROR[lame()]: unknown error";
 			return 1;
 		fi
 
+# rename
+		mv -- "${TRACK_MP3}.tmp" "${TRACK_MP3}" &> /dev/null < /dev/null;
+		if [ "${?}" != "0" ];
+		then
+			echo "ERROR[rename()]: unknown error";
+			return 1;
+		fi
 
 		id3v2 --album "${ALBUM_TITLE}" "${TRACK_MP3}"; # Set the album title information
 		id3v2 --comment "${ALBUM_PERFORMER}" "${TRACK_MP3}"; # Set the comment information
