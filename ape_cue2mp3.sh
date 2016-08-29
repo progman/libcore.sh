@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.1
+# 0.0.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -21,7 +21,7 @@ function check_prog()
 # general function
 function main()
 {
-	if [ "${1}" == "" ] || [ "${2}" == "" ];
+	if [ "${1}" == "" ] || [ "${2}" == "" ] || [ ! -e "${1}" ] || [ ! -e "${2}" ];
 	then
 		echo "ape converter";
 		echo "example: ${0} FILE.APE FILE.CUE";
@@ -34,6 +34,14 @@ function main()
 	if [ "${?}" != "0" ];
 	then
 		return 1;
+	fi
+
+
+# create temp dir and files
+	local LOCAL_TMPDIR="/tmp";
+	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
+	then
+		LOCAL_TMPDIR="${TMPDIR}";
 	fi
 
 
@@ -56,16 +64,37 @@ function main()
 	fi
 
 
-
 	echo "split WAV...";
 
-	cuebreakpoints "${CUE}" | shnsplit -o wav -a 'track' "${WAV}" &> /dev/null;
-#	cuebreakpoints "${CUE}" | shnsplit -o flac "${WAV}";
+
+	local TMP;
+	TMP="$(mktemp --tmpdir="${LOCAL_TMPDIR}" 2> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
-		echo "ERROR[cuebreakpoints()/shnsplit()]: unknown error";
+		echo "ERROR: can't make tmp file";
 		return 1;
 	fi
+
+
+	cuebreakpoints "${CUE}" &> "${TMP}";
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR[cuebreakpoints()]: unknown error";
+		rm -rf -- "${TMP}";
+		return 1;
+	fi
+
+
+	shnsplit -o wav -a 'track' "${WAV}" &> /dev/null < "${TMP}";
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR[shnsplit()]: unknown error";
+		rm -rf -- "${TMP}";
+		return 1;
+	fi
+
+
+	rm -rf -- "${TMP}";
 
 
 	local TRACK_COUNT;
