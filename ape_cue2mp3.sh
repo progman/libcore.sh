@@ -30,7 +30,7 @@ function main()
 
 
 # check depends tools
-	check_prog "echo wc";
+	check_prog "echo mac cuebreakpoints shnsplit cueprint printf lame id3v2 wc";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
