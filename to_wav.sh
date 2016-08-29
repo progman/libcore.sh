@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.2
+# 0.0.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -36,8 +36,26 @@ function main()
 	fi
 
 
+	local SOURCE="${1}";
+	local WAV="${SOURCE}.wav";
+
+
 # convert
-	mplayer -vo null -ao pcm:file="${1}.wav" "${1}" &> /dev/null < /dev/null;
+	mplayer -vo null -ao pcm:file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: unknown error";
+		return 1;
+	fi
+
+
+# rename
+	mv -- "${WAV}.tmp" "${WAV}" &> /dev/null < /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: unknown error";
+		return 1;
+	fi
 
 
 	return "${?}";
