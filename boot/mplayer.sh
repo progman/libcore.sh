@@ -1,4 +1,10 @@
 #!/bin/bash
 
 echo "${@}" > /tmp/mplayer;
-mplayer "${@}" &> /dev/null < /dev/null &
+
+if [ "$(which mpv)" != "" ];
+then
+	mpv     "${@}" &> /dev/null < /dev/null &
+else
+	mplayer "${@}" &> /dev/null < /dev/null &
+fi
