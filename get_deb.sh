@@ -189,6 +189,12 @@ function main()
 	FULLNAME=$(echo "${FILE}" | sed -e 's/.*\///g');
 
 
+	if [ "${FLAG_INSTALL}" == "0" ];
+	then
+		return "${?}";
+	fi
+
+
 	if [ "${REAL_ARCH}" == "${ARCH}" ];
 	then
 		echo "dpkg -i /var/cache/apt/archives/${FULLNAME} && apt-get install -f";
