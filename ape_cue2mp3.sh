@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.2
+# 0.0.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -164,12 +164,12 @@ function main()
 			return 1;
 		fi
 
-		id3v2 --album "${ALBUM_TITLE}" "${TRACK_MP3}"; # Set the album title information
-		id3v2 --comment "${ALBUM_PERFORMER}" "${TRACK_MP3}"; # Set the comment information
+		id3v2 -2 --album "${ALBUM_TITLE}" "${TRACK_MP3}"; # Set the album title information
+		id3v2 -2 --comment "${ALBUM_PERFORMER}" "${TRACK_MP3}"; # Set the comment information
 
-		id3v2 --track "${CUR_TRACK}/${TRACK_COUNT}" "${TRACK_MP3}"; # Set the track number/(optional) total tracks
-		id3v2 --song "${TRACK_TITLE}" "${TRACK_MP3}"; # Set the song title information
-		id3v2 --artist "${TRACK_PERFORMER}" "${TRACK_MP3}"; # Set the artist information
+		id3v2 -2 --track "${CUR_TRACK}/${TRACK_COUNT}" "${TRACK_MP3}"; # Set the track number/(optional) total tracks
+		id3v2 -2 --song "${TRACK_TITLE}" "${TRACK_MP3}"; # Set the song title information
+		id3v2 -2 --artist "${TRACK_PERFORMER}" "${TRACK_MP3}"; # Set the artist information
 
 
 		rm -rf -- "${TRACK_WAV}";
