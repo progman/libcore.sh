@@ -97,6 +97,13 @@ function main()
 	fi
 
 
+# change title for xterm
+	if [ "${TERM}" == "xterm" ];
+	then
+		echo -ne "\033]0;${SQL_LOGIN}@${SQL_HOST}:${SQL_PORT}/${SQL_DATABASE}\007";
+	fi
+
+
 	if [ "${SQL_SERVER}" == "postgresql" ];
 	then
 		check_prog "psql";
