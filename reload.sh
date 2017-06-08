@@ -67,15 +67,13 @@ function check_run()
 function main()
 {
 	local PROGRAM="${1}";
-	local PID_FILE="${2}";
 	local STATUS;
-
 
 	if [ ! -f "${PROGRAM}" ];
 	then
 		echo "[make single process and] reload something program";
-		echo "example: ${0} PROGRAM [PID_FILE]";
-		echo "use in cron: ${0} PROGRAM PID_FILE >> /var/log/program.log &";
+		echo "example: PID_FILE=PID_FILE ${0} PROGRAM [PROGRAM_ARGS]";
+		echo "use in cron: PID_FILE=PID_FILE ${0} PROGRAM [PROGRAM_ARGS] >> /var/log/program.log &";
 		return 0;
 	fi
 
@@ -104,7 +102,7 @@ function main()
 
 	while true;
 	do
-		"${PROGRAM}";
+		${PROGRAM} ${@};
 	done
 
 
