@@ -102,7 +102,7 @@ function main()
 
 	while true;
 	do
-		${PROGRAM} ${@};
+		"${@}";
 	done
 
 
