@@ -75,7 +75,8 @@ function main()
 	then
 		echo "[make single process and] reload something program";
 		echo "example: ${0} PROGRAM [PID_FILE]";
-		return 1;
+		echo "use in cron: ${0} PROGRAM PID_FILE >> /var/log/program.log &";
+		return 0;
 	fi
 
 
