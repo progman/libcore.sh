@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.3
+# 0.0.4
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -73,7 +73,7 @@ function main()
 	then
 		echo "[make single process and] reload something program";
 		echo "example: PID_FILE=PID_FILE ${0} PROGRAM [PROGRAM_ARGS]";
-		echo "use in cron: PID_FILE=PID_FILE ${0} PROGRAM [PROGRAM_ARGS] >> /var/log/program.log &";
+		echo "use in cron: PID_FILE=PID_FILE WORK_DIR=WORK_DIR ${0} PROGRAM [PROGRAM_ARGS] >> /var/log/program.log &";
 		return 0;
 	fi
 
@@ -97,6 +97,12 @@ function main()
 	then
 		echo "ERROR: corrupt PID file ${PID_FILE}";
 		return "${STATUS}"; # bad pid file
+	fi
+
+
+	if [ "${WORK_DIR}" != "" ] && [ -d "${WORK_DIR}" ];
+	then
+		cd -- "${WORK_DIR}" &> /dev/null < /dev/null;
 	fi
 
 
