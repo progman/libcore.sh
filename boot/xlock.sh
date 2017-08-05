@@ -31,7 +31,7 @@ export LC_MEASUREMENT="${LANG}";
 export LC_IDENTIFICATION="${LANG}";
 export LC_ALL="${LANG}";
 
-sleep 1;
+sleep 0.5;
 xset +dpms;
 xset dpms force on;
 
