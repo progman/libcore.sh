@@ -72,7 +72,7 @@ function main()
 
 	if [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
 	then
-		echo "example: cat FILELIST | ${0} [-s]";
+		echo "example: cat FILELIST | ${0} [-s | -p]";
 		return 1;
 	fi
 
@@ -81,6 +81,10 @@ function main()
 	if [ "${1}" == "-s" ];
 	then
 		FLAG_STUPID=1;
+	fi
+	if [ "${1}" == "-p" ];
+	then
+		FLAG_STUPID=0;
 	fi
 
 
