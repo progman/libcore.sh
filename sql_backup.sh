@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.7
+# 0.0.8
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # view current time
@@ -48,7 +48,7 @@ function kill_ring()
 
 			if [ "${MAX_ITEM_COUNT}" == "0" ];
 			then
-				echo "rm -rf \"${FILENAME}\"";
+				echo "$(get_time)rm -rf \"${FILENAME}\"";
 				rm -rf -- "${FILENAME}" &> /dev/null;
 				continue;
 			fi
@@ -217,6 +217,203 @@ function var_check()
 	return 0;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function backup_postgres_global()
+{
+# check pg_dumpall
+	if [ "$(which pg_dumpall)" == "" ];
+	then
+		echo "FATAL: you must install \"pg_dumpall\"...";
+		return 1;
+	fi
+
+
+# set password
+	PGPASSWORD="${SQL_PASSWORD}";
+	export PGPASSWORD;
+
+
+	FILENAME="${SQL_DATABASE}_${SQL_SERVER}-${TIMESTAMP}.sql";
+	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
+	echo "$(get_time)make \"${SQL_DUMP_DIR}/${PACK_NAME}\"";
+	pg_dumpall -g -c --if-exists --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" > "${FILENAME}.tmp" 2> /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		rm -rf -- "${FILENAME}.tmp";
+		echo "ERROR: unknown error";
+		return 1;
+	fi
+	mv "${FILENAME}.tmp" "${FILENAME}";
+
+	pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
+	kill_ring "${SQL_DUMP_MAX_COUNT}";
+	cd ..;
+
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function backup_postgres()
+{
+	local STATUS;
+
+
+	if [ "${SQL_LOGIN}" == "postgres" ] && [ "${SQL_DATABASE}" == "postgres" ];
+	then
+		backup_postgres_global;
+		STATUS="${?}";
+		return "${STATUS}";
+	fi
+
+
+# check pg_dump
+	if [ "$(which pg_dump)" == "" ];
+	then
+		echo "FATAL: you must install \"pg_dump\"...";
+		return 1;
+	fi
+
+
+# set password
+	PGPASSWORD="${SQL_PASSWORD}";
+	export PGPASSWORD;
+
+
+# create template dump
+	mkdir "${SQL_SERVER}_template" &> /dev/null;
+	CUR_DIR="${SQL_SERVER}_template";
+	cd "${CUR_DIR}";
+
+	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_template-${TIMESTAMP}.sql";
+	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
+	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
+	pg_dump --exclude-schema="not_backup" -s -c --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		rm -rf -- "${FILENAME}.tmp";
+		echo "ERROR: unknown error";
+		return 1;
+	fi
+	mv "${FILENAME}.tmp" "${FILENAME}";
+
+	pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
+	kill_ring "${SQL_DUMP_MAX_COUNT}";
+	cd ..;
+
+
+# create dump
+	mkdir "${SQL_SERVER}_dump" &> /dev/null;
+	CUR_DIR="${SQL_SERVER}_dump";
+	cd "${CUR_DIR}";
+
+	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
+	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
+	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
+	pg_dump --exclude-schema="not_backup" -b -c --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		rm -rf -- "${FILENAME}.tmp";
+		echo "ERROR: unknown error";
+		return 1;
+	fi
+	mv "${FILENAME}.tmp" "${FILENAME}";
+
+	pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
+	kill_ring "${SQL_DUMP_MAX_COUNT}";
+	cd ..;
+
+
+# create clear dump
+	mkdir "${SQL_SERVER}_cdump" &> /dev/null;
+	CUR_DIR="${SQL_SERVER}_cdump";
+	cd "${CUR_DIR}";
+
+	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_cdump-${TIMESTAMP}.sql";
+	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
+	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
+	pg_dump --exclude-schema="not_backup" -b -C -c --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		rm -rf -- "${FILENAME}.tmp";
+		echo "ERROR: unknown error";
+		return 1;
+	fi
+	mv "${FILENAME}.tmp" "${FILENAME}";
+
+	pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
+	kill_ring "${SQL_DUMP_MAX_COUNT}";
+	cd ..;
+
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function backup_mysql()
+{
+# check mysqldump
+	if [ "$(which mysqldump)" == "" ];
+	then
+		echo "FATAL: you must install \"mysqldump\"...";
+		return 1;
+	fi
+
+
+# create dump
+	mkdir "${SQL_SERVER}_dump" &> /dev/null;
+	CUR_DIR="${SQL_SERVER}_dump";
+	cd "${CUR_DIR}";
+
+	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
+	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
+	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
+	OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql -t --compact --skip-opt';
+#	OPTIONS='--ignore-table=xxxxxx';
+#	TABLES='xxxxxxxxxx';
+	TABLES='';
+
+	export MYSQL_PWD="${SQL_PASSWORD}";
+	mysqldump ${OPTIONS} --host="${SQL_HOST}" --port="${SQL_PORT}" --user="${SQL_LOGIN}" "${SQL_DATABASE}" ${TABLES} > "${FILENAME}.tmp" 2> /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		rm -rf -- "${FILENAME}.tmp";
+		echo "ERROR: unknown error";
+		return 1;
+	fi
+	mv "${FILENAME}.tmp" "${FILENAME}";
+
+	pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
+	kill_ring "${SQL_DUMP_MAX_COUNT}";
+	cd ..;
+
+
+# create clear dump
+	mkdir "${SQL_SERVER}_cdump" &> /dev/null;
+	CUR_DIR="${SQL_SERVER}_cdump";
+	cd "${CUR_DIR}";
+
+	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
+	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
+	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
+	OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql --opt';
+	TABLES='';
+
+	export MYSQL_PWD="${SQL_PASSWORD}";
+	mysqldump ${OPTIONS} --host="${SQL_HOST}" --port="${SQL_PORT}" --user="${SQL_LOGIN}" "${SQL_DATABASE}" ${TABLES} > "${FILENAME}.tmp" 2> /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		rm -rf -- "${FILENAME}.tmp";
+		echo "ERROR: unknown error";
+		return 1;
+	fi
+	mv "${FILENAME}.tmp" "${FILENAME}";
+
+	pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
+	kill_ring "${SQL_DUMP_MAX_COUNT}";
+	cd ..;
+
+
+	return 0;
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
 function main()
 {
@@ -267,150 +464,21 @@ function main()
 
 	if [ "${SQL_SERVER}" == "postgresql" ];
 	then
-
-# check pg_dump
-		if [ "$(which pg_dump)" == "" ];
-		then
-			echo "FATAL: you must install \"pg_dump\"...";
-			return 1;
-		fi
-
-
-# set password
-		PGPASSWORD="${SQL_PASSWORD}";
-		export PGPASSWORD;
-
-
-# create template dump
-		mkdir "${SQL_SERVER}_template" &> /dev/null;
-		CUR_DIR="${SQL_SERVER}_template";
-		cd "${CUR_DIR}";
-
-		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_template-${TIMESTAMP}.sql";
-		PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
-		pg_dump --exclude-schema="not_backup" -s -c --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+		backup_postgres;
 		if [ "${?}" != "0" ];
 		then
-			rm -rf -- "${FILENAME}.tmp";
-			echo "ERROR: unknown error";
 			return 1;
 		fi
-		mv "${FILENAME}.tmp" "${FILENAME}";
-
-		pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
-		kill_ring "${SQL_DUMP_MAX_COUNT}";
-		cd ..;
-
-
-# create dump
-		mkdir "${SQL_SERVER}_dump" &> /dev/null;
-		CUR_DIR="${SQL_SERVER}_dump";
-		cd "${CUR_DIR}";
-
-		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
-		PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
-		pg_dump --exclude-schema="not_backup" -b -c --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
-		if [ "${?}" != "0" ];
-		then
-			rm -rf -- "${FILENAME}.tmp";
-			echo "ERROR: unknown error";
-			return 1;
-		fi
-		mv "${FILENAME}.tmp" "${FILENAME}";
-
-		pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
-		kill_ring "${SQL_DUMP_MAX_COUNT}";
-		cd ..;
-
-
-# create clear dump
-		mkdir "${SQL_SERVER}_cdump" &> /dev/null;
-		CUR_DIR="${SQL_SERVER}_cdump";
-		cd "${CUR_DIR}";
-
-		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_cdump-${TIMESTAMP}.sql";
-		PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
-		pg_dump --exclude-schema="not_backup" -b -C -c --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
-		if [ "${?}" != "0" ];
-		then
-			rm -rf -- "${FILENAME}.tmp";
-			echo "ERROR: unknown error";
-			return 1;
-		fi
-		mv "${FILENAME}.tmp" "${FILENAME}";
-
-		pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
-		kill_ring "${SQL_DUMP_MAX_COUNT}";
-		cd ..;
 	fi
 
 
 	if [ "${SQL_SERVER}" == "mysql" ];
 	then
-
-# check mysqldump
-		if [ "$(which mysqldump)" == "" ];
-		then
-			echo "FATAL: you must install \"mysqldump\"...";
-			return 1;
-		fi
-
-
-# create dump
-		mkdir "${SQL_SERVER}_dump" &> /dev/null;
-		CUR_DIR="${SQL_SERVER}_dump";
-		cd "${CUR_DIR}";
-
-		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
-		PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
-		OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql -t --compact --skip-opt';
-#		OPTIONS='--ignore-table=xxxxxx';
-#		TABLES='xxxxxxxxxx';
-		TABLES='';
-
-		export MYSQL_PWD="${SQL_PASSWORD}";
-		mysqldump ${OPTIONS} --host="${SQL_HOST}" --port="${SQL_PORT}" --user="${SQL_LOGIN}" "${SQL_DATABASE}" ${TABLES} > "${FILENAME}.tmp" 2> /dev/null;
+		backup_mysql;
 		if [ "${?}" != "0" ];
 		then
-			rm -rf -- "${FILENAME}.tmp";
-			echo "ERROR: unknown error";
 			return 1;
 		fi
-		mv "${FILENAME}.tmp" "${FILENAME}";
-
-		pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
-		kill_ring "${SQL_DUMP_MAX_COUNT}";
-		cd ..;
-
-
-# create clear dump
-		mkdir "${SQL_SERVER}_cdump" &> /dev/null;
-		CUR_DIR="${SQL_SERVER}_cdump";
-		cd "${CUR_DIR}";
-
-		FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
-		PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
-		echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
-		OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql --opt';
-		TABLES='';
-
-		export MYSQL_PWD="${SQL_PASSWORD}";
-		mysqldump ${OPTIONS} --host="${SQL_HOST}" --port="${SQL_PORT}" --user="${SQL_LOGIN}" "${SQL_DATABASE}" ${TABLES} > "${FILENAME}.tmp" 2> /dev/null;
-		if [ "${?}" != "0" ];
-		then
-			rm -rf -- "${FILENAME}.tmp";
-			echo "ERROR: unknown error";
-			return 1;
-		fi
-		mv "${FILENAME}.tmp" "${FILENAME}";
-
-		pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
-		kill_ring "${SQL_DUMP_MAX_COUNT}";
-		cd ..;
 	fi
 
 
