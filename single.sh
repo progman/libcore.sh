@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.5
+# 0.0.1
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -72,7 +72,7 @@ function main()
 
 	if [ ! -f "${PROGRAM}" ];
 	then
-		echo "[make single process and] reload something program";
+		echo "[make single process and] run something program";
 		echo "example: PID_FILE=PID_FILE ${0} PROGRAM [PROGRAM_ARGS]";
 		echo "use in cron: PID_FILE=PID_FILE WORK_DIR=WORK_DIR ${0} PROGRAM [PROGRAM_ARGS] >> /var/log/program.log &";
 		return 0;
@@ -107,13 +107,14 @@ function main()
 	fi
 
 
-	while true;
-	do
-		"${@}";
-	done
+	"${@}";
+	STATUS="${?}";
 
 
-	return "${?}";
+	rm -rf -- "${PID_FILE}" &> /dev/null < /dev/null;
+
+
+	return "${STATUS}";
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 main "${@}";
