@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.2
+# 0.0.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -88,14 +88,39 @@ function main()
 # you can use ssh via openvpn
 	if [ "${OPENVPN_CONFIG}" != "" ];
 	then
+
+
+# chech config file
+		if [ ! -e "${OPENVPN_CONFIG}" ];
+		then
+			echo "FATAL: OPENVPN_CONFIG is not found";
+			return 1;
+		fi
+
+
+# check depends tools
+		check_prog "openvpn";
+		if [ "${?}" != "0" ];
+		then
+			return 1;
+		fi
+
+
 # start openvpn if it is not started
 		if [ "$(ps -fe | grep openvpn | grep -v grep | wc -l | { read a b; echo ${a}; })" == "0" ];
 		then
 # check current tun count
 			TUN_COUNT_OLD="$(ip -br link | awk '{ print $1 }' | grep tun | wc -l | { read a b; echo ${a}; })";
 
+
 # start openvpn
 			openvpn "${OPENVPN_CONFIG}" &> /dev/null < /dev/null &
+			if [ "${?}" != "0" ];
+			then
+				echo "FATAL: openvpn did not start";
+				return 1;
+			fi
+
 
 # wait to change tun count
 			while true;
