@@ -1,6 +1,6 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.5
+# 0.0.6
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # convert wav to mp3
@@ -63,6 +63,11 @@ function convert_something2wav()
 	return 0;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function get_target_name()
+{
+	echo "${1}.mp3";
+}
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # convert something to mp3
 function convert()
 {
@@ -91,14 +96,18 @@ function convert()
 	TMP="$(mktemp --tmpdir="${LOCAL_TMPDIR}" 2> /dev/null)";
 	if [ "${?}" != "0" ];
 	then
-		echo "can't make tmp file";
+		echo "ERROR: can't make tmp file";
 		return 1;
 	fi
 
 
+	TARGET=$(get_target_name "${SOURCE}");
+#	echo ${TARGET}
+
+
 	if [ "${MIME}" == "audio/x-wav" ];
 	then
-		TARGET=$(echo "${SOURCE}" | sed -e 's/\.wav$/\.mp3/gi');
+#		TARGET=$(echo "${SOURCE}" | sed -e 's/\.wav$/\.mp3/gi');
 
 		convert_wav2mp3 "${SOURCE}" "${TARGET}";
 		if [ "${?}" != "0" ];
@@ -108,13 +117,15 @@ function convert()
 		fi
 		rm -rf -- "${TMP}" &> /dev/null < /dev/null;
 
+
+		echo "ok";
 		return 0;
 	fi
 
 
 	if [ "${MIME}" == "audio/x-flac" ];
 	then
-		TARGET=$(echo "${SOURCE}" | sed -e 's/\.flac$/\.mp3/gi');
+#		TARGET=$(echo "${SOURCE}" | sed -e 's/\.flac$/\.mp3/gi');
 
 		ALBUM_TITLE=$(metaflac --show-tag ALBUM "${SOURCE}" | sed -e 's/.*=//g');
 		CUR_TRACK=$(metaflac --show-tag TRACKNUMBER "${SOURCE}" | sed -e 's/.*=//g');
@@ -153,13 +164,14 @@ function convert()
 		rm -rf -- "${TMP}" &> /dev/null < /dev/null;
 
 
+		echo "ok";
 		return 0;
 	fi
 
 
-	if [ "${MIME}" == "audio/x-ape" ];
+	if [ "${MIME}" == "audio/x-ape" ] || [ "${MIME}" == "audio/mpeg" ];
 	then
-		TARGET=$(echo "${SOURCE}" | sed -e 's/\.ape$/\.mp3/gi');
+#		TARGET=$(echo "${SOURCE}" | sed -e 's/\.ape$/\.mp3/gi');
 
 		ALBUM_TITLE=$(mplayer -vo null -ao null -identify -frames 0 "${SOURCE}" 2>&1 | grep '^ Album: ' | sed -e 's/^ Album: //g');
 		CUR_TRACK=$(mplayer -vo null -ao null -identify -frames 0 "${SOURCE}" 2>&1 | grep '^ Track: ' | sed -e 's/^ Track: //g');
@@ -193,14 +205,14 @@ function convert()
 		rm -rf -- "${TMP}" &> /dev/null < /dev/null;
 
 
+		echo "ok";
 		return 0;
 	fi
 
 
-
 	if [ "${MIME}" == "audio/ogg" ];
 	then
-		TARGET=$(echo "${SOURCE}" | sed -e 's/\.ogg$/\.mp3/gi');
+#		TARGET=$(echo "${SOURCE}" | sed -e 's/\.ogg$/\.mp3/gi');
 
 		ALBUM_TITLE=$(ogginfo "${SOURCE}" 2>&1 | grep -P '^\tALBUM=' | sed -e 's/.*ALBUM=//g');
 		CUR_TRACK=$(ogginfo "${SOURCE}" 2>&1 | grep -P '^\tTRACKNUMBER=' | sed -e 's/.*TRACKNUMBER=//g' | sed -e 's/\/.*//g');
@@ -241,10 +253,13 @@ function convert()
 		rm -rf -- "${TMP}" &> /dev/null < /dev/null;
 
 
+		echo "ok";
 		return 0;
 	fi
 
 
+	echo "unknown type";
+	rm -rf -- "${TMP}" &> /dev/null < /dev/null;
 	return 0;
 }
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -306,7 +321,7 @@ function main()
 	do
 		if [ -e "${FILE}" ];
 		then
-			echo "[${COUNT_CUR}/${COUNT_ALL}] ${FILE}";
+			echo -n "[${COUNT_CUR}/${COUNT_ALL}] ${FILE} ... ";
 
 			convert "${FILE}";
 			if [ "${?}" != "0" ];
