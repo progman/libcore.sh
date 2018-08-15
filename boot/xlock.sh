@@ -4,7 +4,7 @@ function do_lock()
 {
 	if [ "$(which i3lock)" != "" ];
 	then
-		i3lock -c 000000;
+		i3lock -c 000000 -n;
 		return;
 	fi
 
@@ -31,11 +31,15 @@ export LC_MEASUREMENT="${LANG}";
 export LC_IDENTIFICATION="${LANG}";
 export LC_ALL="${LANG}";
 
-sleep 0.5;
+sleep 0.3;
+xset s off;
+
 xset +dpms;
-xset dpms force on;
+xset +dpms dpms 5 5 5;
+xset dpms force off;
 
 do_lock;
 
-xset s off;
+xset dpms force on;
+xset +dpms dpms 0 0 0;
 xset -dpms;
