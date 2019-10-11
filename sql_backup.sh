@@ -255,6 +255,7 @@ function backup_postgres_global()
 function backup_postgres()
 {
 	local STATUS;
+	local OPT;
 
 
 	if [ "${SQL_LOGIN}" == "postgres" ] && [ "${SQL_DATABASE}" == "postgres" ];
@@ -278,6 +279,27 @@ function backup_postgres()
 	export PGPASSWORD;
 
 
+#  --lock-wait-timeout=ТАЙМ-АУТ прервать операцию при тайм-ауте блокировки таблицы
+#  -n, --schema=ШАБЛОН          выгрузить только указанную схему(ы)
+#  -S, --superuser=ИМЯ          имя пользователя, который будет задействован при восстановлении из текстового формата
+#  -t, --table=ШАБЛОН           выгрузить только указанную таблицу(ы)
+#  -T, --exclude-table=ШАБЛОН   НЕ выгружать указанную таблицу(ы)
+#  --column-inserts             выгружать данные в виде INSERT с именами столбцов
+#  --disable-dollar-quoting     отключить спецстроки с $, выводить строки по стандарту SQL
+#  --exclude-table-data=ШАБЛОН  НЕ выгружать данные указанной таблицы (таблиц)
+#  --extra-float-digits=ЧИСЛО   переопределить значение extra_float_digits
+#  --inserts                    выгрузить данные в виде команд INSERT, не COPY
+#  --load-via-partition-root    загружать секции через главную таблицу
+#  --on-conflict-do-nothing     добавлять ON CONFLICT DO NOTHING в команды INSERT
+#  --quote-all-identifiers      заключать в кавычки все идентификаторы, а не только ключевые слова
+#  --rows-per-insert=ЧИСЛО      число строк в одном INSERT; подразумевает --inserts
+#  --section=РАЗДЕЛ             выгрузить заданный раздел (pre-data, data или post-data)
+#  --snapshot=СНИМОК            использовать при выгрузке заданный снимок
+#  --strict-names               требовать, чтобы при указании шаблона включения таблицы и/или схемы ему соответствовал минимум один объект
+#  --use-set-session-authorization устанавливать владельца, используя команды SET SESSION AUTHORIZATION вместо ALTER OWNER
+#  --role=ИМЯ_РОЛИ          выполнить SET ROLE перед выгрузкой
+
+
 # create template dump
 	mkdir "${SQL_SERVER}_template" &> /dev/null;
 	CUR_DIR="${SQL_SERVER}_template";
@@ -286,11 +308,32 @@ function backup_postgres()
 	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_template-${TIMESTAMP}.sql";
 	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
-	pg_dump --exclude-schema="not_backup" --schema-only --clean --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+
+
+	OPT="";
+	OPT="${OPT} --schema-only";               # выгрузить только схему, без данных
+
+#	OPT="${OPT} --jobs=2";                    # распараллелить копирование на указанное число заданий
+	OPT="${OPT} --exclude-schema=not_backup"; # НЕ выгружать указанную схему(ы)
+	OPT="${OPT} --clean";                     # очистить (удалить) объекты БД при восстановлении
+	OPT="${OPT} --if-exists";                 # применять IF EXISTS при удалении объектов
+	OPT="${OPT} --compress=0";                # уровень сжатия при архивации
+	OPT="${OPT} --format=p";                  # формат выводимых данных: текстовый (по умолчанию))
+	OPT="${OPT} --serializable-deferrable";   # дождаться момента для выгрузки данных без аномалий
+	OPT="${OPT} --host=${SQL_HOST}";          # имя сервера баз данных или каталог сокетов
+	OPT="${OPT} --port=${SQL_PORT}";          # номер порта сервера БД
+	OPT="${OPT} --username=${SQL_LOGIN}";     # имя пользователя баз данных
+	OPT="${OPT} ${SQL_DATABASE}";             # имя базы данных для выгрузки
+
+
+#	echo ${OPT};
+#	pg_dump ${OPT};
+	pg_dump ${OPT} > "${FILENAME}.tmp" 2> /dev/null;
+#	pg_dump --exclude-schema="not_backup" --schema-only --clean --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
-		echo "ERROR: unknown error";
+		echo "ERROR: unknown error1";
 		return 1;
 	fi
 	mv "${FILENAME}.tmp" "${FILENAME}";
@@ -308,11 +351,32 @@ function backup_postgres()
 	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
 	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
-	pg_dump --exclude-schema="not_backup" --blobs --clean --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+
+
+	OPT="";
+	OPT="${OPT} --blobs";                     # выгрузить также большие объекты
+
+#	OPT="${OPT} --jobs=2";                    # распараллелить копирование на указанное число заданий
+	OPT="${OPT} --exclude-schema=not_backup"; # НЕ выгружать указанную схему(ы)
+	OPT="${OPT} --clean";                     # очистить (удалить) объекты БД при восстановлении
+	OPT="${OPT} --if-exists";                 # применять IF EXISTS при удалении объектов
+	OPT="${OPT} --compress=0";                # уровень сжатия при архивации
+	OPT="${OPT} --format=p";                  # формат выводимых данных: текстовый (по умолчанию))
+	OPT="${OPT} --serializable-deferrable";   # дождаться момента для выгрузки данных без аномалий
+	OPT="${OPT} --host=${SQL_HOST}";          # имя сервера баз данных или каталог сокетов
+	OPT="${OPT} --port=${SQL_PORT}";          # номер порта сервера БД
+	OPT="${OPT} --username=${SQL_LOGIN}";     # имя пользователя баз данных
+	OPT="${OPT} ${SQL_DATABASE}";             # имя базы данных для выгрузки
+
+
+#	echo ${OPT};
+#	pg_dump ${OPT};
+	pg_dump ${OPT} > "${FILENAME}.tmp" 2> /dev/null;
+#	pg_dump --exclude-schema="not_backup" --blobs --clean --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
-		echo "ERROR: unknown error";
+		echo "ERROR: unknown error2";
 		return 1;
 	fi
 	mv "${FILENAME}.tmp" "${FILENAME}";
@@ -330,11 +394,33 @@ function backup_postgres()
 	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_cdump-${TIMESTAMP}.sql";
 	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
-	pg_dump --exclude-schema="not_backup" --blobs --create --clean --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+
+
+	OPT="";
+	OPT="${OPT} --create";                    # добавить в копию команды создания базы данных
+	OPT="${OPT} --blobs";                     # выгрузить также большие объекты
+
+#	OPT="${OPT} --jobs=2";                    # распараллелить копирование на указанное число заданий
+	OPT="${OPT} --exclude-schema=not_backup"; # НЕ выгружать указанную схему(ы)
+	OPT="${OPT} --clean";                     # очистить (удалить) объекты БД при восстановлении
+	OPT="${OPT} --if-exists";                 # применять IF EXISTS при удалении объектов
+	OPT="${OPT} --compress=0";                # уровень сжатия при архивации
+	OPT="${OPT} --format=p";                  # формат выводимых данных: текстовый (по умолчанию))
+	OPT="${OPT} --serializable-deferrable";   # дождаться момента для выгрузки данных без аномалий
+	OPT="${OPT} --host=${SQL_HOST}";          # имя сервера баз данных или каталог сокетов
+	OPT="${OPT} --port=${SQL_PORT}";          # номер порта сервера БД
+	OPT="${OPT} --username=${SQL_LOGIN}";     # имя пользователя баз данных
+	OPT="${OPT} ${SQL_DATABASE}";             # имя базы данных для выгрузки
+
+
+#	echo ${OPT};
+#	pg_dump ${OPT};
+	pg_dump ${OPT} > "${FILENAME}.tmp" 2> /dev/null;
+#	pg_dump --exclude-schema="not_backup" --blobs --create --clean --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
-		echo "ERROR: unknown error";
+		echo "ERROR: unknown error3";
 		return 1;
 	fi
 	mv "${FILENAME}.tmp" "${FILENAME}";
@@ -352,11 +438,34 @@ function backup_postgres()
 	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
 	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
-	pg_dump --exclude-schema="not_backup" --no-owner --no-privileges --blobs --clean --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+
+
+	OPT="";
+	OPT="${OPT} --no-owner";                  # не восстанавливать владение объектами
+	OPT="${OPT} --no-privileges";             # не выгружать права (назначение/отзыв)
+	OPT="${OPT} --blobs";                     # выгрузить также большие объекты
+
+#	OPT="${OPT} --jobs=2";                    # распараллелить копирование на указанное число заданий
+	OPT="${OPT} --exclude-schema=not_backup"; # НЕ выгружать указанную схему(ы)
+	OPT="${OPT} --clean";                     # очистить (удалить) объекты БД при восстановлении
+	OPT="${OPT} --if-exists";                 # применять IF EXISTS при удалении объектов
+	OPT="${OPT} --compress=0";                # уровень сжатия при архивации
+	OPT="${OPT} --format=p";                  # формат выводимых данных: текстовый (по умолчанию))
+	OPT="${OPT} --serializable-deferrable";   # дождаться момента для выгрузки данных без аномалий
+	OPT="${OPT} --host=${SQL_HOST}";          # имя сервера баз данных или каталог сокетов
+	OPT="${OPT} --port=${SQL_PORT}";          # номер порта сервера БД
+	OPT="${OPT} --username=${SQL_LOGIN}";     # имя пользователя баз данных
+	OPT="${OPT} ${SQL_DATABASE}";             # имя базы данных для выгрузки
+
+
+#	echo ${OPT};
+#	pg_dump ${OPT};
+	pg_dump ${OPT} > "${FILENAME}.tmp" 2> /dev/null;
+#	pg_dump --exclude-schema="not_backup" --no-owner --no-privileges --blobs --clean --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
-		echo "ERROR: unknown error";
+		echo "ERROR: unknown error4";
 		return 1;
 	fi
 	mv "${FILENAME}.tmp" "${FILENAME}";
