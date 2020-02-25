@@ -37,8 +37,7 @@ function check_run()
 		fi
 
 		read PID_SAVE < "${PID_FILE}";
-		ps -p ${PID_SAVE} &> /dev/null;
-		if [ "${?}" == "0" ];
+		if [ "$(ps -p ${PID_SAVE} | wc -l | { read COL1; echo ${COL1}; })" != "1" ];
 		then
 			return 1; # program already run (real)
 		fi
