@@ -120,7 +120,7 @@ function main()
 		fi
 
 
-		LOG_FILE=$(date '+%Y-%m-%d_%H-%M-%S');
+		LOG_FILE=$(date '+%Y-%m-%d_%H-%M-%S.%N' | head -c 26);
 		touch "${LOG_DIR}/${LOG_FILE}.log" &> /dev/null < /dev/null;
 		ln -sf "${LOG_DIR}/${LOG_FILE}.log" "${LOG_DIR}/log" &> /dev/null < /dev/null;
 	fi
