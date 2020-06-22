@@ -10,7 +10,7 @@ do
 		echo "ERROR: pack error";
 		exit 1;
 	fi
-	mv "${i}.xz.tmp"; "${i}.xz";
+	mv "${i}.xz.tmp" "${i}.xz";
 	rm -rf -- "${i}";
 
 done
