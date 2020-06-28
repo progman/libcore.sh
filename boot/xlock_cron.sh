@@ -25,7 +25,7 @@ function main()
 
 
 # check depends tools
-	check_prog "echo kill nice rsync shasum";
+	check_prog "echo";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
