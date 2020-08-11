@@ -18,6 +18,8 @@ export LC_ALL="${LANG}";
 
 export DISABLE_SET_LOCALE="1";
 
+RESOLUTION=$(xrandr | grep -- '\*\+' | sed -e 's/^\ \ \ //g' | sed -e 's/\ .*//g');
+
 #export COLUMNS=82;
 #export LINES=60;
 

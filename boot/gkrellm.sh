@@ -34,13 +34,19 @@ function main()
 	local Y;
 
 
-	WIDTH=$(xrandr -q | grep '\*' | awk '{ print $1 }' | sed -e 's/x.*//g');
+	WIDTH=$(xrandr | grep -- '\*\+' | sed -e 's/x.*//g' | sed -e 's/\ *//g');
 
 
-	X=1852; #1920-1852=68
+	X=0;
+	if [ "${WIDTH}" == "1920" ];
+	then
+		X=1858; # gkrellm width: 50px
+	fi
+
+
 	if [ "${WIDTH}" == "2560" ];
 	then
-		X=2494;
+		X=2494; # gkrellm width: ??px
 	fi
 
 
