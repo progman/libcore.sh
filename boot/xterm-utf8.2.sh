@@ -32,8 +32,13 @@ RESOLUTION=$(xrandr | grep -- '\*\+' | sed -e 's/^\ \ \ //g' | sed -e 's/\ .*//g
 #xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr gray85 -bg gray13 -fg gray44 -hc gray75 -fa 'Terminus:pixelsize=14' &> /dev/null < /dev/null &
 #xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'DroidSansMono:pixelsize=13' &> /dev/null < /dev/null &
 
-xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=14' -geometry 311x49+0+0   &> /dev/null < /dev/null &
-xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=14' -geometry 311x49+0+721 &> /dev/null < /dev/null &
-
+if [ "${RESOLUTION}" == "1920x1080" ];
+then
+	xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=14' -geometry 231x30+0+0   &> /dev/null < /dev/null &
+	xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=14' -geometry 231x29+0+548 &> /dev/null < /dev/null &
+else
+	xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=14' -geometry 311x49+0+0   &> /dev/null < /dev/null &
+	xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=14' -geometry 311x49+0+721 &> /dev/null < /dev/null &
+fi
 #xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=14' -geometry 311x40+0+0   &> /dev/null < /dev/null &
 #xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=14' -geometry 311x40+0+721 &> /dev/null < /dev/null &
