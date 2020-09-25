@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.9
+# 0.1.0
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # view current time
@@ -114,7 +114,8 @@ function pack()
 		if [ "${XZ_OPT}" == "" ];
 		then
 #			export XZ_OPT='-9 --extreme';
-			export XZ_OPT='--lzma2=preset=9e,dict=1024MiB --memlimit-compress=7GiB';
+#			export XZ_OPT='--lzma2=preset=9e,dict=1024MiB --memlimit-compress=7GiB';
+			export XZ_OPT='--lzma2=preset=9e';
 		fi
 	fi
 
@@ -496,7 +497,8 @@ function backup_mysql()
 	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
 	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
-	OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql -t --compact --skip-opt';
+#	OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql -t --compact --skip-opt';
+	OPTIONS='--default-character-set=utf8 --single-transaction --compatible=ansi       -t --compact --skip-opt';
 #	OPTIONS='--ignore-table=xxxxxx';
 #	TABLES='xxxxxxxxxx';
 	TABLES='';
@@ -524,7 +526,8 @@ function backup_mysql()
 	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
 	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
-	OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql --opt';
+#	OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql --opt';
+	OPTIONS='--default-character-set=utf8 --single-transaction --compatible=ansi       --opt';
 	TABLES='';
 
 	export MYSQL_PWD="${SQL_PASSWORD}";
