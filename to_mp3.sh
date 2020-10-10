@@ -41,7 +41,7 @@ function convert_something2wav()
 
 
 # convert
-	mplayer -vo null -ao pcm:file="${TARGET}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
+	mplayer --vo=null --ao=pcm --ao-pcm-file="${TARGET}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${TARGET}.tmp" &> /dev/null < /dev/null;
@@ -173,11 +173,11 @@ function convert()
 	then
 #		TARGET=$(echo "${SOURCE}" | sed -e 's/\.ape$/\.mp3/gi');
 
-		ALBUM_TITLE=$(mplayer -vo null -ao null -identify -frames 0 "${SOURCE}" 2>&1 | grep '^ Album: ' | sed -e 's/^ Album: //g');
-		CUR_TRACK=$(mplayer -vo null -ao null -identify -frames 0 "${SOURCE}" 2>&1 | grep '^ Track: ' | sed -e 's/^ Track: //g');
-		TRACK_COUNT=$(mplayer -vo null -ao null -identify -frames 0 "${SOURCE}" 2>&1 | grep '^ Totaltracks: ' | sed -e 's/^ Totaltracks: //g');
-		TRACK_TITLE=$(mplayer -vo null -ao null -identify -frames 0 "${SOURCE}" 2>&1 | grep '^ Title: ' | sed -e 's/^ Title: //g');
-		TRACK_PERFORMER=$(mplayer -vo null -ao null -identify -frames 0 "${SOURCE}" 2>&1 | grep '^ Artist: ' | sed -e 's/^ Artist: //g');
+		ALBUM_TITLE=$(mplayer --vo=null --ao=null -identify -frames 0 "${SOURCE}" 2>&1 | grep '^ Album: ' | sed -e 's/^ Album: //g');
+		CUR_TRACK=$(mplayer --vo=null --ao=null -identify -frames 0 "${SOURCE}" 2>&1 | grep '^ Track: ' | sed -e 's/^ Track: //g');
+		TRACK_COUNT=$(mplayer --vo=null --ao=null -identify -frames 0 "${SOURCE}" 2>&1 | grep '^ Totaltracks: ' | sed -e 's/^ Totaltracks: //g');
+		TRACK_TITLE=$(mplayer --vo=null --ao=null -identify -frames 0 "${SOURCE}" 2>&1 | grep '^ Title: ' | sed -e 's/^ Title: //g');
+		TRACK_PERFORMER=$(mplayer --vo=null --ao=null -identify -frames 0 "${SOURCE}" 2>&1 | grep '^ Artist: ' | sed -e 's/^ Artist: //g');
 
 
 		convert_something2wav "${SOURCE}" "${TMP}";

@@ -41,10 +41,10 @@ function main()
 
 
 # convert
-	mplayer -vo null -ao pcm --ao-pcm-file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
+	mplayer --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
 	if [ "${?}" != "0" ];
 	then
-		mplayer -vo null -ao pcm -ao pcm:file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
+		mplayer --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo "ERROR: unknown error";
