@@ -30,7 +30,7 @@ function main()
 
 
 # check depends tools
-	check_prog "echo mplayer cuebreakpoints shnsplit cueprint printf lame id3v2 wc";
+	check_prog "echo mplayer cuebreakpoints shnsplit cueprint printf lame id3v2 wc grep sed"; # cuebreakpoints must remove!
 	if [ "${?}" != "0" ];
 	then
 		return 1;
@@ -84,7 +84,8 @@ function main()
 	fi
 
 
-	cuebreakpoints "${CUE}" &> "${TMP}";
+#	cuebreakpoints "${CUE}" &> "${TMP}";
+	cat "${CUE}" | grep INDEX | sed -e 's/.*\ //g' &> "${TMP}";
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR[cuebreakpoints()]: unknown error";
@@ -93,7 +94,7 @@ function main()
 	fi
 
 
-	shnsplit -o wav -a 'track' "${WAV}" &> /dev/null < "${TMP}";
+	shnsplit -o wav -a 'track' "${WAV}" &> /dev/null < "${TMP}"; # need patch https://github.com/max619/shntool/tree/fix/flac_format_value_fffe
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR[shnsplit()]: unknown error";
