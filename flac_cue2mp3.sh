@@ -108,15 +108,15 @@ function main()
 
 	local TRACK_COUNT;
 #	TRACK_COUNT=$(cat "${CUE}" | grep '^  TRACK' | wc -l);
-	TRACK_COUNT=$(cueprint -d '%N\n' "${CUE}");
+	TRACK_COUNT=$(cueprint -d '%N\n' "${CUE}" 2> /dev/null);
 
 
 	local ALBUM_PERFORMER;
-	ALBUM_PERFORMER=$(cueprint -d '%P\n' "${CUE}");
+	ALBUM_PERFORMER=$(cueprint -d '%P\n' "${CUE}" 2> /dev/null);
 
 
 	local ALBUM_TITLE;
-	ALBUM_TITLE=$(cueprint -d '%T\n' "${CUE}");
+	ALBUM_TITLE=$(cueprint -d '%T\n' "${CUE}" 2> /dev/null);
 
 
 #	echo "TRACK_COUNT: ${TRACK_COUNT}";
@@ -135,13 +135,13 @@ function main()
 
 
 		local TRACK_NUMBER;
-		TRACK_NUMBER=$(cueprint --track-number=${CUR_TRACK} -t '%n\n' "${CUE}"); #n           track number
+		TRACK_NUMBER=$(cueprint --track-number=${CUR_TRACK} -t '%n\n' "${CUE}" 2> /dev/null); #n           track number
 
 		local TRACK_TITLE;
-		TRACK_TITLE=$(cueprint --track-number=${CUR_TRACK} -t '%t\n' "${CUE}"); #t           track title
+		TRACK_TITLE=$(cueprint --track-number=${CUR_TRACK} -t '%t\n' "${CUE}" 2> /dev/null); #t           track title
 
 		local TRACK_PERFORMER;
-		TRACK_PERFORMER=$(cueprint --track-number=${CUR_TRACK} -t '%p\n' "${CUE}"); #p           track performer
+		TRACK_PERFORMER=$(cueprint --track-number=${CUR_TRACK} -t '%p\n' "${CUE}" 2> /dev/null); #p           track performer
 
 
 #		echo "TRACK_NUMBER: ${TRACK_NUMBER}";
