@@ -18,4 +18,4 @@ export LC_ALL="${LANG}";
 
 export G_BROKEN_FILENAMES=1;
 
-geeqie "${@}" &> /dev/null < /dev/null &
+geeqie --disable-clutter "${@}" &> /dev/null < /dev/null &
