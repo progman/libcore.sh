@@ -15,6 +15,15 @@ function do_lock()
 	fi
 }
 
+
+# turn on ENGLISH
+LAYOUT=$(setxkbmap -print -verbose 10 | grep layout | sed -e 's/.*\ //g');
+if [ "${LAYOUT}" == "us,ru" ];
+then
+	setxkbmap -layout us; sleep 0.1; setxkbmap -layout us,ru;
+fi
+
+
 export LANG='ru_RU.UTF-8';
 export LANGUAGE="${LANG}";
 export LC_CTYPE="${LANG}";
