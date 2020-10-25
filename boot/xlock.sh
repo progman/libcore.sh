@@ -17,11 +17,11 @@ function do_lock()
 
 
 # turn on ENGLISH
-LAYOUT=$(setxkbmap -print -verbose 10 | grep layout | sed -e 's/.*\ //g');
-if [ "${LAYOUT}" == "us,ru" ];
-then
-	setxkbmap -layout us; sleep 0.1; setxkbmap -layout us,ru;
-fi
+#LAYOUT=$(setxkbmap -print -verbose 10 | grep layout | sed -e 's/.*\ //g');
+#if [ "${LAYOUT}" == "us,ru" ];
+#then
+#	setxkbmap -layout us; sleep 0.1; setxkbmap -layout us,ru;
+#fi
 
 
 export LANG='ru_RU.UTF-8';
