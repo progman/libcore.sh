@@ -25,7 +25,7 @@ function main()
 
 
 	local ARGC="${#}";
-	if [ "${ARGC}" != "2" ] && [ "${ARGC}" != "3" ];
+	if [ "${ARGC}" != "1" ] && [ "${ARGC}" != "2" ];
 	then
 		echo "example: ${0} SOURCE.HTML [TARGET.PDF]";
 		return 1;
@@ -36,7 +36,7 @@ function main()
 	local FILE_TARGET="${2}";
 
 
-	if [ "${ARGC}" == "2" ];
+	if [ "${ARGC}" == "1" ];
 	then
 		FILE_TARGET="${FILE_SOURCE}.pdf";
 	fi
@@ -61,7 +61,7 @@ function main()
 
 
 # convert pdf
-	google-chrome --headless --disable-gpu --no-margins --print-to-pdf-no-header --print-to-pdf="${FILE_SOURCE}" "${FILE_TARGET}";
+	google-chrome --headless --disable-gpu --no-margins --print-to-pdf-no-header --print-to-pdf="${FILE_TARGET}" "${FILE_SOURCE}";
 	if [ "${?}" != "0" ]
 	then
 		return 1;
