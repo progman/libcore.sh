@@ -61,7 +61,7 @@ function main()
 
 
 # convert pdf
-	google-chrome --headless --disable-gpu --no-margins --print-to-pdf-no-header --print-to-pdf="${FILE_TARGET}" "${FILE_SOURCE}";
+	google-chrome --no-sandbox --headless --disable-gpu --no-margins --print-to-pdf-no-header --print-to-pdf="${FILE_TARGET}" "${FILE_SOURCE}";
 	if [ "${?}" != "0" ]
 	then
 		return 1;
