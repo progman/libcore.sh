@@ -62,20 +62,13 @@ function main()
 			continue;
 		fi
 
-		if [ "${OPERATION}" == "<=" ];
-		then
-			if [ "${SIZE_FILE}" -le "${SIZE}" ]; # INTEGER1 is less than or equal to INTEGER2
-			then
-				echo "${LINE}";
-			fi
-		fi
-
 		if [ "${OPERATION}" == "<" ];
 		then
 			if [ "${SIZE_FILE}" -lt "${SIZE}" ]; # INTEGER1 is less than INTEGER2
 			then
 				echo "${LINE}";
 			fi
+			continue;
 		fi
 
 		if [ "${OPERATION}" == ">" ];
@@ -84,6 +77,16 @@ function main()
 			then
 				echo "${LINE}";
 			fi
+			continue;
+		fi
+
+		if [ "${OPERATION}" == "<=" ];
+		then
+			if [ "${SIZE_FILE}" -le "${SIZE}" ]; # INTEGER1 is less than or equal to INTEGER2
+			then
+				echo "${LINE}";
+			fi
+			continue;
 		fi
 
 		if [ "${OPERATION}" == ">=" ];
@@ -92,6 +95,7 @@ function main()
 			then
 				echo "${LINE}";
 			fi
+			continue;
 		fi
 
 		if [ "${OPERATION}" == "==" ];
@@ -100,6 +104,7 @@ function main()
 			then
 				echo "${LINE}";
 			fi
+			continue;
 		fi
 
 		if [ "${OPERATION}" == "!=" ];
@@ -108,6 +113,7 @@ function main()
 			then
 				echo "${LINE}";
 			fi
+			continue;
 		fi
 
 	done
