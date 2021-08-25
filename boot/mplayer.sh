@@ -6,5 +6,5 @@ if [ "$(command -v mpv)" != "" ];
 then
 	mpv     "${@}" &> /dev/null < /dev/null &
 else
-	mplayer "${@}" &> /dev/null < /dev/null &
+	mplayer -cache 3000 "${@}" &> /dev/null < /dev/null &
 fi
