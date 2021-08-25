@@ -19,7 +19,7 @@ function check_prog()
 {
 	for i in ${1};
 	do
-		if [ "$(which ${i})" == "" ];
+		if [ "$(command -v ${i})" == "" ];
 		then
 			echo "FATAL: you must install \"${i}\"...";
 			return 1;
@@ -41,7 +41,7 @@ function human_size()
 	fi
 
 
-	if [ "$(which bc)" == "" ] || [ ${SIZE} -lt 1024 ]; # ${SIZE} < 1024
+	if [ "$(command -v bc)" == "" ] || [ ${SIZE} -lt 1024 ]; # ${SIZE} < 1024
 	then
 		echo "${SIGN}${SIZE} B";
 		return;
@@ -85,47 +85,47 @@ function view_size()
 # check exist tools
 function check_tool()
 {
-	if [ "$(which gzip)" != "" ];
+	if [ "$(command -v gzip)" != "" ];
 	then
 		GLOBAL_FLAG_FOUND_GZIP=1;
 	fi
 
-	if [ "$(which bzip2)" != "" ];
+	if [ "$(command -v bzip2)" != "" ];
 	then
 		GLOBAL_FLAG_FOUND_BZIP2=1;
 	fi
 
-	if [ "$(which xz)" != "" ];
+	if [ "$(command -v xz)" != "" ];
 	then
 		GLOBAL_FLAG_FOUND_XZ=1;
 	fi
 
-	if [ "$(which unrar)" != "" ];
+	if [ "$(command -v unrar)" != "" ];
 	then
 		GLOBAL_FLAG_FOUND_RAR=1;
 	fi
 
-	if [ "$(which unzip)" != "" ];
+	if [ "$(command -v unzip)" != "" ];
 	then
 		GLOBAL_FLAG_FOUND_ZIP=1;
 	fi
 
-	if [ "$(which arj)" != "" ];
+	if [ "$(command -v arj)" != "" ];
 	then
 		GLOBAL_FLAG_FOUND_ARJ=1;
 	fi
 
-	if [ "$(which lha)" != "" ];
+	if [ "$(command -v lha)" != "" ];
 	then
 		GLOBAL_FLAG_FOUND_LHA=1;
 	fi
 
-	if [ "$(which ha)" != "" ];
+	if [ "$(command -v ha)" != "" ];
 	then
 		GLOBAL_FLAG_FOUND_HA=1;
 	fi
 
-	if [ "$(which 7z)" != "" ];
+	if [ "$(command -v 7z)" != "" ];
 	then
 		GLOBAL_FLAG_FOUND_7Z=1;
 	fi
@@ -987,7 +987,7 @@ function main()
 
 
 # check depends tools
-	check_prog "basename dirname echo file find grep ionice ln ls mktemp mv nice printf readlink rm sed sort stat tar touch uniq wc which";
+	check_prog "basename dirname echo file find grep ionice ln ls mktemp mv nice printf readlink rm sed sort stat tar touch uniq wc";
 	if [ "${?}" != "0" ];
 	then
 		return 1;

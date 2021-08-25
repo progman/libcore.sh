@@ -8,7 +8,7 @@ function check_prog()
 {
 	for i in ${1};
 	do
-		if [ "$(which ${i})" == "" ];
+		if [ "$(command -v ${i})" == "" ];
 		then
 			echo "FATAL: you must install \"${i}\"...";
 			return 1;
@@ -38,7 +38,7 @@ function main()
 	FILENAME="/tmp/screenshot-$(date '+%Y%m%d_%H%M%S').png";
 
 
-	if [ "$(which import)" == "" ];
+	if [ "$(command -v import)" == "" ];
 	then
 		echo "ERROR: imagemagick not found";
 		return 1;
@@ -48,7 +48,7 @@ function main()
 	import -window "${WINDOW}" "${FILENAME}";
 
 
-	if [ "$(which pngcrush)" != "" ];
+	if [ "$(command -v pngcrush)" != "" ];
 	then
 		TMP="$(mktemp 2> /dev/null)";
 		if [ "${?}" != "0" ];
@@ -66,7 +66,7 @@ function main()
 		fi
 	fi
 
-	if [ "$(which beep)" != "" ];
+	if [ "$(command -v beep)" != "" ];
 	then
 		beep;
 	fi

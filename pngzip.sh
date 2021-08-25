@@ -10,7 +10,7 @@ function check_prog()
 {
 	for i in ${1};
 	do
-		if [ "$(which ${i})" == "" ];
+		if [ "$(command -v ${i})" == "" ];
 		then
 			echo "FATAL: you must install \"${i}\"...";
 			return 1;
@@ -32,7 +32,7 @@ function human_size()
 	fi
 
 
-	if [ "$(which bc)" == "" ] || [ ${SIZE} -lt 1024 ]; # ${SIZE} < 1024
+	if [ "$(command -v bc)" == "" ] || [ ${SIZE} -lt 1024 ]; # ${SIZE} < 1024
 	then
 		echo "${SIGN}${SIZE} B";
 		return;
@@ -249,7 +249,7 @@ function main()
 
 
 # check minimal depends tools
-	check_prog "echo file find mktemp mv pngcrush printf rm sed sort stat uniq wc which";
+	check_prog "echo file find mktemp mv pngcrush printf rm sed sort stat uniq wc";
 	if [ "${?}" != "0" ];
 	then
 		return 1;

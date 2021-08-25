@@ -2,13 +2,13 @@
 
 function do_lock()
 {
-	if [ "$(which i3lock)" != "" ];
+	if [ "$(command -v i3lock)" != "" ];
 	then
 		i3lock -c 000000 -n;
 		return;
 	fi
 
-	if [ "$(which xlock)" != "" ];
+	if [ "$(command -v xlock)" != "" ];
 	then
 		xlock -mode blank -dpmsstandby 1 -dpmssuspend 1 -dpmsoff 1 +resetsaver;
 		return;

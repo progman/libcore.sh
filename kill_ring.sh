@@ -8,7 +8,7 @@ function check_prog()
 {
 	for i in ${1};
 	do
-		if [ "$(which ${i})" == "" ];
+		if [ "$(command -v ${i})" == "" ];
 		then
 			echo "$(get_time)! FATAL: you must install \"${i}\", exit";
 			return 1;

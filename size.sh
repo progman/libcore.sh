@@ -8,7 +8,7 @@ function check_prog()
 {
 	for i in ${1};
 	do
-		if [ "$(which ${i})" == "" ];
+		if [ "$(command -v ${i})" == "" ];
 		then
 			echo "FATAL: you must install \"${i}\"...";
 			return 1;
@@ -30,7 +30,7 @@ function human_size()
 	fi
 
 
-	if [ "$(which bc)" == "" ] || [ ${SIZE} -lt 1024 ]; # ${SIZE} < 1024
+	if [ "$(command -v bc)" == "" ] || [ ${SIZE} -lt 1024 ]; # ${SIZE} < 1024
 	then
 		echo "${SIGN}${SIZE} B";
 		return;

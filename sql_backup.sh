@@ -6,7 +6,7 @@
 # view current time
 function get_time()
 {
-	if [ "$(which date)" != "" ];
+	if [ "$(command -v date)" != "" ];
 	then
 		echo "[$(date +'%Y-%m-%d %H:%M:%S')]: ";
 	fi
@@ -17,7 +17,7 @@ function check_prog()
 {
 	for i in ${1};
 	do
-		if [ "$(which ${i})" == "" ];
+		if [ "$(command -v ${i})" == "" ];
 		then
 			echo "FATAL: you must install \"${i}\"...";
 			return 1;
@@ -71,19 +71,19 @@ function pack_name()
 	local FLAG_COMPRESSOR_SELECT=0;
 	local COMPRESSOR="tar";
 
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which xz)" != "" ] && [ "${FLAG_DISABLE_XZ}" != "1" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(command -v xz)" != "" ] && [ "${FLAG_DISABLE_XZ}" != "1" ];
 	then
 		FLAG_COMPRESSOR_SELECT=1;
 		COMPRESSOR="tar.xz";
 	fi
 
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which bzip2)" != "" ] && [ "${FLAG_DISABLE_BZIP2}" != "1" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(command -v bzip2)" != "" ] && [ "${FLAG_DISABLE_BZIP2}" != "1" ];
 	then
 		FLAG_COMPRESSOR_SELECT=1;
 		COMPRESSOR="tar.bz2";
 	fi
 
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which gzip)" != "" ] && [ "${FLAG_DISABLE_GZIP}" != "1" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(command -v gzip)" != "" ] && [ "${FLAG_DISABLE_GZIP}" != "1" ];
 	then
 		FLAG_COMPRESSOR_SELECT=1;
 		COMPRESSOR="tar.gz";
@@ -105,7 +105,7 @@ function pack()
 	local COMPRESSOR="tar";
 	local COMPRESSOR_OPT="cf";
 
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which xz)" != "" ] && [ "${FLAG_DISABLE_XZ}" != "1" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(command -v xz)" != "" ] && [ "${FLAG_DISABLE_XZ}" != "1" ];
 	then
 		FLAG_COMPRESSOR_SELECT=1;
 		COMPRESSOR="tar.xz";
@@ -119,7 +119,7 @@ function pack()
 		fi
 	fi
 
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which bzip2)" != "" ] && [ "${FLAG_DISABLE_BZIP2}" != "1" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(command -v bzip2)" != "" ] && [ "${FLAG_DISABLE_BZIP2}" != "1" ];
 	then
 		FLAG_COMPRESSOR_SELECT=1;
 		COMPRESSOR="tar.bz2";
@@ -131,7 +131,7 @@ function pack()
 		fi
 	fi
 
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(which gzip)" != "" ] && [ "${FLAG_DISABLE_GZIP}" != "1" ];
+	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "$(command -v gzip)" != "" ] && [ "${FLAG_DISABLE_GZIP}" != "1" ];
 	then
 		FLAG_COMPRESSOR_SELECT=1;
 		COMPRESSOR="tar.gz";
@@ -221,7 +221,7 @@ function var_check()
 function backup_postgres_global()
 {
 # check pg_dumpall
-	if [ "$(which pg_dumpall)" == "" ];
+	if [ "$(command -v pg_dumpall)" == "" ];
 	then
 		echo "FATAL: you must install \"pg_dumpall\"...";
 		return 1;
@@ -268,7 +268,7 @@ function backup_postgres()
 
 
 # check pg_dump
-	if [ "$(which pg_dump)" == "" ];
+	if [ "$(command -v pg_dump)" == "" ];
 	then
 		echo "FATAL: you must install \"pg_dump\"...";
 		return 1;
@@ -482,7 +482,7 @@ function backup_postgres()
 function backup_mysql()
 {
 # check mysqldump
-	if [ "$(which mysqldump)" == "" ];
+	if [ "$(command -v mysqldump)" == "" ];
 	then
 		echo "FATAL: you must install \"mysqldump\"...";
 		return 1;

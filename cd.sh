@@ -11,7 +11,7 @@ function check_prog()
 {
 	for i in ${1};
 	do
-		if [ "$(which ${i})" == "" ];
+		if [ "$(command -v ${i})" == "" ];
 		then
 			echo "FATAL: you must install \"${i}\"...";
 			return 1;
@@ -26,7 +26,7 @@ function help()
 {
 	PROGNAME="${0}";
 
-	if [ "$(which basename)" != "" ];
+	if [ "$(command -v basename)" != "" ];
 	then
 		PROGNAME="$(basename ${0})";
 	fi

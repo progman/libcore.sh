@@ -8,7 +8,7 @@ function check_prog()
 {
 	for i in ${1};
 	do
-		if [ "$(which ${i})" == "" ];
+		if [ "$(command -v ${i})" == "" ];
 		then
 			echo "FATAL: you must install \"${i}\"...";
 			return 1;
@@ -43,7 +43,7 @@ function main()
 
 
 # let's go
-	if [ "$(which ionice)" != "" ];
+	if [ "$(command -v ionice)" != "" ];
 	then
 #		ionice -c 3 nice -n 19 rsync -azLv --safe-links "${SOURCE_DIR}" "${TARGET_DIR}";
 		ionice -c 3 nice -n 19 rsync -av --delete "${SOURCE_DIR}" "${TARGET_DIR}";

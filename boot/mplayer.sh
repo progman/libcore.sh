@@ -2,7 +2,7 @@
 
 echo "${@}" > /tmp/mplayer;
 
-if [ "$(which mpv)" != "" ];
+if [ "$(command -v mpv)" != "" ];
 then
 	mpv     "${@}" &> /dev/null < /dev/null &
 else
