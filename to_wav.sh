@@ -29,9 +29,15 @@ function main()
 
 
 # check depends tools
-	check_prog "echo mplayer";
+	check_prog "echo";
 	if [ "${?}" != "0" ];
 	then
+		return 1;
+	fi
+
+	if [ "$(command -v mplayer)" == "" ] && [ "$(command -v mpv)" == "" ];
+	then
+		echo "FATAL: you must install \"mplayer\" or \"mpv\"...";
 		return 1;
 	fi
 
