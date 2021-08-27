@@ -47,16 +47,42 @@ function main()
 
 
 # convert
-	mplayer --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
-	if [ "${?}" != "0" ];
-	then
-		mplayer --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
-		if [ "${?}" != "0" ];
+	while true;
+	do
+		if [ "$(command -v mpv)" != "" ];
 		then
-			echo "ERROR: unknown error";
-			return 1;
+			mpv --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
+			if [ "${?}" != "0" ];
+			then
+				mpv --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
+				if [ "${?}" != "0" ];
+				then
+					echo "ERROR: unknown error";
+					return 1;
+				fi
+			fi
+			break;
 		fi
-	fi
+
+
+		if [ "$(command -v mplayer)" != "" ];
+		then
+			mplayer --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
+			if [ "${?}" != "0" ];
+			then
+				mplayer --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
+				if [ "${?}" != "0" ];
+				then
+					echo "ERROR: unknown error";
+					return 1;
+				fi
+			fi
+			break;
+		fi
+
+
+		break;
+	done
 
 
 # rename
