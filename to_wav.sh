@@ -35,7 +35,7 @@ function main()
 		return 1;
 	fi
 
-	if [ "$(command -v mplayer)" == "" ] && [ "$(command -v mpv)" == "" ];
+	if [ "$(command -v ffmpeg)" == "" ] && [ "$(command -v mpv)" == "" ] && [ "$(command -v mplayer)" == "" ];
 	then
 		echo "FATAL: you must install \"mplayer\" or \"mpv\"...";
 		return 1;
@@ -49,18 +49,42 @@ function main()
 # convert
 	while true;
 	do
+		if [ "$(command -v ffmpeg)" != "" ];
+		then
+			ffmpeg -i "${SOURCE}" "/tmp/to_wav.wav" &> /dev/null < /dev/null;
+			if [ "${?}" != "0" ];
+			then
+				echo "ERROR: unknown error, 1";
+				return 1;
+			fi
+
+			mv -- "/tmp/to_wav.wav" "${WAV}" &> /dev/null < /dev/null;
+			if [ "${?}" != "0" ];
+			then
+				echo "ERROR[rename()]: unknown error, 2";
+				return 1;
+			fi
+
+			break;
+		fi
+
+
 		if [ "$(command -v mpv)" != "" ];
 		then
 			mpv --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
-				mpv --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
-				if [ "${?}" != "0" ];
-				then
-					echo "ERROR: unknown error";
-					return 1;
-				fi
+				echo "ERROR: unknown error, 3";
+				return 1;
 			fi
+
+			mv -- "${WAV}.tmp" "${WAV}" &> /dev/null < /dev/null;
+			if [ "${?}" != "0" ];
+			then
+				echo "ERROR[rename()]: unknown error, 4";
+				return 1;
+			fi
+
 			break;
 		fi
 
@@ -70,28 +94,23 @@ function main()
 			mplayer --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
 			if [ "${?}" != "0" ];
 			then
-				mplayer --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${SOURCE}" &> /dev/null < /dev/null;
-				if [ "${?}" != "0" ];
-				then
-					echo "ERROR: unknown error";
-					return 1;
-				fi
+				echo "ERROR: unknown error, 5";
+				return 1;
 			fi
+
+			mv -- "${WAV}.tmp" "${WAV}" &> /dev/null < /dev/null;
+			if [ "${?}" != "0" ];
+			then
+				echo "ERROR[rename()]: unknown error, 6";
+				return 1;
+			fi
+
 			break;
 		fi
 
 
 		break;
 	done
-
-
-# rename
-	mv -- "${WAV}.tmp" "${WAV}" &> /dev/null < /dev/null;
-	if [ "${?}" != "0" ];
-	then
-		echo "ERROR[rename()]: unknown error";
-		return 1;
-	fi
 
 
 	return "${?}";
