@@ -253,31 +253,10 @@ function backup_postgres_global()
 	return 0;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-function backup_postgres()
+function backup_postgres_case1()
 {
 	local STATUS;
 	local OPT;
-
-
-	if [ "${SQL_LOGIN}" == "postgres" ] && [ "${SQL_DATABASE}" == "postgres" ];
-	then
-		backup_postgres_global;
-		STATUS="${?}";
-		return "${STATUS}";
-	fi
-
-
-# check pg_dump
-	if [ "$(command -v pg_dump)" == "" ];
-	then
-		echo "FATAL: you must install \"pg_dump\"...";
-		return 1;
-	fi
-
-
-# set password
-	PGPASSWORD="${SQL_PASSWORD}";
-	export PGPASSWORD;
 
 
 #  --lock-wait-timeout=ТАЙМ-АУТ прервать операцию при тайм-ауте блокировки таблицы
@@ -342,6 +321,33 @@ function backup_postgres()
 	pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
 	kill_ring "${SQL_DUMP_MAX_COUNT}";
 	cd ..;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function backup_postgres_case2()
+{
+	local STATUS;
+	local OPT;
+
+
+#  --lock-wait-timeout=ТАЙМ-АУТ прервать операцию при тайм-ауте блокировки таблицы
+#  -n, --schema=ШАБЛОН          выгрузить только указанную схему(ы)
+#  -S, --superuser=ИМЯ          имя пользователя, который будет задействован при восстановлении из текстового формата
+#  -t, --table=ШАБЛОН           выгрузить только указанную таблицу(ы)
+#  -T, --exclude-table=ШАБЛОН   НЕ выгружать указанную таблицу(ы)
+#  --column-inserts             выгружать данные в виде INSERT с именами столбцов
+#  --disable-dollar-quoting     отключить спецстроки с $, выводить строки по стандарту SQL
+#  --exclude-table-data=ШАБЛОН  НЕ выгружать данные указанной таблицы (таблиц)
+#  --extra-float-digits=ЧИСЛО   переопределить значение extra_float_digits
+#  --inserts                    выгрузить данные в виде команд INSERT, не COPY
+#  --load-via-partition-root    загружать секции через главную таблицу
+#  --on-conflict-do-nothing     добавлять ON CONFLICT DO NOTHING в команды INSERT
+#  --quote-all-identifiers      заключать в кавычки все идентификаторы, а не только ключевые слова
+#  --rows-per-insert=ЧИСЛО      число строк в одном INSERT; подразумевает --inserts
+#  --section=РАЗДЕЛ             выгрузить заданный раздел (pre-data, data или post-data)
+#  --snapshot=СНИМОК            использовать при выгрузке заданный снимок
+#  --strict-names               требовать, чтобы при указании шаблона включения таблицы и/или схемы ему соответствовал минимум один объект
+#  --use-set-session-authorization устанавливать владельца, используя команды SET SESSION AUTHORIZATION вместо ALTER OWNER
+#  --role=ИМЯ_РОЛИ          выполнить SET ROLE перед выгрузкой
 
 
 # create dump
@@ -385,6 +391,33 @@ function backup_postgres()
 	pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
 	kill_ring "${SQL_DUMP_MAX_COUNT}";
 	cd ..;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function backup_postgres_case3()
+{
+	local STATUS;
+	local OPT;
+
+
+#  --lock-wait-timeout=ТАЙМ-АУТ прервать операцию при тайм-ауте блокировки таблицы
+#  -n, --schema=ШАБЛОН          выгрузить только указанную схему(ы)
+#  -S, --superuser=ИМЯ          имя пользователя, который будет задействован при восстановлении из текстового формата
+#  -t, --table=ШАБЛОН           выгрузить только указанную таблицу(ы)
+#  -T, --exclude-table=ШАБЛОН   НЕ выгружать указанную таблицу(ы)
+#  --column-inserts             выгружать данные в виде INSERT с именами столбцов
+#  --disable-dollar-quoting     отключить спецстроки с $, выводить строки по стандарту SQL
+#  --exclude-table-data=ШАБЛОН  НЕ выгружать данные указанной таблицы (таблиц)
+#  --extra-float-digits=ЧИСЛО   переопределить значение extra_float_digits
+#  --inserts                    выгрузить данные в виде команд INSERT, не COPY
+#  --load-via-partition-root    загружать секции через главную таблицу
+#  --on-conflict-do-nothing     добавлять ON CONFLICT DO NOTHING в команды INSERT
+#  --quote-all-identifiers      заключать в кавычки все идентификаторы, а не только ключевые слова
+#  --rows-per-insert=ЧИСЛО      число строк в одном INSERT; подразумевает --inserts
+#  --section=РАЗДЕЛ             выгрузить заданный раздел (pre-data, data или post-data)
+#  --snapshot=СНИМОК            использовать при выгрузке заданный снимок
+#  --strict-names               требовать, чтобы при указании шаблона включения таблицы и/или схемы ему соответствовал минимум один объект
+#  --use-set-session-authorization устанавливать владельца, используя команды SET SESSION AUTHORIZATION вместо ALTER OWNER
+#  --role=ИМЯ_РОЛИ          выполнить SET ROLE перед выгрузкой
 
 
 # create clear dump
@@ -431,6 +464,33 @@ function backup_postgres()
 	pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
 	kill_ring "${SQL_DUMP_MAX_COUNT}";
 	cd ..;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function backup_postgres_case4()
+{
+	local STATUS;
+	local OPT;
+
+
+#  --lock-wait-timeout=ТАЙМ-АУТ прервать операцию при тайм-ауте блокировки таблицы
+#  -n, --schema=ШАБЛОН          выгрузить только указанную схему(ы)
+#  -S, --superuser=ИМЯ          имя пользователя, который будет задействован при восстановлении из текстового формата
+#  -t, --table=ШАБЛОН           выгрузить только указанную таблицу(ы)
+#  -T, --exclude-table=ШАБЛОН   НЕ выгружать указанную таблицу(ы)
+#  --column-inserts             выгружать данные в виде INSERT с именами столбцов
+#  --disable-dollar-quoting     отключить спецстроки с $, выводить строки по стандарту SQL
+#  --exclude-table-data=ШАБЛОН  НЕ выгружать данные указанной таблицы (таблиц)
+#  --extra-float-digits=ЧИСЛО   переопределить значение extra_float_digits
+#  --inserts                    выгрузить данные в виде команд INSERT, не COPY
+#  --load-via-partition-root    загружать секции через главную таблицу
+#  --on-conflict-do-nothing     добавлять ON CONFLICT DO NOTHING в команды INSERT
+#  --quote-all-identifiers      заключать в кавычки все идентификаторы, а не только ключевые слова
+#  --rows-per-insert=ЧИСЛО      число строк в одном INSERT; подразумевает --inserts
+#  --section=РАЗДЕЛ             выгрузить заданный раздел (pre-data, data или post-data)
+#  --snapshot=СНИМОК            использовать при выгрузке заданный снимок
+#  --strict-names               требовать, чтобы при указании шаблона включения таблицы и/или схемы ему соответствовал минимум один объект
+#  --use-set-session-authorization устанавливать владельца, используя команды SET SESSION AUTHORIZATION вместо ALTER OWNER
+#  --role=ИМЯ_РОЛИ          выполнить SET ROLE перед выгрузкой
 
 
 # create xdump
@@ -476,21 +536,81 @@ function backup_postgres()
 	pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
 	kill_ring "${SQL_DUMP_MAX_COUNT}";
 	cd ..;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function backup_postgres()
+{
+	local STATUS;
+	local OPT;
+
+
+	if [ "${SQL_LOGIN}" == "postgres" ] && [ "${SQL_DATABASE}" == "postgres" ];
+	then
+		backup_postgres_global;
+		STATUS="${?}";
+		return "${STATUS}";
+	fi
+
+
+# check pg_dump
+	if [ "$(command -v pg_dump)" == "" ];
+	then
+		echo "FATAL: you must install \"pg_dump\"...";
+		return 1;
+	fi
+
+
+# set password
+	PGPASSWORD="${SQL_PASSWORD}";
+	export PGPASSWORD;
+
+
+# select case
+	if [ "${FLAG_CASE1}" == "1" ] || [ "${FLAG_CASE_DEFAULT}" == "1" ];
+	then
+		backup_postgres_case1;
+		if [ "${?}" != "0" ];
+		then
+			return 1;
+		fi
+	fi
+
+
+	if [ "${FLAG_CASE2}" == "1" ];
+	then
+		backup_postgres_case2;
+		if [ "${?}" != "0" ];
+		then
+			return 1;
+		fi
+	fi
+
+
+	if [ "${FLAG_CASE3}" == "1" ] || [ "${FLAG_CASE_DEFAULT}" == "1" ];
+	then
+		backup_postgres_case3;
+		if [ "${?}" != "0" ];
+		then
+			return 1;
+		fi
+	fi
+
+
+	if [ "${FLAG_CASE4}" == "1" ];
+	then
+		backup_postgres_case4;
+		if [ "${?}" != "0" ];
+		then
+			return 1;
+		fi
+	fi
 
 
 	return 0;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-function backup_mysql()
+function backup_mysql_case1()
 {
-# check mysqldump
-	if [ "$(command -v mysqldump)" == "" ];
-	then
-		echo "FATAL: you must install \"mysqldump\"...";
-		return 1;
-	fi
-
-
 # create dump
 	mkdir "${SQL_SERVER}_dump" &> /dev/null;
 	CUR_DIR="${SQL_SERVER}_dump";
@@ -518,8 +638,10 @@ function backup_mysql()
 	pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
 	kill_ring "${SQL_DUMP_MAX_COUNT}";
 	cd ..;
-
-
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function backup_mysql_case2()
+{
 # create clear dump
 	mkdir "${SQL_SERVER}_cdump" &> /dev/null;
 	CUR_DIR="${SQL_SERVER}_cdump";
@@ -545,6 +667,37 @@ function backup_mysql()
 	pack ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}";
 	kill_ring "${SQL_DUMP_MAX_COUNT}";
 	cd ..;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function backup_mysql()
+{
+# check mysqldump
+	if [ "$(command -v mysqldump)" == "" ];
+	then
+		echo "FATAL: you must install \"mysqldump\"...";
+		return 1;
+	fi
+
+
+# select case
+	if [ "${FLAG_CASE1}" == "1" ] || [ "${FLAG_CASE_DEFAULT}" == "1" ];
+	then
+		backup_mysql_case1;
+		if [ "${?}" != "0" ];
+		then
+			return 1;
+		fi
+	fi
+
+
+	if [ "${FLAG_CASE2}" == "1" ] || [ "${FLAG_CASE_DEFAULT}" == "1" ];
+	then
+		backup_mysql_case2;
+		if [ "${?}" != "0" ];
+		then
+			return 1;
+		fi
+	fi
 
 
 	return 0;
@@ -572,6 +725,85 @@ function main()
 	then
 		source "${1}";
 	fi
+
+
+	FLAG_CASE_DEFAULT='1';
+	FLAG_CASE1='0';
+	FLAG_CASE2='0';
+	FLAG_CASE3='0';
+	FLAG_CASE4='0';
+	FLAG_CASE5='0';
+	FLAG_CASE6='0';
+	FLAG_CASE7='0';
+	FLAG_CASE8='0';
+	FLAG_CASE9='0';
+
+
+	local ARG_COUNT="${#}";
+	while true;
+	do
+		if [ "${1}" == "--case1" ];
+		then
+			FLAG_CASE_DEFAULT='0';
+			FLAG_CASE1='1';
+		fi
+
+		if [ "${1}" == "--case2" ];
+		then
+			FLAG_CASE_DEFAULT='0';
+			FLAG_CASE2='1';
+		fi
+
+		if [ "${1}" == "--case3" ];
+		then
+			FLAG_CASE_DEFAULT='0';
+			FLAG_CASE3='1';
+		fi
+
+		if [ "${1}" == "--case4" ];
+		then
+			FLAG_CASE_DEFAULT='0';
+			FLAG_CASE4='1';
+		fi
+
+		if [ "${1}" == "--case5" ];
+		then
+			FLAG_CASE_DEFAULT='0';
+			FLAG_CASE5='1';
+		fi
+
+		if [ "${1}" == "--case6" ];
+		then
+			FLAG_CASE_DEFAULT='0';
+			FLAG_CASE6='1';
+		fi
+
+		if [ "${1}" == "--case7" ];
+		then
+			FLAG_CASE_DEFAULT='0';
+			FLAG_CASE7='1';
+		fi
+
+		if [ "${1}" == "--case8" ];
+		then
+			FLAG_CASE_DEFAULT='0';
+			FLAG_CASE8='1';
+		fi
+
+		if [ "${1}" == "--case9" ];
+		then
+			FLAG_CASE_DEFAULT='0';
+			FLAG_CASE9='1';
+		fi
+
+		(( ARG_COUNT-- ));
+		shift 1;
+
+		if [ "${ARG_COUNT}" == "0" ];
+		then
+			break;
+		fi
+	done
 
 
 # check env variables
