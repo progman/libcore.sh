@@ -76,7 +76,7 @@ function main()
 		echo "[make single process and] (re)load something program";
 		echo "example (one   run, without log):                   PID_FILE=PID_FILE WORK_DIR=WORK_DIR                 ${0} PROGRAM [PROGRAM_ARGS] &> /dev/null < /dev/null &";
 		echo "example (multi run, with auto log): FLAG_RELOAD='1' PID_FILE=PID_FILE WORK_DIR=WORK_DIR LOG_DIR=LOG_DIR ${0} PROGRAM [PROGRAM_ARGS] &> /dev/null < /dev/null &";
-		echo "example (multi run, with file log): FLAG_RELOAD='1' PID_FILE=PID_FILE WORK_DIR=WORK_DIR                 ${0} PROGRAM [PROGRAM_ARGS] >> /var/log/program.log &";
+		echo "example (multi run, with file log): FLAG_RELOAD='1' PID_FILE=PID_FILE WORK_DIR=WORK_DIR                 ${0} PROGRAM [PROGRAM_ARGS] 2>&1 >> /var/log/program.log &";
 		return 0;
 	fi
 
