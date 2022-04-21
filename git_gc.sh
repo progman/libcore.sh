@@ -43,18 +43,21 @@ function main()
 		cd -- "${i}" &> /dev/null;
 		if [ "${?}" != "0" ];
 		then
-			echo "ERROR";
+			echo "ERROR1";
 			exit 1;
 		fi
 
 
-		if [ "$(ls -1 | grep -v info | grep -v pack | wc -l)" != "0" ];
+		if [ -d objects ];
 		then
-			git gc --aggressive --prune=now &> /dev/null;
-			if [ "${?}" != "0" ];
+			if [ "$(ls -1 objects | grep -v info | grep -v pack | wc -l)" != "0" ];
 			then
-				echo "ERROR";
-				exit 1;
+				git gc --aggressive --prune=now &> /dev/null;
+				if [ "${?}" != "0" ];
+				then
+					echo "ERROR2";
+					exit 1;
+				fi
 			fi
 		fi
 
@@ -62,7 +65,7 @@ function main()
 		cd -- "${OLD_DIR}" &> /dev/null;
 		if [ "${?}" != "0" ];
 		then
-			echo "ERROR";
+			echo "ERROR3";
 			exit 1;
 		fi
 	done
