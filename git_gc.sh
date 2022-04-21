@@ -48,11 +48,14 @@ function main()
 		fi
 
 
-		git gc --aggressive --prune=now &> /dev/null;
-		if [ "${?}" != "0" ];
+		if [ "$(ls -1 | grep -v info | grep -v pack | wc -l)" != "0" ];
 		then
-			echo "ERROR";
-			exit 1;
+			git gc --aggressive --prune=now &> /dev/null;
+			if [ "${?}" != "0" ];
+			then
+				echo "ERROR";
+				exit 1;
+			fi
 		fi
 
 
@@ -63,8 +66,6 @@ function main()
 			exit 1;
 		fi
 	done
-
-
 
 
 	return 0;
