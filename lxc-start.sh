@@ -2,6 +2,7 @@
 
 while read -r NAME;
 do
+	echo "lxc start ${NAME}";
 	lxc start ${NAME};
 	if [ "${?}" != "0" ];
 	then

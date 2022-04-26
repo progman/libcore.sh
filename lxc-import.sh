@@ -2,7 +2,8 @@
 
 while read -r NAME;
 do
-	lxc import ./${NAME}.tar* --instance-only;
+	echo "lxc import ./${NAME}.tar*";
+	lxc import ./${NAME}.tar*;
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR";

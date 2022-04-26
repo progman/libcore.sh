@@ -2,6 +2,7 @@
 
 while read -r NAME;
 do
+	echo "lxc export ${NAME} ./${NAME}.tar.gz --instance-only";
 	lxc export ${NAME} ./${NAME}.tar.gz --instance-only;
 	if [ "${?}" != "0" ];
 	then
