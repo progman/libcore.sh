@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.0.0
+# 1.0.1
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function docker_login()
@@ -40,8 +40,10 @@ function docker_login()
 	return 0;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-function docker_build()
+function docker_push()
 {
+	local DOCKER_IMAGE_TAG="${1}";
+
 # are vars set?
 	if [ "${DOCKER_IMAGE_TAG}" == "" ];
 	then
@@ -53,16 +55,6 @@ function docker_build()
 	if [ "${DOCKER_REGISTRY_HOST}" == "" ];
 	then
 		echo "ERROR: you must set DOCKER_REGISTRY_HOST";
-		return 1;
-	fi
-
-
-# build
-	echo "docker build --no-cache --tag ${DOCKER_IMAGE_TAG} ./;";
-	docker build --no-cache --tag "${DOCKER_IMAGE_TAG}" ./ &> /dev/null < /dev/null
-	if [ "${?}" != "0" ];
-	then
-		echo "ERROR: docker build";
 		return 1;
 	fi
 
@@ -98,6 +90,44 @@ function docker_build()
 
 
 	echo "made ${DOCKER_IMAGE_URL}";
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function docker_build()
+{
+# are vars set?
+	if [ "${DOCKER_IMAGE_TAG}" == "" ];
+	then
+		echo "ERROR: you must set DOCKER_IMAGE_TAG";
+		return 1;
+	fi
+
+
+	if [ "${DOCKER_REGISTRY_HOST}" == "" ];
+	then
+		echo "ERROR: you must set DOCKER_REGISTRY_HOST";
+		return 1;
+	fi
+
+
+# build
+	echo "docker build --no-cache --tag ${DOCKER_IMAGE_TAG} ./;";
+	docker build --no-cache --tag "${DOCKER_IMAGE_TAG}" ./ &> /dev/null < /dev/null
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: docker build";
+		return 1;
+	fi
+
+
+# push
+	docker_push "${DOCKER_IMAGE_TAG}";
+	if [ "${?}" != "0" ];
+	then
+		return 1;
+	fi
 
 
 	return 0;
@@ -247,18 +277,19 @@ function check_prog()
 # show help
 function help()
 {
-	echo "example: ${1} [ login | build | ps | up | down ]";
+	echo "example: ${1} [ login | push DOCKER_IMAGE | build | ps | up | down ]";
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
 function main()
 {
 	local OPERATION="${1}";
+	local ARG="${2}";
 	local STATUS;
 
 
 # check operation
-	if [ "${OPERATION}" != "login" ] && [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "ps" ] && [ "${OPERATION}" != "up" ] && [ "${OPERATION}" != "down" ];
+	if [ "${OPERATION}" != "login" ] && [ "${OPERATION}" != "push" ] && [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "ps" ] && [ "${OPERATION}" != "up" ] && [ "${OPERATION}" != "down" ];
 	then
 		help "${0}";
 		return 0;
@@ -289,6 +320,14 @@ function main()
 	if [ "${OPERATION}" == "login" ]
 	then
 		docker_login;
+		STATUS="${?}";
+		return "${STATUS}";
+	fi
+
+
+	if [ "${OPERATION}" == "push" ]
+	then
+		docker_push "${ARG}";
 		STATUS="${?}";
 		return "${STATUS}";
 	fi
