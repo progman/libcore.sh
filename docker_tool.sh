@@ -112,13 +112,14 @@ function docker_build()
 	fi
 
 
-# get iamge name
-	local DOCKER_IMAGE_NAME=$(echo ${DOCKER_IMAGE_TAG} | sed -e 's/:.*//g')
+# get latest image tag
+	local DOCKER_IMAGE_NAME=$(echo ${DOCKER_IMAGE_TAG} | sed -e 's/:.*//g');
+	local DOCKER_IMAGE_TAG_LATEST="${DOCKER_IMAGE_NAME}:latest";
 
 
 # build
-	echo "docker build --no-cache --tag ${DOCKER_IMAGE_TAG} --tag ${DOCKER_IMAGE_NAME}:latest ./;";
-	docker build --no-cache --tag "${DOCKER_IMAGE_TAG}" ./ &> /dev/null < /dev/null
+	echo "docker build --no-cache --tag ${DOCKER_IMAGE_TAG} --tag ${DOCKER_IMAGE_TAG_LATEST} ./;";
+	docker build --no-cache --tag "${DOCKER_IMAGE_TAG}" --tag "${DOCKER_IMAGE_TAG_LATEST}" ./ &> /dev/null < /dev/null
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: docker build";
