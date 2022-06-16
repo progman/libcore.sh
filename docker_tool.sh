@@ -112,8 +112,12 @@ function docker_build()
 	fi
 
 
+# get iamge name
+	local DOCKER_IMAGE_NAME=$(echo ${DOCKER_IMAGE_TAG} | sed -e 's/:.*//g')
+
+
 # build
-	echo "docker build --no-cache --tag ${DOCKER_IMAGE_TAG} ./;";
+	echo "docker build --no-cache --tag ${DOCKER_IMAGE_TAG} --tag ${DOCKER_IMAGE_NAME}:latest ./;";
 	docker build --no-cache --tag "${DOCKER_IMAGE_TAG}" ./ &> /dev/null < /dev/null
 	if [ "${?}" != "0" ];
 	then
