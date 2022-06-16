@@ -1,7 +1,22 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.4
+# 0.0.5
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# 1) install packets: apt install cuetools shntool id3v2
+# 2) check shntool version: shnsplit -v 2>&1 | head -n 1
+# 3) if shnsplit has version 3.0.10 than we must patch it
+# 4) make shntool from sourses with patch:
+#    git clone https://github.com/max619/shntool
+#    cd shntool/
+#    git checkout -b flac_format_value_fffe remotes/origin/fix/flac_format_value_fffe
+#    git fetch --append --prune
+#    git pull origin fix/flac_format_value_fffe
+#    ./configure --prefix=/tmp/shntool_bin
+#    make
+#    make install
+#    su
+#    cp /tmp/shntool_bin/bin/shntool /usr/bin/
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
 function check_prog()
@@ -21,6 +36,8 @@ function check_prog()
 # general function
 function main()
 {
+	local MPLAYER;
+
 	if [ "${1}" == "" ] || [ "${2}" == "" ] || [ ! -e "${1}" ] || [ ! -e "${2}" ];
 	then
 		echo "flac converter";
@@ -30,10 +47,24 @@ function main()
 
 
 # check depends tools
-	check_prog "echo mplayer cuebreakpoints shnsplit cueprint printf lame id3v2 wc grep sed"; # cuebreakpoints must remove!
+	check_prog "echo cuebreakpoints shnsplit cueprint printf lame id3v2 wc grep sed"; # cuebreakpoints must remove!
 	if [ "${?}" != "0" ];
 	then
 		return 1;
+	fi
+
+
+	if [ "$(command -v mplayer)" == "" ] && [ "$(command -v mpv)" == "" ];
+	then
+		echo "FATAL: you must install \"mplayer\" or \"mpv\"...";
+		return 1;
+	fi
+
+
+	MPLAYER='mplayer'
+	if [ "$(command -v mpv)" != "" ];
+	then
+		MPLAYER='mpv'
 	fi
 
 
@@ -56,7 +87,7 @@ function main()
 
 	echo "convert FLAC to WAV...";
 
-	mplayer --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${FLAC}" &> /dev/null < /dev/null;
+	${MPLAYER} --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${FLAC}" &> /dev/null < /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR[mac()]: unknown error";
