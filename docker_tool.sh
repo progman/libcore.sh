@@ -318,7 +318,7 @@ function main()
 
 
 # load enviroment variables
-	export $(cat .env);
+	export $(cat .env | sed -e 's/#.*//g');
 
 
 # select operation
