@@ -338,7 +338,7 @@ function main()
 	fi
 
 
-	if [ "${OPERATION}" == "build" ]
+	if [ "${OPERATION}" == "build" ] || [ "${OPERATION}" == "b" ]
 	then
 		docker_build;
 		STATUS="${?}";
@@ -354,7 +354,7 @@ function main()
 	fi
 
 
-	if [ "${OPERATION}" == "up" ]
+	if [ "${OPERATION}" == "up" ] || [ "${OPERATION}" == "u" ]
 	then
 		docker_up;
 		STATUS="${?}";
@@ -362,7 +362,7 @@ function main()
 	fi
 
 
-	if [ "${OPERATION}" == "down" ]
+	if [ "${OPERATION}" == "down" ] || [ "${OPERATION}" == "d" ]
 	then
 		docker_down;
 		STATUS="${?}";
