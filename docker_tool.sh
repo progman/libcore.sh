@@ -294,7 +294,7 @@ function main()
 
 
 # check operation
-	if [ "${OPERATION}" != "login" ] && [ "${OPERATION}" != "push" ] && [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "ps" ] && [ "${OPERATION}" != "up" ] && [ "${OPERATION}" != "down" ];
+	if [ "${OPERATION}" != "login" ] && [ "${OPERATION}" != "push" ] && [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "b" ] && [ "${OPERATION}" != "ps" ] && [ "${OPERATION}" != "up" ] && [ "${OPERATION}" != "u" ] && [ "${OPERATION}" != "down" ] && [ "${OPERATION}" != "d" ];
 	then
 		help "${0}";
 		return 0;
