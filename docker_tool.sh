@@ -59,6 +59,11 @@ function docker_push()
 	fi
 
 
+# get latest image tag
+	local DOCKER_IMAGE_NAME=$(echo ${DOCKER_IMAGE_TAG} | sed -e 's/:.*//g');
+	local DOCKER_IMAGE_TAG_LATEST="${DOCKER_IMAGE_NAME}:latest";
+
+
 # set tag
 	echo "docker tag ${DOCKER_IMAGE_TAG} ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG};";
 	docker tag "${DOCKER_IMAGE_TAG}" "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG}" &> /dev/null < /dev/null
@@ -69,9 +74,29 @@ function docker_push()
 	fi
 
 
+# set tag
+	echo "docker tag ${DOCKER_IMAGE_TAG_LATEST} ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST};";
+	docker tag "${DOCKER_IMAGE_TAG_LATEST}" "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST}" &> /dev/null < /dev/null
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: docker tag";
+		return 1;
+	fi
+
+
 # push to registry
 	echo "docker push ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG};";
 	docker push "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG}" &> /dev/null < /dev/null
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: docker push, did you login to registry?";
+		return 1;
+	fi
+
+
+# push to registry
+	echo "docker push ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST};";
+	docker push "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST}" &> /dev/null < /dev/null
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: docker push, did you login to registry?";
