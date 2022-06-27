@@ -196,6 +196,18 @@ function docker_ps()
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function docker_up()
 {
+# are vars set?
+	if [ "${DOCKER_PROJECT_NAME}" == "" ];
+	then
+		if [ "${COMPOSE_PROJECT_NAME}" != "" ];
+		then
+			DOCKER_PROJECT_NAME="${COMPOSE_PROJECT_NAME}";
+		else
+			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g');
+		fi
+	fi
+
+
 # is docker-compose config exist?
 	if [ ! -e ./docker-compose.yml ] && [ ! -e ./docker-compose.yaml ];
 	then
@@ -223,8 +235,8 @@ function docker_up()
 
 
 # up
-	echo "docker-compose -f ${DOCKER_COMPOSE_FILE} up -d --force-recreate --always-recreate-deps;";
-	docker-compose -f "${DOCKER_COMPOSE_FILE}" up -d --force-recreate --always-recreate-deps; # skip --env-file ./.env
+	echo "docker-compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} up -d --force-recreate --always-recreate-deps;";
+	docker-compose -p "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" up -d --force-recreate --always-recreate-deps; # skip --env-file ./.env
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: docker-compose up";
