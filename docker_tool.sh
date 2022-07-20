@@ -115,6 +115,7 @@ function docker_push()
 
 
 	echo "made ${DOCKER_IMAGE_URL}";
+	echo "made ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST}"
 
 
 	return 0;
