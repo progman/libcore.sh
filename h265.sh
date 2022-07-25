@@ -19,17 +19,21 @@ if [ "${FLAG_NVIDIA}" == "0" ];
 then
 	echo "ffmpeg -i ${SOURCE} -c:v libx265 -vtag hvc1 -c:a copy ${TARGET}";
 	ffmpeg -i "${SOURCE}"                 -c:v libx265 -vtag hvc1 -c:a copy "${TARGET}";
+	if [ "${?}" != "0" ];
+	then
+		rm -rf "${TARGET}" &> /dev/null < /dev/null;
+		echo "ERROR";
+		exit 1;
+	fi
 else
 	echo "ffmpeg -i ${SOURCE} -c:v hevc_nvenc -c:v libx265 -vtag hvc1 -c:a copy ${TARGET}";
 	ffmpeg -i "${SOURCE}" -c:v hevc_nvenc -c:v libx265 -vtag hvc1 -c:a copy "${TARGET}";
-fi
-
-
-if [ "${?}" != "0" ];
-then
-	rm -rf "${TARGET}" &> /dev/null < /dev/null;
-	echo "ERROR";
-	exit 1;
+	if [ "${?}" != "0" ];
+	then
+		rm -rf "${TARGET}" &> /dev/null < /dev/null;
+		echo "ERROR";
+		exit 1;
+	fi
 fi
 
 
