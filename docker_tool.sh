@@ -236,8 +236,8 @@ function docker_up()
 
 
 # up
-	echo "docker-compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} up -d --force-recreate --always-recreate-deps;";
-	docker-compose -p "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" up -d --force-recreate --always-recreate-deps; # skip --env-file ./.env
+	echo "docker-compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} up -d --force-recreate --renew-anon-volumes --always-recreate-deps;";
+	docker-compose -p "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" up -d --force-recreate --renew-anon-volumes --always-recreate-deps; # skip --env-file ./.env
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: docker-compose up";
