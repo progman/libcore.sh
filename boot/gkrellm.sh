@@ -50,6 +50,12 @@ function main()
 	fi
 
 
+	if [ "${WIDTH}" == "1366" ]; # 1366x768
+	then
+		X=1303; # gkrellm width: 50px
+	fi
+
+
 	Y=128;
 	if [ "${FLAG_GKRELLM_DOWN}" == "1" ];
 	then
