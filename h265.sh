@@ -17,8 +17,8 @@ FLAG_NVIDIA=$(lspci | grep -i vga | grep -i NVIDIA | wc -l);
 
 if [ "${FLAG_NVIDIA}" == "0" ];
 then
-	echo "ffmpeg -i ${SOURCE} -c:v libx265 -vtag hvc1 -c:a copy ${TARGET}";
-	ffmpeg -i "${SOURCE}"                 -c:v libx265 -vtag hvc1 -c:a copy -map 0 "${TARGET}";
+#	echo "ffmpeg -i ${SOURCE} -c:v libx265 -vtag hvc1 -c:a copy ${TARGET}";
+	ffmpeg -i "${SOURCE}"                 -c:v libx265 -vtag hvc1 -c:a copy -map 0 "${TARGET}" &> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf "${TARGET}" &> /dev/null < /dev/null;
@@ -26,8 +26,8 @@ then
 		exit 1;
 	fi
 else
-	echo "ffmpeg -i ${SOURCE} -c:v hevc_nvenc -c:v libx265 -vtag hvc1 -c:a copy ${TARGET}";
-	ffmpeg -i "${SOURCE}" -c:v hevc_nvenc -c:v libx265 -vtag hvc1 -c:a copy -map 0 "${TARGET}";
+#	echo "ffmpeg -i ${SOURCE} -c:v hevc_nvenc -c:v libx265 -vtag hvc1 -c:a copy ${TARGET}";
+	ffmpeg -i "${SOURCE}" -c:v hevc_nvenc -c:v libx265 -vtag hvc1 -c:a copy -map 0 "${TARGET}" &> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf "${TARGET}" &> /dev/null < /dev/null;
