@@ -258,6 +258,18 @@ function docker_up()
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function docker_down()
 {
+# are vars set?
+	if [ "${DOCKER_PROJECT_NAME}" == "" ];
+	then
+		if [ "${COMPOSE_PROJECT_NAME}" != "" ];
+		then
+			DOCKER_PROJECT_NAME="${COMPOSE_PROJECT_NAME}";
+		else
+			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g');
+		fi
+	fi
+
+
 # is docker-compose config exist?
 	if [ ! -e ./docker-compose.yml ] && [ ! -e ./docker-compose.yaml ];
 	then
@@ -282,8 +294,8 @@ function docker_down()
 
 
 # down
-	echo "docker-compose -f ${DOCKER_COMPOSE_FILE} down --remove-orphans -t ${DOCKER_SHUTDOWN_TIMEOUT};";
-	docker-compose -f "${DOCKER_COMPOSE_FILE}" down --remove-orphans -t "${DOCKER_SHUTDOWN_TIMEOUT}"; # skip --env-file ./.env
+	echo "docker-compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} down --remove-orphans -t ${DOCKER_SHUTDOWN_TIMEOUT};";
+	docker-compose -p "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" down --remove-orphans -t "${DOCKER_SHUTDOWN_TIMEOUT}"; # skip --env-file ./.env
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: docker-compose down";
