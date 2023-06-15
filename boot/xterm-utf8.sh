@@ -18,6 +18,8 @@ export LC_ALL="${LANG}";
 
 export DISABLE_SET_LOCALE="1";
 
+if [ "$(hostname)" != "book" ];
+then
 #export COLUMNS=82;
 #export LINES=60;
 
@@ -32,3 +34,6 @@ export DISABLE_SET_LOCALE="1";
 xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=14' &> /dev/null < /dev/null &
 
 #xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'DroidSansMono:pixelsize=13' &> /dev/null < /dev/null &
+else
+xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=12' &> /dev/null < /dev/null &
+fi

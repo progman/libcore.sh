@@ -18,6 +18,8 @@ export LC_ALL="${LANG}";
 
 export DISABLE_SET_LOCALE="1";
 
+if [ "$(hostname)" != "book" ];
+then
 #source /tmp/env2
 #xterm -geometry 84x56+0+0 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -font '-cronyx-fixed-medium-r-normal-*-*-120-*-*-c-*-koi8-r' -e /bin/bash &
 #xterm -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -font '-cronyx-fixed-medium-r-normal-*-*-120-*-*-c-*-koi8-r' -e /bin/bash &> /dev/null < /dev/null &
@@ -26,3 +28,6 @@ export DISABLE_SET_LOCALE="1";
 #xterm -lc -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=14' &> /dev/null < /dev/null &
 xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'Terminus:pixelsize=12' &> /dev/null < /dev/null &
 #xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg gray22 -fg gray77 -hc orange4 -fa 'Terminus:pixelsize=12' &> /dev/null < /dev/null &
+else
+xterm -class UXTerm -title uxterm -u8 -sl 15000 -bc -cr yellow -bg black -fg orange -hc orange4 -fa 'tewi-medium' &> /dev/null < /dev/null &
+fi
