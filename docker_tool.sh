@@ -40,6 +40,61 @@ function docker_login()
 	return 0;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function docker_build()
+{
+# are vars set?
+	if [ "${DOCKER_IMAGE_TAG}" == "" ];
+	then
+		echo "ERROR: you must set DOCKER_IMAGE_TAG";
+		return 1;
+	fi
+
+
+	if [ "${DOCKER_REGISTRY_HOST}" == "" ];
+	then
+		echo "ERROR: you must set DOCKER_REGISTRY_HOST";
+		return 1;
+	fi
+
+
+# get latest image tag
+	local DOCKER_IMAGE_NAME=$(echo ${DOCKER_IMAGE_TAG} | sed -e 's/:.*//g');
+	local DOCKER_IMAGE_TAG_LATEST="${DOCKER_IMAGE_NAME}:latest";
+
+
+# build
+	echo "docker build --no-cache --tag ${DOCKER_IMAGE_TAG} --tag ${DOCKER_IMAGE_TAG_LATEST} ./;";
+	docker build --no-cache --tag "${DOCKER_IMAGE_TAG}" --tag "${DOCKER_IMAGE_TAG_LATEST}" ./ &> /dev/null < /dev/null
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: docker build";
+		return 1;
+	fi
+
+
+
+
+#docker inspect --format="{{.Id}}" ${DOCKER_IMAGE_TAG}";
+
+
+# get hash of image
+	echo "docker inspect --format='{{.Id}}' ${DOCKER_IMAGE_TAG}";
+	DOCKER_IMAGE_HASH=$(docker inspect --format='{{.Id}}' "${DOCKER_IMAGE_TAG}");
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: docker inspect";
+		return 1;
+	fi
+
+
+	echo "made ${DOCKER_IMAGE_NAME}@${DOCKER_IMAGE_HASH}";
+	echo "made ${DOCKER_IMAGE_TAG_LATEST}"
+
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function docker_push()
 {
 	local DOCKER_IMAGE_TAG="${1}";
@@ -121,34 +176,12 @@ function docker_push()
 	return 0;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-function docker_build()
+function docker_flush()
 {
-# are vars set?
-	if [ "${DOCKER_IMAGE_TAG}" == "" ];
-	then
-		echo "ERROR: you must set DOCKER_IMAGE_TAG";
-		return 1;
-	fi
-
-
-	if [ "${DOCKER_REGISTRY_HOST}" == "" ];
-	then
-		echo "ERROR: you must set DOCKER_REGISTRY_HOST";
-		return 1;
-	fi
-
-
-# get latest image tag
-	local DOCKER_IMAGE_NAME=$(echo ${DOCKER_IMAGE_TAG} | sed -e 's/:.*//g');
-	local DOCKER_IMAGE_TAG_LATEST="${DOCKER_IMAGE_NAME}:latest";
-
-
 # build
-	echo "docker build --no-cache --tag ${DOCKER_IMAGE_TAG} --tag ${DOCKER_IMAGE_TAG_LATEST} ./;";
-	docker build --no-cache --tag "${DOCKER_IMAGE_TAG}" --tag "${DOCKER_IMAGE_TAG_LATEST}" ./ &> /dev/null < /dev/null
+	docker_build;
 	if [ "${?}" != "0" ];
 	then
-		echo "ERROR: docker build";
 		return 1;
 	fi
 
@@ -332,7 +365,7 @@ function check_prog()
 # show help
 function help()
 {
-	echo "example: ${1} [ login | push DOCKER_IMAGE | build | ps | up | down ]";
+	echo "example: ${1} [ login | build | push DOCKER_IMAGE | flush | ps | up | down ]";
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
@@ -344,7 +377,13 @@ function main()
 
 
 # check operation
-	if [ "${OPERATION}" != "login" ] && [ "${OPERATION}" != "push" ] && [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "b" ] && [ "${OPERATION}" != "ps" ] && [ "${OPERATION}" != "up" ] && [ "${OPERATION}" != "u" ] && [ "${OPERATION}" != "down" ] && [ "${OPERATION}" != "d" ];
+	if [ "${OPERATION}" != "login" ] && \
+	   [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "b" ] && \
+	   [ "${OPERATION}" != "push" ] && \
+	   [ "${OPERATION}" != "flush" ] && [ "${OPERATION}" != "f" ] && \
+	   [ "${OPERATION}" != "ps" ] && \
+	   [ "${OPERATION}" != "up" ] && [ "${OPERATION}" != "u" ] && \
+	   [ "${OPERATION}" != "down" ] && [ "${OPERATION}" != "d" ];
 	then
 		help "${0}";
 		return 0;
@@ -359,22 +398,44 @@ function main()
 	fi
 
 
-# is file with variables exist?
-	if [ ! -e ./.env ];
+# load enviroment variables
+	if [ -f .env ];
 	then
-		echo "ERROR: you must make .env file";
+		source .env;
+	fi
+
+
+# is file with example exist?
+	if [ ! -f ./.env.example ];
+	then
+		echo "ERROR: you must make .env.example file";
 		return 1;
 	fi
 
 
-# load enviroment variables
-	export $(cat .env | sed -e 's/#.*//g');
+# check if env from exaple is exist
+	while read -e ENV;
+	do
+		if [ ! -v ${ENV} ];
+		then
+			echo "ERROR: environment variable \"${ENV}\" must be set";
+			return 1;
+		fi
+	done <<< $(cat ./.env.example | sed -e 's/#.*//g' | grep '=' | sed -e 's/=.*//g');
 
 
 # select operation
 	if [ "${OPERATION}" == "login" ]
 	then
 		docker_login;
+		STATUS="${?}";
+		return "${STATUS}";
+	fi
+
+
+	if [ "${OPERATION}" == "build" ] || [ "${OPERATION}" == "b" ]
+	then
+		docker_build;
 		STATUS="${?}";
 		return "${STATUS}";
 	fi
@@ -388,9 +449,9 @@ function main()
 	fi
 
 
-	if [ "${OPERATION}" == "build" ] || [ "${OPERATION}" == "b" ]
+	if [ "${OPERATION}" == "flush" ] || [ "${OPERATION}" == "f" ]
 	then
-		docker_build;
+		docker_flush;
 		STATUS="${?}";
 		return "${STATUS}";
 	fi
