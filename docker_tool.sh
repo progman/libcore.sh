@@ -399,8 +399,10 @@ function main()
 
 
 # load enviroment variables
-	if [ -f .env ];
+	if [ ! -f .env ];
 	then
+		echo "skip .env";
+	else
 		echo "use .env";
 		source .env;
 	fi
@@ -411,6 +413,7 @@ function main()
 	then
 		echo "skip .env.example";
 	else
+		echo "use .env.example";
 		while read -e ENV;
 		do
 			if [ ! -v ${ENV} ];
