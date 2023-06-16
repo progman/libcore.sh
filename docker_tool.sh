@@ -406,22 +406,20 @@ function main()
 	fi
 
 
-# is file with example exist?
+# check if env from example is exist
 	if [ ! -f ./.env.example ];
 	then
 		echo "skip .env.example";
+	else
+		while read -e ENV;
+		do
+			if [ ! -v ${ENV} ];
+			then
+				echo "ERROR: environment variable \"${ENV}\" must be set";
+				return 1;
+			fi
+		done <<< $(cat ./.env.example | sed -e 's/#.*//g' | grep '=' | sed -e 's/=.*//g');
 	fi
-
-
-# check if env from exaple is exist
-	while read -e ENV;
-	do
-		if [ ! -v ${ENV} ];
-		then
-			echo "ERROR: environment variable \"${ENV}\" must be set";
-			return 1;
-		fi
-	done <<< $(cat ./.env.example | sed -e 's/#.*//g' | grep '=' | sed -e 's/=.*//g');
 
 
 # select operation
