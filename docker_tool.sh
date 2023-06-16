@@ -401,6 +401,7 @@ function main()
 # load enviroment variables
 	if [ -f .env ];
 	then
+		echo "use .env";
 		source .env;
 	fi
 
@@ -408,8 +409,7 @@ function main()
 # is file with example exist?
 	if [ ! -f ./.env.example ];
 	then
-		echo "ERROR: you must make .env.example file";
-		return 1;
+		echo "skip .env.example";
 	fi
 
 
