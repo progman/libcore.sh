@@ -408,6 +408,16 @@ function main()
 	fi
 
 
+# load enviroment variables
+	if [ ! -f .env.local ];
+	then
+		echo "skip .env.local";
+	else
+		echo "use .env.local";
+		source .env.local;
+	fi
+
+
 # check if env from example is exist
 	if [ ! -f ./.env.example ];
 	then
