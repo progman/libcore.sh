@@ -88,7 +88,7 @@ function docker_build()
 # make options
 	local OPT="";
 
-	if [ "${DOCKER_CACHE}" == "1" ];
+	if [ "${DOCKER_CACHE}" != "1" ];
 	then
 		OPT+=" --no-cache";
 	fi
