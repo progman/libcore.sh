@@ -62,15 +62,59 @@ function docker_build()
 	local DOCKER_IMAGE_TAG_LATEST="${DOCKER_IMAGE_NAME}:latest";
 
 
-# build
+# get git environvent
+	local GIT_URL
+	local GIT_COMMIT_HASH
+	local GIT_BRANCH
+
+	git status &> /dev/null; # is git repo?
+	if [ "${?}" == "0" ];
+	then
+		if [ "$(git remote | grep origin | wc -l | { read COL1; echo ${COL1}; })" != "0" ];
+		then
+			GIT_URL=$(git remote get-url origin 2> /dev/null);
+			if [ "${?}" != "0" ];
+			then
+				GIT_URL=$(git config -l | grep remote.origin.url | sed -e 's/remote.origin.url=//g'); # maybe get-url is not exist
+			fi
+		fi
+
+		GIT_COMMIT_HASH=$(git log -1 --pretty=format:"%H");
+
+		GIT_BRANCH=$(git branch --show-current);
+	fi
+
+
+# make options
+	local OPT="";
+
 	if [ "${DOCKER_CACHE}" == "1" ];
 	then
-		echo "docker build --tag ${DOCKER_IMAGE_TAG} --tag ${DOCKER_IMAGE_TAG_LATEST} ./;";
-		docker build --tag "${DOCKER_IMAGE_TAG}" --tag "${DOCKER_IMAGE_TAG_LATEST}" ./ &> /dev/null < /dev/null
-	else
-		echo "docker build --no-cache --tag ${DOCKER_IMAGE_TAG} --tag ${DOCKER_IMAGE_TAG_LATEST} ./;";
-		docker build --no-cache --tag "${DOCKER_IMAGE_TAG}" --tag "${DOCKER_IMAGE_TAG_LATEST}" ./ &> /dev/null < /dev/null
+		OPT+=" --no-cache";
 	fi
+
+	OPT+=" --tag ${DOCKER_IMAGE_TAG}";
+	OPT+=" --tag ${DOCKER_IMAGE_TAG_LATEST}";
+
+	if [ "${GIT_URL}" != "" ];
+	then
+		OPT+=" --label GIT_URL=${GIT_URL}";
+	fi
+
+	if [ "${GIT_COMMIT_HASH}" != "" ];
+	then
+		OPT+=" --label GIT_COMMIT_HASH=${GIT_COMMIT_HASH}";
+	fi
+
+	if [ "${GIT_BRANCH}" != "" ];
+	then
+		OPT+=" --label GIT_BRANCH=${GIT_BRANCH}";
+	fi
+
+
+# build
+	echo "docker build${OPT} ./;"
+	docker build${OPT} ./ &> /dev/null < /dev/null
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: docker build";
