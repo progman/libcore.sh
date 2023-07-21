@@ -611,29 +611,59 @@ function main()
 
 
 # load enviroment variables
-	if [ ! -f .env ];
+	if [ ! -f .env ] && [ ! -d .env ];
 	then
 		echo "skip .env";
 	else
-		echo "use .env";
-		export_source .env;
-		if [ "${?}" != "0" ];
+		if [ -f .env ];
 		then
-			return 1;
+			echo "export .env";
+			export_source .env;
+			if [ "${?}" != "0" ];
+			then
+				return 1;
+			fi
+		fi
+		if [ -d .env ];
+		then
+			for FILE in $(find .env -type f);
+			do
+				echo "export ${FILE}";
+				export_source "${FILE}";
+				if [ "${?}" != "0" ];
+				then
+					return 1;
+				fi
+			done
 		fi
 	fi
 
 
 # load enviroment variables
-	if [ ! -f .env.local ];
+	if [ ! -f .env.local ] && [ ! -d .env.local ];
 	then
 		echo "skip .env.local";
 	else
-		echo "use .env.local";
-		export_source .env.local;
-		if [ "${?}" != "0" ];
+		if [ -f .env.local ];
 		then
-			return 1;
+			echo "export .env.local";
+			export_source .env.local;
+			if [ "${?}" != "0" ];
+			then
+				return 1;
+			fi
+		fi
+		if [ -d .env.local ];
+		then
+			for FILE in $(find .env.local -type f);
+			do
+				echo "export ${FILE}";
+				export_source "${FILE}";
+				if [ "${?}" != "0" ];
+				then
+					return 1;
+				fi
+			done
 		fi
 	fi
 
@@ -648,7 +678,7 @@ function main()
 		do
 			if [ $(export -p | sed -e 's/^declare\ [a-ZA-Z-]*\ //g' | grep "^${ENV}=" | wc -l) != 1 ]; # is env exported?
 			then
-				echo "ERROR: environment variable \"${ENV}\" must be set";
+				echo "ERROR: environment variable \"${ENV}\" must be set (see .env.example)";
 				return 1;
 			fi
 		done <<< $(cat ./.env.example | sed -e 's/#.*//g' | grep '=' | sed -e 's/=.*//g');
