@@ -1,7 +1,156 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.0.1
+# 1.0.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# source is not export vars from file...
+# export doesn't work well with comments...
+# so we use a great alterative!
+function export_source()
+{
+# make tmp files
+	local temp_file1=$(mktemp);
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: can't make tmp file";
+		return 1;
+	fi
+
+	local temp_file2=$(mktemp)
+	if [ "${?}" != "0" ];
+	then
+		rm -f "${temp_file1}" &> /dev/null < /dev/null;
+		echo "ERROR: can't make tmp file";
+		return 1;
+	fi
+
+	local temp_file3=$(mktemp)
+	if [ "${?}" != "0" ];
+	then
+		rm -f "${temp_file1}" &> /dev/null < /dev/null;
+		rm -f "${temp_file2}" &> /dev/null < /dev/null;
+		echo "ERROR: can't make tmp file";
+		return 1;
+	fi
+
+	local temp_file4=$(mktemp)
+	if [ "${?}" != "0" ];
+	then
+		rm -f "${temp_file1}" &> /dev/null < /dev/null;
+		rm -f "${temp_file2}" &> /dev/null < /dev/null;
+		rm -f "${temp_file3}" &> /dev/null < /dev/null;
+		echo "ERROR: can't make tmp file";
+		return 1;
+	fi
+
+
+# get list of all vars
+	unset _;
+	typeset -p > "${temp_file1}";
+	if [ "${?}" != "0" ];
+	then
+		rm -f "${temp_file1}" &> /dev/null < /dev/null;
+		rm -f "${temp_file2}" &> /dev/null < /dev/null;
+		rm -f "${temp_file3}" &> /dev/null < /dev/null;
+		rm -f "${temp_file4}" &> /dev/null < /dev/null;
+		echo "ERROR: can't make env list";
+		return 1;
+	fi
+
+
+# is file exist?
+	if [ ! -f "${1}" ];
+	then
+		rm -f "${temp_file1}" &> /dev/null < /dev/null;
+		rm -f "${temp_file2}" &> /dev/null < /dev/null;
+		rm -f "${temp_file3}" &> /dev/null < /dev/null;
+		rm -f "${temp_file4}" &> /dev/null < /dev/null;
+		echo "ERROR: file is not found";
+		return 1;
+	fi
+
+
+# get local vars (if without export) from file
+	source "${1}" &> /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		rm -f "${temp_file1}" &> /dev/null < /dev/null;
+		rm -f "${temp_file2}" &> /dev/null < /dev/null;
+		rm -f "${temp_file3}" &> /dev/null < /dev/null;
+		rm -f "${temp_file4}" &> /dev/null < /dev/null;
+		echo "ERROR: can't load file";
+		return 1;
+	fi
+
+
+# get list of all vars
+	unset _;
+	typeset -p > "${temp_file2}";
+	if [ "${?}" != "0" ];
+	then
+		rm -f "${temp_file1}" &> /dev/null < /dev/null;
+		rm -f "${temp_file2}" &> /dev/null < /dev/null;
+		rm -f "${temp_file3}" &> /dev/null < /dev/null;
+		rm -f "${temp_file4}" &> /dev/null < /dev/null;
+		echo "ERROR: can't make env list";
+		return 1;
+	fi
+
+
+# get diff between lists
+	while IFS= read -r line;
+	do
+		if ! grep -qF "$line" "${temp_file1}";
+		then
+			echo "${line}" >> "${temp_file3}" # add to temp_file3 line from temp_file2 if it not exist in temp_file1
+			if [ "${?}" != "0" ];
+			then
+				rm -f "${temp_file1}" &> /dev/null < /dev/null;
+				rm -f "${temp_file2}" &> /dev/null < /dev/null;
+				rm -f "${temp_file3}" &> /dev/null < /dev/null;
+				rm -f "${temp_file4}" &> /dev/null < /dev/null;
+				echo "ERROR: can't make diff between lists";
+				return 1;
+			fi
+		fi
+	done < "${temp_file2}";
+
+
+# replace from declare to export
+	sed -e 's/^declare\ [a-ZA-Z-]*/export/g' "${temp_file3}" > "${temp_file4}";
+	if [ "${?}" != "0" ];
+	then
+		rm -f "${temp_file1}" &> /dev/null < /dev/null;
+		rm -f "${temp_file2}" &> /dev/null < /dev/null;
+		rm -f "${temp_file3}" &> /dev/null < /dev/null;
+		rm -f "${temp_file4}" &> /dev/null < /dev/null;
+		echo "ERROR: can't make export list";
+		return 1;
+	fi
+
+
+# do safe export
+	source "${temp_file4}" &> /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		rm -f "${temp_file1}" &> /dev/null < /dev/null;
+		rm -f "${temp_file2}" &> /dev/null < /dev/null;
+		rm -f "${temp_file3}" &> /dev/null < /dev/null;
+		rm -f "${temp_file4}" &> /dev/null < /dev/null;
+		echo "ERROR: can't load export list";
+		return 1;
+	fi
+
+
+# rm tmp files
+	rm -f "${temp_file1}" &> /dev/null < /dev/null;
+	rm -f "${temp_file2}" &> /dev/null < /dev/null;
+	rm -f "${temp_file3}" &> /dev/null < /dev/null;
+	rm -f "${temp_file4}" &> /dev/null < /dev/null;
+
+
+	return 0;
+}
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function docker_login()
 {
@@ -467,7 +616,11 @@ function main()
 		echo "skip .env";
 	else
 		echo "use .env";
-		source .env;
+		export_source .env;
+		if [ "${?}" != "0" ];
+		then
+			return 1;
+		fi
 	fi
 
 
@@ -477,7 +630,11 @@ function main()
 		echo "skip .env.local";
 	else
 		echo "use .env.local";
-		source .env.local;
+		export_source .env.local;
+		if [ "${?}" != "0" ];
+		then
+			return 1;
+		fi
 	fi
 
 
@@ -489,7 +646,7 @@ function main()
 		echo "use .env.example";
 		while read -e ENV;
 		do
-			if [ ! -v ${ENV} ];
+			if [ $(export -p | sed -e 's/^declare\ [a-ZA-Z-]*\ //g' | grep "^${ENV}=" | wc -l) != 1 ]; # is env exported?
 			then
 				echo "ERROR: environment variable \"${ENV}\" must be set";
 				return 1;
