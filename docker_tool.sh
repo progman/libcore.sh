@@ -65,7 +65,7 @@ function export_source()
 		rm -f "${temp_file2}" &> /dev/null < /dev/null;
 		rm -f "${temp_file3}" &> /dev/null < /dev/null;
 		rm -f "${temp_file4}" &> /dev/null < /dev/null;
-		echo "ERROR: file is not found";
+		echo "ERROR: file \"${1}\" is not found";
 		return 1;
 	fi
 
@@ -78,7 +78,7 @@ function export_source()
 		rm -f "${temp_file2}" &> /dev/null < /dev/null;
 		rm -f "${temp_file3}" &> /dev/null < /dev/null;
 		rm -f "${temp_file4}" &> /dev/null < /dev/null;
-		echo "ERROR: can't load file";
+		echo "ERROR: can't load file \"${1}\"";
 		return 1;
 	fi
 
@@ -615,9 +615,9 @@ function main()
 	then
 		echo "skip .env";
 	else
+		echo "export .env";
 		if [ -f .env ];
 		then
-			echo "export .env";
 			export_source .env;
 			if [ "${?}" != "0" ];
 			then
@@ -628,7 +628,6 @@ function main()
 		then
 			for FILE in $(find .env -type f);
 			do
-				echo "export ${FILE}";
 				export_source "${FILE}";
 				if [ "${?}" != "0" ];
 				then
@@ -644,9 +643,9 @@ function main()
 	then
 		echo "skip .env.local";
 	else
+		echo "export .env.local";
 		if [ -f .env.local ];
 		then
-			echo "export .env.local";
 			export_source .env.local;
 			if [ "${?}" != "0" ];
 			then
@@ -657,7 +656,6 @@ function main()
 		then
 			for FILE in $(find .env.local -type f);
 			do
-				echo "export ${FILE}";
 				export_source "${FILE}";
 				if [ "${?}" != "0" ];
 				then
