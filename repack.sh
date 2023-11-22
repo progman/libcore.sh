@@ -1,8 +1,9 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.0.5
+# 1.0.6
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+GLOBAL_FLAG_FOUND_ZSTD=0;
 GLOBAL_FLAG_FOUND_GZIP=0;
 GLOBAL_FLAG_FOUND_BZIP2=0;
 GLOBAL_FLAG_FOUND_XZ=0;
@@ -12,6 +13,7 @@ GLOBAL_FLAG_FOUND_ARJ=0;
 GLOBAL_FLAG_FOUND_LHA=0;
 GLOBAL_FLAG_FOUND_HA=0;
 GLOBAL_FLAG_FOUND_7Z=0;
+
 GLOBAL_DELTA_SIZE=0;
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -85,6 +87,11 @@ function view_size()
 # check exist tools
 function check_tool()
 {
+	if [ "$(command -v zstd)" != "" ];
+	then
+		GLOBAL_FLAG_FOUND_ZSTD=1;
+	fi
+
 	if [ "$(command -v gzip)" != "" ];
 	then
 		GLOBAL_FLAG_FOUND_GZIP=1;
@@ -223,6 +230,18 @@ function check_file_type()
 		fi
 
 		echo "xz";
+		return 0;
+	fi
+
+	if [ "${MIME}" == "application/zstd" ];
+	then
+		if [ "GLOBAL_FLAG_FOUND_ZSTD" == "0" ];
+		then
+			echo "zstd not found";
+			return 1;
+		fi
+
+		echo "zstd";
 		return 0;
 	fi
 
@@ -517,6 +536,22 @@ function unpack()
 		fi
 
 
+# unpack zstd
+		if [ "${DECOMPRESSOR}" == "zstd" ];
+		then
+			echo "zstd unpack is not implemented, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
+			return 1;
+
+#			zstd -d -f -- "${FILENAME}" &> /dev/null < /dev/null;
+#			if [ "${?}" != "0" ];
+#			then
+#				echo "zstd unpack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
+#				return 1;
+#			fi
+#			rm -rf -- "${FILENAME}" &> /dev/null;
+		fi
+
+
 	done
 
 
@@ -526,6 +561,9 @@ function unpack()
 # repack file
 function repack_file()
 {
+	local COMPRESSOR="${2}";
+
+
 # check file exist
 	if [ "${1}" == "" ];
 	then
@@ -594,30 +632,52 @@ function repack_file()
 
 
 # select compressor
-	local COMPRESSOR;
-	local FLAG_COMPRESSOR_SELECT=0;
-
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_XZ}" != "0" ];
+	if [ "${COMPRESSOR}" == "" ] && [ "${GLOBAL_FLAG_FOUND_XZ}" != "0" ];
 	then
 		COMPRESSOR="xz";
-		FLAG_COMPRESSOR_SELECT=1;
 	fi
 
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_BZIP2}" != "0" ];
+	if [ "${COMPRESSOR}" == "" ] && [ "${GLOBAL_FLAG_FOUND_ZSTD}" != "0" ];
 	then
-		COMPRESSOR="bz2";
-		FLAG_COMPRESSOR_SELECT=1;
+		COMPRESSOR="zstd";
 	fi
 
-	if [ "${FLAG_COMPRESSOR_SELECT}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_GZIP}" != "0" ];
+	if [ "${COMPRESSOR}" == "" ] && [ "${GLOBAL_FLAG_FOUND_BZIP2}" != "0" ];
+	then
+		COMPRESSOR="bzip2";
+	fi
+
+	if [ "${COMPRESSOR}" == "" ] && [ "${GLOBAL_FLAG_FOUND_GZIP}" != "0" ];
 	then
 		COMPRESSOR="gz";
-		FLAG_COMPRESSOR_SELECT=1;
+	fi
+
+
+# select extension
+	local EXTENSION;
+	if [ "${COMPRESSOR}" == "xz" ];
+	then
+		EXTENSION="xz";
+	fi
+
+	if [ "${COMPRESSOR}" == "zstd" ];
+	then
+		EXTENSION="zst";
+	fi
+
+	if [ "${COMPRESSOR}" == "bzip2" ];
+	then
+		EXTENSION="bz2";
+	fi
+
+	if [ "${COMPRESSOR}" == "gz" ];
+	then
+		EXTENSION="gz";
 	fi
 
 
 # check exist file
-	local TARGET_FILENAME="$(strip_filename "${SOURCE_FILENAME}").tar.${COMPRESSOR}";
+	local TARGET_FILENAME="$(strip_filename "${SOURCE_FILENAME}").tar.${EXTENSION}";
 #	echo "${SOURCE_FILENAME} -> ${TARGET_FILENAME}";
 
 	if [ -e "${TARGET_FILENAME}" ] && [ "${TARGET_FILENAME}" != "${SOURCE_FILENAME}" ];
@@ -751,8 +811,21 @@ function repack_file()
 
 
 # compress TAR
+	if [ "${COMPRESSOR}" == "" ];
+	then
+		echo "compressor was not select";
+		return 1;
+	fi
+
+
 	if [ "${COMPRESSOR}" == "xz" ];
 	then
+		if [ "${GLOBAL_FLAG_FOUND_XZ}" == "0" ];
+		then
+			echo "you must install xz";
+			return 1;
+		fi
+
 		if [ "${XZ_OPT}" == "" ];
 		then
 #			export XZ_OPT='-9 --extreme';
@@ -770,8 +843,38 @@ function repack_file()
 	fi
 
 
-	if [ "${COMPRESSOR}" == "bz2" ];
+	if [ "${COMPRESSOR}" == "zstd" ];
 	then
+		if [ "${GLOBAL_FLAG_FOUND_ZSTD}" == "0" ];
+		then
+			echo "you must install zstd";
+			return 1;
+		fi
+
+#		if [ "${GZIP}" == "" ];
+#		then
+#			export GZIP='-9';
+#		fi
+
+		ionice -c 3 nice -n 19 zstd -C --ultra -22 --threads=0 -f -o "${TMP4}" 2> /dev/null < "${TMP3}";
+		if [ "${?}" != "0" ];
+		then
+			echo " zstd pack error, FLAG_USE_TMPDIR=${FLAG_USE_TMPDIR}";
+			rm -rf -- "${TMP3}";
+			rm -rf -- "${TMP4}";
+			return 1;
+		fi
+	fi
+
+
+	if [ "${COMPRESSOR}" == "bzip2" ];
+	then
+		if [ "${GLOBAL_FLAG_FOUND_BZIP2}" == "0" ];
+		then
+			echo "you must install bzip2";
+			return 1;
+		fi
+
 		if [ "${BZIP2}" == "" ];
 		then
 			export BZIP2='-9';
@@ -790,6 +893,12 @@ function repack_file()
 
 	if [ "${COMPRESSOR}" == "gz" ];
 	then
+		if [ "${GLOBAL_FLAG_FOUND_GZIP}" == "0" ];
+		then
+			echo "you must install gzip";
+			return 1;
+		fi
+
 		if [ "${GZIP}" == "" ];
 		then
 			export GZIP='-9';
@@ -854,6 +963,8 @@ function repack_file()
 # repack filelist
 function repack_filelist()
 {
+	local COMPRESSOR="${2}";
+
 	if [ "${1}" == "" ] || [ ! -f "${1}" ];
 	then
 		echo "file not found";
@@ -906,7 +1017,7 @@ function repack_filelist()
 	do
 		printf "[%0${#COUNT_ALL}u/${COUNT_ALL}] \"${LINE}\": " "${COUNT_CUR}";
 
-		repack_file "${LINE}";
+		repack_file "${LINE}" "${COMPRESSOR}";
 
 		(( COUNT_CUR++ ));
 
@@ -920,6 +1031,9 @@ function repack_filelist()
 # repack stdin
 function repack_stdin()
 {
+	local COMPRESSOR="${1}";
+
+
 # create file for filelist
 	local TMP1;
 	TMP1=$(mktemp 2> /dev/null);
@@ -963,27 +1077,27 @@ function repack_stdin()
 	done
 
 
-	repack_filelist "${TMP1}";
+	repack_filelist "${TMP1}" "${COMPRESSOR}";
 	rm -rf -- "${TMP1}" &> /dev/null;
 
 
 	return 0;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# help function
+function help()
+{
+	echo "example: cat FILELIST | ${1} [ --xz | --zstd | --bzip2 | --gz ]";
+	echo "vars:";
+	echo -e "\tFLAG_USE_TMPDIR   : [0|1]";
+	echo -e "\tFLAG_REPACK_FORCE : [0|1]";
+	echo -e "\tREPACK_MAX_SIZE   : [SIZE]";
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
 function main()
 {
-	local FILE_COUNT="${#}";
-	if [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
-	then
-		echo "example: ${0} [FILE|DIR]...";
-		echo "example: cat FILELIST | ${0}";
-		echo "vars:";
-		echo -e "\tFLAG_USE_TMPDIR   : [0|1]";
-		echo -e "\tFLAG_REPACK_FORCE : [0|1]";
-		echo -e "\tREPACK_MAX_SIZE   : [SIZE]";
-		return 1;
-	fi
+	local COMPRESSOR="";
 
 
 # check depends tools
@@ -994,60 +1108,93 @@ function main()
 	fi
 
 
-# check compressors
+# check args
+	local ARG_LIST_COUNT="${#}";
+	if [ "${ARG_LIST_COUNT}" != "0" ];
+	then
+		while true;
+		do
+			while true;
+			do
+				if [ "${1}" == "-h" ];
+				then
+					help "${0}";
+					return 0;
+				fi
+
+
+				if [ "${1}" == "-help" ];
+				then
+					help "${0}";
+					return 0;
+				fi
+
+
+				if [ "${1}" == "--help" ];
+				then
+					help "${0}";
+					return 0;
+				fi
+
+
+				if [ "${1}" == "--xz" ];
+				then
+					COMPRESSOR="xz";
+					break;
+				fi
+
+
+				if [ "${1}" == "--zstd" ];
+				then
+					COMPRESSOR="zstd";
+					break;
+				fi
+
+
+				if [ "${1}" == "--bzip2" ];
+				then
+					COMPRESSOR="bzip2";
+					break;
+				fi
+
+
+				if [ "${1}" == "--gz" ];
+				then
+					COMPRESSOR="gz";
+					break;
+				fi
+
+
+#				echo "FATAL: unknown option \"${1}\"";
+				help "${0}";
+				return 1;
+			done
+
+
+			(( ARG_LIST_COUNT-- ));
+			shift 1;
+			if [ "${ARG_LIST_COUNT}" == "0" ];
+			then
+				break;
+			fi
+		done
+	fi
+
+
+# check tool
 	check_tool;
-	if [ "${GLOBAL_FLAG_FOUND_GZIP}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_BZIP2}" == "0" ] && [ "${GLOBAL_FLAG_FOUND_XZ}" == "0" ];
-	then
-		echo "FATAL: install xz or bzip2 or gzip";
-		return 1;
-	fi
 
 
-# repack stdin
-	if [ "${FILE_COUNT}" == "0" ];
-	then
-		repack_stdin;
-
-		echo -n "total: ";
-		view_size "${GLOBAL_DELTA_SIZE}";
-
-		return "${?}";
-	fi
+# repack
+	repack_stdin "${COMPRESSOR}";
 
 
-# create file for filelist
-	local TMP1;
-	TMP1=$(mktemp 2> /dev/null);
-	if [ "${?}" != "0" ];
-	then
-		echo "FATAL: can't make tmp file";
-		return 1;
-	fi
-
-
-# create filelist
-	while true;
-	do
-		echo "${1}" >> "${TMP1}";
-
-		(( FILE_COUNT-- ));
-		shift 1;
-
-		if [ "${FILE_COUNT}" == "0" ];
-		then
-			break;
-		fi
-	done
-
-
-# repack args
-	repack_stdin < "${TMP1}";
-	rm -rf -- "${TMP1}" &> /dev/null;
-
+# show repack size
 	echo -n "total: ";
 	view_size "${GLOBAL_DELTA_SIZE}";
 
-	return 0;
+
+	return "${?}";
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 main "${@}";
