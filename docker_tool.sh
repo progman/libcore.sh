@@ -212,9 +212,13 @@ function docker_build()
 
 
 # get git environvent
+	local COUNT
 	local GIT_URL
 	local GIT_COMMIT_HASH
 	local GIT_BRANCH
+	local GIT_COMMITTED
+
+	GIT_COMMITTED="true";
 
 	git status &> /dev/null; # is git repo?
 	if [ "${?}" == "0" ];
@@ -231,6 +235,11 @@ function docker_build()
 		GIT_COMMIT_HASH=$(git log -1 --pretty=format:"%H");
 
 		GIT_BRANCH=$(git branch --show-current);
+
+		if [ "$(git status --porcelain=v2 2>&1 | wc -l | { read COUNT; echo ${COUNT}; })" != "0" ];
+		then
+			GIT_COMMITTED="false";
+		fi
 	fi
 
 
@@ -260,6 +269,11 @@ function docker_build()
 		OPT+=" --label GIT_BRANCH=${GIT_BRANCH}";
 	fi
 
+	if [ "${GIT_COMMITTED}" != "" ];
+	then
+		OPT+=" --label GIT_COMMITTED=${GIT_COMMITTED}";
+	fi
+
 
 # build
 	echo "docker build${OPT} ./;"
@@ -283,7 +297,6 @@ function docker_build()
 
 	echo "made ${DOCKER_IMAGE_NAME}@${DOCKER_IMAGE_HASH}";
 	echo "made ${DOCKER_IMAGE_TAG_LATEST}"
-
 
 
 	return 0;
