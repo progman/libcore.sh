@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.0.3
+# 1.0.4
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # source is not export vars from file...
@@ -418,7 +418,7 @@ function docker_ps()
 	fi
 
 
-# is docker-compose config exist?
+# is docker compose config exist?
 	if [ ! -e ./docker-compose.yml ] && [ ! -e ./docker-compose.yaml ];
 	then
 		echo "ERROR: you must make docker-compose.yml file";
@@ -426,7 +426,7 @@ function docker_ps()
 	fi
 
 
-# set name of docker-compose config
+# set name of docker compose config
 	DOCKER_COMPOSE_FILE="./docker-compose.yml";
 	if [ ! -e ./docker-compose.yml ];
 	then
@@ -435,11 +435,11 @@ function docker_ps()
 
 
 # ps
-	echo "docker-compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} ps;";
-	docker-compose -p ${DOCKER_PROJECT_NAME} -f "${DOCKER_COMPOSE_FILE}" ps;
+	echo "docker compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} ps;";
+	docker compose -p ${DOCKER_PROJECT_NAME} -f "${DOCKER_COMPOSE_FILE}" ps;
 	if [ "${?}" != "0" ];
 	then
-		echo "ERROR: docker-compose ps";
+		echo "ERROR: docker compose ps";
 		return 1;
 	fi
 
@@ -461,7 +461,7 @@ function docker_up()
 	fi
 
 
-# is docker-compose config exist?
+# is docker compose config exist?
 	if [ ! -e ./docker-compose.yml ] && [ ! -e ./docker-compose.yaml ];
 	then
 		echo "ERROR: you must make docker-compose.yml file";
@@ -469,7 +469,7 @@ function docker_up()
 	fi
 
 
-# set name of docker-compose config
+# set name of docker compose config
 	DOCKER_COMPOSE_FILE="./docker-compose.yml";
 	if [ ! -e ./docker-compose.yml ];
 	then
@@ -478,11 +478,11 @@ function docker_up()
 
 
 # pull
-	echo "docker-compose -f ${DOCKER_COMPOSE_FILE} pull --quiet;";
-	docker-compose -f "${DOCKER_COMPOSE_FILE}" pull --quiet; # skip --env-file ./.env
+	echo "docker compose -f ${DOCKER_COMPOSE_FILE} pull --quiet;";
+	docker compose -f "${DOCKER_COMPOSE_FILE}" pull --quiet; # skip --env-file ./.env
 	if [ "${?}" != "0" ];
 	then
-		echo "ERROR: docker-compose pull";
+		echo "ERROR: docker compose pull";
 		return 1;
 	fi
 
@@ -490,15 +490,15 @@ function docker_up()
 # up
 	if [ "${DOCKER_CACHE}" == "1" ];
 	then
-		echo "docker-compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} up -d --renew-anon-volumes --always-recreate-deps;";
-		docker-compose -p "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" up -d --renew-anon-volumes --always-recreate-deps; # skip --env-file ./.env
+		echo "docker compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} up -d --renew-anon-volumes --always-recreate-deps;";
+		docker compose -p "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" up -d --renew-anon-volumes --always-recreate-deps; # skip --env-file ./.env
 	else
-		echo "docker-compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} up -d --renew-anon-volumes --always-recreate-deps --force-recreate;";
-		docker-compose -p "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" up -d --renew-anon-volumes --always-recreate-deps --force-recreate; # skip --env-file ./.env
+		echo "docker compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} up -d --renew-anon-volumes --always-recreate-deps --force-recreate;";
+		docker compose -p "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" up -d --renew-anon-volumes --always-recreate-deps --force-recreate; # skip --env-file ./.env
 	fi
 	if [ "${?}" != "0" ];
 	then
-		echo "ERROR: docker-compose up";
+		echo "ERROR: docker compose up";
 		return 1;
 	fi
 
@@ -528,7 +528,7 @@ function docker_down()
 	fi
 
 
-# is docker-compose config exist?
+# is docker compose config exist?
 	if [ ! -e ./docker-compose.yml ] && [ ! -e ./docker-compose.yaml ];
 	then
 		echo "ERROR: you must make docker-compose.yml file";
@@ -536,7 +536,7 @@ function docker_down()
 	fi
 
 
-# set name of docker-compose config
+# set name of docker compose config
 	DOCKER_COMPOSE_FILE="./docker-compose.yml";
 	if [ ! -e ./docker-compose.yml ];
 	then
@@ -552,11 +552,11 @@ function docker_down()
 
 
 # down
-	echo "docker-compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} down --remove-orphans -t ${DOCKER_SHUTDOWN_TIMEOUT};";
-	docker-compose -p "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" down --remove-orphans -t "${DOCKER_SHUTDOWN_TIMEOUT}"; # skip --env-file ./.env
+	echo "docker compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} down --remove-orphans -t ${DOCKER_SHUTDOWN_TIMEOUT};";
+	docker compose -p "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" down --remove-orphans -t "${DOCKER_SHUTDOWN_TIMEOUT}"; # skip --env-file ./.env
 	if [ "${?}" != "0" ];
 	then
-		echo "ERROR: docker-compose down";
+		echo "ERROR: docker compose down";
 		return 1;
 	fi
 
@@ -616,7 +616,7 @@ function main()
 
 
 # check depends tools
-	check_prog "docker docker-compose";
+	check_prog "docker";
 	if [ "${?}" != "0" ];
 	then
 		return 1;
