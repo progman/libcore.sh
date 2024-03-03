@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.0.4
+# 1.0.5
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # source is not export vars from file...
@@ -449,6 +449,21 @@ function docker_ps()
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function docker_up()
 {
+	local DOCKER_PROJECT_NAME;
+	local DOCKER_COMPOSE_FILE;
+	local TMP;
+	local FLAG_PULL;
+	local FLAG_DEPLOY;
+
+
+# check deploy
+	FLAG_DEPLOY='0';
+	if [ "${1}" == "DEPLOY" ];
+	then
+		FLAG_DEPLOY='1';
+	fi
+
+
 # are vars set?
 	if [ "${DOCKER_PROJECT_NAME}" == "" ];
 	then
@@ -478,12 +493,38 @@ function docker_up()
 
 
 # pull
-	echo "docker compose -f ${DOCKER_COMPOSE_FILE} pull --quiet;";
-	docker compose -f "${DOCKER_COMPOSE_FILE}" pull --quiet; # skip --env-file ./.env
+	TMP=$(mktemp);
+	echo "docker compose -f ${DOCKER_COMPOSE_FILE} pull --quiet;"; # skip --env-file ./.env
+	docker compose -f "${DOCKER_COMPOSE_FILE}" pull &> "${TMP}";
 	if [ "${?}" != "0" ];
 	then
+		rm -f "${TMP}" &> /dev/null < /dev/null;
 		echo "ERROR: docker compose pull";
 		return 1;
+	fi
+
+	FLAG_PULL='0';
+	if [ "$(cat ${TMP} | grep 'Pull complete' | wc -l | { read COL1; echo ${COL1}; })" != "0" ];
+	then
+		FLAG_PULL='1';
+	fi
+	rm -f "${TMP}" &> /dev/null < /dev/null;
+
+
+# deploy
+	if [ "${FLAG_DEPLOY}" == "1" ];
+	then
+		if [ "${FLAG_PULL}" == "0" ];
+		then
+
+			docker_ps;
+			if [ "${?}" != "0" ];
+			then
+				return 1;
+			fi
+
+			return 0;
+		fi
 	fi
 
 
@@ -590,7 +631,7 @@ function check_prog()
 # show help
 function help()
 {
-	echo "example: ${1} [ login | build | push DOCKER_IMAGE | flush | ps | up | down ]";
+	echo "example: ${1} [ login | build | push DOCKER_IMAGE | flush | ps | deploy | up | down ]";
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
@@ -602,13 +643,14 @@ function main()
 
 
 # check operation
-	if [ "${OPERATION}" != "login" ] && \
-	   [ "${OPERATION}" != "build" ] && [ "${OPERATION}" != "b" ] && \
-	   [ "${OPERATION}" != "push" ] && \
-	   [ "${OPERATION}" != "flush" ] && [ "${OPERATION}" != "f" ] && \
-	   [ "${OPERATION}" != "ps" ] && \
-	   [ "${OPERATION}" != "up" ] && [ "${OPERATION}" != "u" ] && \
-	   [ "${OPERATION}" != "down" ] && [ "${OPERATION}" != "d" ];
+	if [ "${OPERATION}" != "login" ]  && \
+	   [ "${OPERATION}" != "build" ]  && [ "${OPERATION}" != "b" ] && \
+	   [ "${OPERATION}" != "push" ]   && \
+	   [ "${OPERATION}" != "flush" ]  && [ "${OPERATION}" != "f" ] && \
+	   [ "${OPERATION}" != "ps" ]     && \
+	   [ "${OPERATION}" != "deploy" ] && \
+	   [ "${OPERATION}" != "up" ]     && [ "${OPERATION}" != "u" ] && \
+	   [ "${OPERATION}" != "down" ]   && [ "${OPERATION}" != "d" ];
 	then
 		help "${0}";
 		return 0;
@@ -732,6 +774,14 @@ function main()
 	if [ "${OPERATION}" == "ps" ]
 	then
 		docker_ps;
+		STATUS="${?}";
+		return "${STATUS}";
+	fi
+
+
+	if [ "${OPERATION}" == "deploy" ]
+	then
+		docker_up "DEPLOY";
 		STATUS="${?}";
 		return "${STATUS}";
 	fi
