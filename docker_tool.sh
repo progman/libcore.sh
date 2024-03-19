@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.0.7
+# 1.0.8
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # source is not export vars from file...
@@ -435,8 +435,8 @@ function docker_ps()
 
 
 # ps
-	echo "docker compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} ps;";
-	docker compose -p ${DOCKER_PROJECT_NAME} -f "${DOCKER_COMPOSE_FILE}" ps;
+	echo "docker compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} ps --format \"table {{lower .ID}}\t{{lower .Names}}\t{{lower .Image}}\t{{lower .Status}}\";";
+	docker compose -p ${DOCKER_PROJECT_NAME} -f "${DOCKER_COMPOSE_FILE}" ps --format "table {{lower .ID}}\t{{lower .Names}}\t{{lower .Image}}\t{{lower .Status}}";
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: docker compose ps";
