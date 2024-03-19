@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.0.8
+# 1.0.9
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # source is not export vars from file...
@@ -418,29 +418,36 @@ function docker_ps()
 	fi
 
 
-# is docker compose config exist?
-	if [ ! -e ./docker-compose.yml ] && [ ! -e ./docker-compose.yaml ];
-	then
-		echo "ERROR: you must make docker-compose.yml file";
-		return 1;
-	fi
-
-
 # set name of docker compose config
-	DOCKER_COMPOSE_FILE="./docker-compose.yml";
-	if [ ! -e ./docker-compose.yml ];
+	DOCKER_COMPOSE_FILE="";
+	if [ -e ./docker-compose.yml ] || [ -e ./docker-compose.yaml ];
 	then
-		DOCKER_COMPOSE_FILE="./docker-compose.yaml";
+		DOCKER_COMPOSE_FILE="./docker-compose.yml";
+		if [ ! -e ./docker-compose.yml ];
+		then
+			DOCKER_COMPOSE_FILE="./docker-compose.yaml";
+		fi
 	fi
 
 
 # ps
-	echo "docker compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} ps --format \"table {{lower .ID}}\t{{lower .Names}}\t{{lower .Image}}\t{{lower .Status}}\";";
-	docker compose -p ${DOCKER_PROJECT_NAME} -f "${DOCKER_COMPOSE_FILE}" ps --format "table {{lower .ID}}\t{{lower .Names}}\t{{lower .Image}}\t{{lower .Status}}";
-	if [ "${?}" != "0" ];
+	if [ "${DOCKER_COMPOSE_FILE}" != "" ];
 	then
-		echo "ERROR: docker compose ps";
-		return 1;
+		echo "docker compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} ps --format \"table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}\";";
+		docker compose -p ${DOCKER_PROJECT_NAME} -f "${DOCKER_COMPOSE_FILE}" ps --format "table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}";
+		if [ "${?}" != "0" ];
+		then
+			echo "ERROR: docker compose ps";
+			return 1;
+		fi
+	else
+		echo "docker ps --format \"table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}\";";
+		docker ps --format "table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}";
+		if [ "${?}" != "0" ];
+		then
+			echo "ERROR: docker compose ps";
+			return 1;
+		fi
 	fi
 
 
