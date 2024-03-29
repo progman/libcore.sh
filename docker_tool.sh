@@ -454,8 +454,12 @@ function docker_ps()
 	return 0;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-function docker_up()
+function docker_pull()
 {
+	local DOCKER_COMPOSE_FILE;
+	local STATUS;
+
+
 # are vars set?
 	if [ "${DOCKER_PROJECT_NAME}" == "" ];
 	then
@@ -465,20 +469,6 @@ function docker_up()
 		else
 			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g');
 		fi
-	fi
-
-
-	local DOCKER_COMPOSE_FILE;
-	local TMP;
-	local FLAG_PULL;
-	local FLAG_DEPLOY;
-
-
-# check deploy
-	FLAG_DEPLOY='0';
-	if [ "${1}" == "DEPLOY" ];
-	then
-		FLAG_DEPLOY='1';
 	fi
 
 
@@ -499,9 +489,8 @@ function docker_up()
 
 
 # pull
-	TMP=$(mktemp);
 	echo "docker compose -f ${DOCKER_COMPOSE_FILE} pull --quiet;"; # skip --env-file ./.env
-	docker compose -f "${DOCKER_COMPOSE_FILE}" pull &> "${TMP}";
+	docker compose -f "${DOCKER_COMPOSE_FILE}" pull --quiet &> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -f "${TMP}" &> /dev/null < /dev/null;
@@ -509,27 +498,135 @@ function docker_up()
 		return 1;
 	fi
 
-	FLAG_PULL='0';
-	if [ "$(cat ${TMP} | grep 'Pull complete' | wc -l | { read COL1; echo ${COL1}; })" != "0" ];
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function docker_deploy()
+{
+	local FLAG_DEPLOY;
+	local CONTAINER_NAME;
+	local FLAG_LATEST;
+	local COL1;
+	local STATUS;
+	local IMAGE;
+	local HASH_OLD;
+	local HASH_NEW;
+
+
+# docker pull
+	docker_pull;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
 	then
-		FLAG_PULL='1';
+		return "${STATUS}";
 	fi
-	rm -f "${TMP}" &> /dev/null < /dev/null;
 
 
-# deploy
-	if [ "${FLAG_DEPLOY}" == "1" ];
-	then
-		if [ "${FLAG_PULL}" == "0" ];
+# is deploy need?
+	FLAG_DEPLOY="0";
+	for CONTAINER_NAME in $(docker compose config | grep 'container_name:' | sed -e 's/.*:\ //g');
+	do
+#		echo "found: ${CONTAINER_NAME}";
+
+
+# is container image latest?
+		FLAG_LATEST=$(docker inspect --type container ${CONTAINER_NAME} | grep Image | grep latest | wc -l | { read COL1; echo ${COL1}; })
+		if [ "${FLAG_LATEST}" != "0" ];
 		then
+#			echo "found latest: ${CONTAINER_NAME}";
 
-			docker_ps;
-			if [ "${?}" != "0" ];
+
+# get container image
+			IMAGE=$(docker inspect --type container ${CONTAINER_NAME} | grep Image | grep latest | sed -e 's/:latest.*//g' | sed -e 's/.*"//g')":latest";
+#			echo "IMAGE: ${IMAGE}";
+
+
+# get container image hash
+			HASH_OLD=$(docker inspect --type container ${CONTAINER_NAME} | grep Image | grep -v latest | sed -e 's/.*\ //g' | sed -e 's/^"//g' | sed -e 's/".*//g');
+#			echo "HASH_OLD: ${HASH_OLD}";
+
+
+# get local docker image hash
+			HASH_NEW=$(docker image list --no-trunc --format "{{.ID}}" "${IMAGE}");
+#			echo "HASH_NEW: ${HASH_NEW}";
+
+
+			if [ "${HASH_OLD}" != "${HASH_NEW}" ];
 			then
-				return 1;
+				FLAG_DEPLOY="1";
+				break;
 			fi
+		fi
+	done
 
-			return 0;
+
+# ps if deploy is not need
+	if [ "${FLAG_DEPLOY}" == "0" ];
+	then
+		docker_ps;
+		STATUS="${?}";
+		return "${STATUS}";
+	fi
+
+
+#	echo "deploy go baby go";
+	docker_up "PULL_DISABLE";
+	STATUS="${?}";
+	return "${STATUS}";
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function docker_up()
+{
+	local DOCKER_COMPOSE_FILE;
+	local STATUS;
+	local FLAG_PULL;
+
+
+# are vars set?
+	if [ "${DOCKER_PROJECT_NAME}" == "" ];
+	then
+		if [ "${COMPOSE_PROJECT_NAME}" != "" ];
+		then
+			DOCKER_PROJECT_NAME="${COMPOSE_PROJECT_NAME}";
+		else
+			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g');
+		fi
+	fi
+
+
+# is docker compose config exist?
+	if [ ! -e ./docker-compose.yml ] && [ ! -e ./docker-compose.yaml ];
+	then
+		echo "ERROR: you must make docker-compose.yml file";
+		return 1;
+	fi
+
+
+# set name of docker compose config
+	DOCKER_COMPOSE_FILE="./docker-compose.yml";
+	if [ ! -e ./docker-compose.yml ];
+	then
+		DOCKER_COMPOSE_FILE="./docker-compose.yaml";
+	fi
+
+
+# check deploy
+	FLAG_PULL='1';
+	if [ "${1}" == "PULL_DISABLE" ];
+	then
+		FLAG_PULL='0';
+	fi
+
+
+# pull
+	if [ "${FLAG_PULL}" == "1" ];
+	then
+		docker_pull;
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			return "${STATUS}";
 		fi
 	fi
 
@@ -552,9 +649,10 @@ function docker_up()
 
 # ps
 	docker_ps;
-	if [ "${?}" != "0" ];
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
 	then
-		return 1;
+		return "${STATUS}";
 	fi
 
 
@@ -637,7 +735,7 @@ function check_prog()
 # show help
 function help()
 {
-	echo "example: ${1} [ login | build | push DOCKER_IMAGE | flush | ps | deploy | up | down ]";
+	echo "example: ${1} [ login | build | pull | push DOCKER_IMAGE | flush | ps | deploy | up | down ]";
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
@@ -651,6 +749,7 @@ function main()
 # check operation
 	if [ "${OPERATION}" != "login" ]  && \
 	   [ "${OPERATION}" != "build" ]  && [ "${OPERATION}" != "b" ] && \
+	   [ "${OPERATION}" != "pull" ]   && \
 	   [ "${OPERATION}" != "push" ]   && \
 	   [ "${OPERATION}" != "flush" ]  && [ "${OPERATION}" != "f" ] && \
 	   [ "${OPERATION}" != "ps" ]     && \
@@ -761,6 +860,14 @@ function main()
 	fi
 
 
+	if [ "${OPERATION}" == "pull" ]
+	then
+		docker_pull "${ARG}";
+		STATUS="${?}";
+		return "${STATUS}";
+	fi
+
+
 	if [ "${OPERATION}" == "push" ]
 	then
 		docker_push "${ARG}";
@@ -787,7 +894,7 @@ function main()
 
 	if [ "${OPERATION}" == "deploy" ]
 	then
-		docker_up "DEPLOY";
+		docker_deploy;
 		STATUS="${?}";
 		return "${STATUS}";
 	fi
