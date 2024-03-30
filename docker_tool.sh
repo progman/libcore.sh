@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.1.1
+# 1.1.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # source is not export vars from file...
@@ -433,8 +433,8 @@ function docker_ps()
 # ps
 	if [ "${DOCKER_COMPOSE_FILE}" != "" ];
 	then
-		echo "docker compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} ps --format \"table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}\";";
-		docker compose -p ${DOCKER_PROJECT_NAME} -f "${DOCKER_COMPOSE_FILE}" ps --format "table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}";
+		echo "docker compose --project-name ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} ps --format \"table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}\";";
+		docker compose --project-name ${DOCKER_PROJECT_NAME} -f "${DOCKER_COMPOSE_FILE}" ps --format "table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}";
 		if [ "${?}" != "0" ];
 		then
 			echo "ERROR: docker compose ps";
@@ -640,11 +640,11 @@ function docker_up()
 # up
 	if [ "${DOCKER_CACHE}" == "1" ];
 	then
-		echo "docker compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} up -d --renew-anon-volumes --always-recreate-deps;";
-		docker compose -p "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" up -d --renew-anon-volumes --always-recreate-deps; # skip --env-file ./.env
+		echo "docker compose --project-name ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} up -d --renew-anon-volumes --always-recreate-deps;";
+		docker compose --project-name "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" up -d --renew-anon-volumes --always-recreate-deps; # skip --env-file ./.env
 	else
-		echo "docker compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} up -d --renew-anon-volumes --always-recreate-deps --force-recreate;";
-		docker compose -p "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" up -d --renew-anon-volumes --always-recreate-deps --force-recreate; # skip --env-file ./.env
+		echo "docker compose --project-name ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} up -d --renew-anon-volumes --always-recreate-deps --force-recreate;";
+		docker compose --project-name "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" up -d --renew-anon-volumes --always-recreate-deps --force-recreate; # skip --env-file ./.env
 	fi
 	if [ "${?}" != "0" ];
 	then
@@ -703,8 +703,8 @@ function docker_down()
 
 
 # down
-	echo "docker compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} down --remove-orphans -t ${DOCKER_SHUTDOWN_TIMEOUT};";
-	docker compose -p "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" down --remove-orphans -t "${DOCKER_SHUTDOWN_TIMEOUT}"; # skip --env-file ./.env
+	echo "docker compose --project-name ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} down --remove-orphans -t ${DOCKER_SHUTDOWN_TIMEOUT};";
+	docker compose --project-name "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" down --remove-orphans -t "${DOCKER_SHUTDOWN_TIMEOUT}"; # skip --env-file ./.env
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: docker compose down";
