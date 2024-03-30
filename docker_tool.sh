@@ -573,7 +573,7 @@ function docker_deploy()
 #	echo "deploy go baby go";
 	if [ "${DEPLOY_NOTIFY}" != "" ] && [ "${DEPLOY_NOTIFY_MSG}" != "" ];
 	then
-		"${DEPLOY_NOTIFY}" "${DEPLOY_NOTIFY_MSG}" &> /dev/null < /dev/null;
+		"${DEPLOY_NOTIFY}" "${DEPLOY_NOTIFY_MSG}" &> /dev/null < /dev/null &
 	fi
 
 

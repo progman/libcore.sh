@@ -102,9 +102,9 @@ function main()
 
 	if [ "${TELEGRAM_SOCKS5_URL}" != "" ];
 	then
-		curl --socks5-hostname localhost:9050 -s -X POST ${URL} -d chat_id=${TELEGRAM_CHAT_ID} -d parse_mode=markdown -d text="*${MSG}*" &> /dev/null;
+		curl --socks5-hostname localhost:9050 -s -X POST ${URL} -d chat_id=${TELEGRAM_CHAT_ID} -d parse_mode=markdown -d text="*${MSG}*" &> /dev/null < /dev/null;
 	else
-		curl                                  -s -X POST ${URL} -d chat_id=${TELEGRAM_CHAT_ID} -d parse_mode=markdown -d text="*${MSG}*" &> /dev/null;
+		curl                                  -s -X POST ${URL} -d chat_id=${TELEGRAM_CHAT_ID} -d parse_mode=markdown -d text="*${MSG}*" &> /dev/null < /dev/null;
 	fi
 	STATUS="${?}";
 
