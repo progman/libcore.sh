@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.2
+# 0.0.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 #1) add @BotFather for friends
@@ -67,15 +67,25 @@ function check_prog()
 function main()
 {
 	local STATUS;
-	local TELEGRAM_BOT_TOKEN;
-	local TELEGRAM_CHAT_ID;
 	local MSG;
 	local URL;
 
 
-	TELEGRAM_BOT_TOKEN="${1}";
-	TELEGRAM_CHAT_ID="${2}";
-	MSG="${3}";
+	if [ "${TELEGRAM_BOT_TOKEN}" == "" ];
+	then
+		echo "ERROR: TELEGRAM_BOT_TOKEN is not set";
+		return 0;
+	fi
+
+
+	if [ "${TELEGRAM_CHAT_ID}" == "" ];
+	then
+		echo "ERROR: TELEGRAM_CHAT_ID is not set";
+		return 0;
+	fi
+
+
+	MSG="${1}";
 
 
 # check depends tools
@@ -88,8 +98,14 @@ function main()
 
 # notify
 	URL="https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage";
-#	curl --socks5-hostname localhost:9050 -s -X POST ${URL} -d chat_id=${TELEGRAM_CHAT_ID} -d parse_mode=markdown -d text="*${MSG}*" &> /dev/null;
-	curl -s -X POST ${URL} -d chat_id=${TELEGRAM_CHAT_ID} -d parse_mode=markdown -d text="*${MSG}*" &> /dev/null;
+
+
+	if [ "${TELEGRAM_SOCKS5_URL}" != "" ];
+	then
+		curl --socks5-hostname localhost:9050 -s -X POST ${URL} -d chat_id=${TELEGRAM_CHAT_ID} -d parse_mode=markdown -d text="*${MSG}*" &> /dev/null;
+	else
+		curl                                  -s -X POST ${URL} -d chat_id=${TELEGRAM_CHAT_ID} -d parse_mode=markdown -d text="*${MSG}*" &> /dev/null;
+	fi
 	STATUS="${?}";
 
 
