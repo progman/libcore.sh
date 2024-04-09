@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.1.2
+# 1.1.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # source is not export vars from file...
@@ -505,24 +505,20 @@ function docker_pull()
 function docker_test()
 {
 	local STATUS;
+	local TEST_STATUS;
 	local ID;
 	local TEST_CONTAINER;
 	local TEST_COMMAND;
 
 
+# up
 	FLAG_PULL="1";
-	docker_up;
+	docker_up &> /dev/null < /dev/null;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
 		return "${STATUS}";
 	fi
-
-
-#echo "---------------------------------------------";
-echo;
-echo;
-echo;
 
 
 # scan all containers from this docker-compose.yml and looking for "test.container"="true" and "test.command"="who we must start"
@@ -555,25 +551,27 @@ echo;
 	if [ "${TEST_CONTAINER}" == "true" ];
 	then
 		docker exec -it ${ID} ${TEST_COMMAND};
-		STATUS="${?}";
-		echo "STATUS: ${STATUS}";
+		TEST_STATUS="${?}";
+#		echo "STATUS: ${TEST_STATUS}";
 
 
-		docker stop ${ID} -t 0 &> /dev/null < /dev/null;
+		docker stop ${ID} -t 0 &> /dev/null < /dev/null; # stop test container now
 	fi
 
 
-echo;
-echo;
-echo;
-#echo "---------------------------------------------";
-
-
-	docker_down;
+# down
+	docker_down &> /dev/null < /dev/null;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
 	then
 		return "${STATUS}";
+	fi
+
+
+# return test status if test did run
+	if [ "${TEST_CONTAINER}" == "true" ];
+	then
+		return "${TEST_STATUS}";
 	fi
 
 
@@ -832,6 +830,7 @@ function main()
 	local OPERATION="${1}";
 	local ARG="${2}";
 	local STATUS;
+	local FLAG_DEBUG="1";
 
 
 # check operation
@@ -851,6 +850,13 @@ function main()
 	fi
 
 
+# disable debug for test
+	if [ "${OPERATION}" == "test" ] || [ "${OPERATION}" == "t" ];
+	then
+		FLAG_DEBUG="0";
+	fi
+
+
 # check depends tools
 	check_prog "docker";
 	if [ "${?}" != "0" ];
@@ -862,9 +868,15 @@ function main()
 # load enviroment variables
 	if [ ! -f .env ] && [ ! -d .env ];
 	then
-		echo "skip .env";
+		if [ "${FLAG_DEBUG}" == "1" ];
+		then
+			echo "skip .env";
+		fi
 	else
-		echo "export .env";
+		if [ "${FLAG_DEBUG}" == "1" ];
+		then
+			echo "export .env";
+		fi
 		if [ -f .env ];
 		then
 			export_source .env;
@@ -890,9 +902,15 @@ function main()
 # load enviroment variables
 	if [ ! -f .env.local ] && [ ! -d .env.local ];
 	then
-		echo "skip .env.local";
+		if [ "${FLAG_DEBUG}" == "1" ];
+		then
+			echo "skip .env.local";
+		fi
 	else
-		echo "export .env.local";
+		if [ "${FLAG_DEBUG}" == "1" ];
+		then
+			echo "export .env.local";
+		fi
 		if [ -f .env.local ];
 		then
 			export_source .env.local;
@@ -918,9 +936,15 @@ function main()
 # check if env from example is exist
 	if [ ! -f ./.env.example ];
 	then
-		echo "skip .env.example";
+		if [ "${FLAG_DEBUG}" == "1" ];
+		then
+			echo "skip .env.example";
+		fi
 	else
-		echo "use .env.example";
+		if [ "${FLAG_DEBUG}" == "1" ];
+		then
+			echo "use .env.example";
+		fi
 		while read -e ENV;
 		do
 			if [ $(export -p | sed -e 's/^declare\ [a-ZA-Z-]*\ //g' | grep "^${ENV}=" | wc -l) != 1 ]; # is env exported?
