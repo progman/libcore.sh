@@ -502,6 +502,84 @@ function docker_pull()
 	return 0;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function docker_test()
+{
+	local STATUS;
+	local ID;
+	local TEST_CONTAINER;
+	local TEST_COMMAND;
+
+
+	FLAG_PULL="1";
+	docker_up;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+#echo "---------------------------------------------";
+echo;
+echo;
+echo;
+
+
+# scan all containers from this docker-compose.yml and looking for "test.container"="true" and "test.command"="who we must start"
+	for ID in $(docker compose --project-name test -f ./docker-compose.yml ps --format "{{lower .ID}}");
+	do
+		TEST_CONTAINER=$(docker inspect --format '{{ index .Config.Labels "test.container"}}' "${ID}");
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			return "${STATUS}";
+		fi
+
+
+		TEST_COMMAND=$(docker inspect --format '{{ index .Config.Labels "test.command"}}' "${ID}");
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			return "${STATUS}";
+		fi
+
+
+		if [ "${TEST_CONTAINER}" == "true" ];
+		then
+			break;
+		fi
+	done
+
+
+# run test if test container is found
+	if [ "${TEST_CONTAINER}" == "true" ];
+	then
+		docker exec -it ${ID} ${TEST_COMMAND};
+		STATUS="${?}";
+		echo "STATUS: ${STATUS}";
+
+
+		docker stop ${ID} -t 0 &> /dev/null < /dev/null;
+	fi
+
+
+echo;
+echo;
+echo;
+#echo "---------------------------------------------";
+
+
+	docker_down;
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function docker_deploy()
 {
 	local FLAG_DEPLOY;
@@ -577,7 +655,8 @@ function docker_deploy()
 	fi
 
 
-	docker_up "PULL_DISABLE";
+	FLAG_PULL="0";
+	docker_up;
 	STATUS="${?}";
 	return "${STATUS}";
 }
@@ -586,7 +665,6 @@ function docker_up()
 {
 	local DOCKER_COMPOSE_FILE;
 	local STATUS;
-	local FLAG_PULL;
 
 
 # are vars set?
@@ -617,14 +695,6 @@ function docker_up()
 	fi
 
 
-# check deploy
-	FLAG_PULL='1';
-	if [ "${1}" == "PULL_DISABLE" ];
-	then
-		FLAG_PULL='0';
-	fi
-
-
 # pull
 	if [ "${FLAG_PULL}" == "1" ];
 	then
@@ -637,15 +707,26 @@ function docker_up()
 	fi
 
 
-# up
+# make options
+	local OPT="";
+	OPT+=" --project-name ${DOCKER_PROJECT_NAME}";
+	OPT+=" -f ${DOCKER_COMPOSE_FILE}";
+	OPT+=" up";
+	OPT+=" --renew-anon-volumes";
+	OPT+=" --always-recreate-deps";
+#	OPT+=" --env-file ./.env";
+
 	if [ "${DOCKER_CACHE}" == "1" ];
 	then
-		echo "docker compose --project-name ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} up -d --renew-anon-volumes --always-recreate-deps;";
-		docker compose --project-name "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" up -d --renew-anon-volumes --always-recreate-deps; # skip --env-file ./.env
-	else
-		echo "docker compose --project-name ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} up -d --renew-anon-volumes --always-recreate-deps --force-recreate;";
-		docker compose --project-name "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" up -d --renew-anon-volumes --always-recreate-deps --force-recreate; # skip --env-file ./.env
+		OPT+=" --force-recreate";
 	fi
+
+	OPT+=" -d";
+
+
+# up
+	echo "docker compose${OPT};";
+	docker compose${OPT};
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: docker compose up";
@@ -703,8 +784,8 @@ function docker_down()
 
 
 # down
-	echo "docker compose --project-name ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} down --remove-orphans -t ${DOCKER_SHUTDOWN_TIMEOUT};";
-	docker compose --project-name "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" down --remove-orphans -t "${DOCKER_SHUTDOWN_TIMEOUT}"; # skip --env-file ./.env
+	echo "docker compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} down --remove-orphans -t ${DOCKER_SHUTDOWN_TIMEOUT};";
+	docker compose -p "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" down --remove-orphans -t "${DOCKER_SHUTDOWN_TIMEOUT}"; # skip --env-file ./.env
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: docker compose down";
@@ -735,13 +816,14 @@ function check_prog()
 		fi
 	done
 
+
 	return 0;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # show help
 function help()
 {
-	echo "example: ${1} [ login | build | pull | push DOCKER_IMAGE | flush | ps | deploy | up | down ]";
+	echo "example: ${1} [ login | build, b | pull | push DOCKER_IMAGE | flush, f | ps | test, t | deploy | up, u | down, d ]";
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
@@ -759,6 +841,7 @@ function main()
 	   [ "${OPERATION}" != "push" ]   && \
 	   [ "${OPERATION}" != "flush" ]  && [ "${OPERATION}" != "f" ] && \
 	   [ "${OPERATION}" != "ps" ]     && \
+	   [ "${OPERATION}" != "test" ]   && [ "${OPERATION}" != "t" ] && \
 	   [ "${OPERATION}" != "deploy" ] && \
 	   [ "${OPERATION}" != "up" ]     && [ "${OPERATION}" != "u" ] && \
 	   [ "${OPERATION}" != "down" ]   && [ "${OPERATION}" != "d" ];
@@ -898,6 +981,14 @@ function main()
 	fi
 
 
+	if [ "${OPERATION}" == "test" ] || [ "${OPERATION}" == "t" ]
+	then
+		docker_test;
+		STATUS="${?}";
+		return "${STATUS}";
+	fi
+
+
 	if [ "${OPERATION}" == "deploy" ]
 	then
 		docker_deploy;
@@ -908,6 +999,7 @@ function main()
 
 	if [ "${OPERATION}" == "up" ] || [ "${OPERATION}" == "u" ]
 	then
+		FLAG_PULL="1";
 		docker_up;
 		STATUS="${?}";
 		return "${STATUS}";
