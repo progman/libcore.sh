@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.1.4
+# 1.1.5
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # source is not export vars from file...
@@ -504,11 +504,40 @@ function docker_pull()
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function docker_test()
 {
+	local DOCKER_COMPOSE_FILE;
 	local STATUS;
 	local TEST_STATUS;
 	local ID;
 	local TEST_CONTAINER;
 	local TEST_COMMAND;
+
+
+# are vars set?
+	if [ "${DOCKER_PROJECT_NAME}" == "" ];
+	then
+		if [ "${COMPOSE_PROJECT_NAME}" != "" ];
+		then
+			DOCKER_PROJECT_NAME="${COMPOSE_PROJECT_NAME}";
+		else
+			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g');
+		fi
+	fi
+
+
+# is docker compose config exist?
+	if [ ! -e ./docker-compose.yml ] && [ ! -e ./docker-compose.yaml ];
+	then
+		echo "ERROR: you must make docker-compose.yml file";
+		return 1;
+	fi
+
+
+# set name of docker compose config
+	DOCKER_COMPOSE_FILE="./docker-compose.yml";
+	if [ ! -e ./docker-compose.yml ];
+	then
+		DOCKER_COMPOSE_FILE="./docker-compose.yaml";
+	fi
 
 
 # up
@@ -522,7 +551,7 @@ function docker_test()
 
 
 # scan all containers from this docker-compose.yml and looking for "test.container"="true" and "test.command"="who we must start"
-	for ID in $(docker compose --project-name test -f ./docker-compose.yml ps --format "{{lower .ID}}");
+	for ID in $(docker compose --project-name "${DOCKER_PROJECT_NAME}" -f "${DOCKER_COMPOSE_FILE}" ps --format "{{lower .ID}}");
 	do
 		TEST_CONTAINER=$(docker inspect --format '{{ index .Config.Labels "test.container"}}' "${ID}");
 		STATUS="${?}";
