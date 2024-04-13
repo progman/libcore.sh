@@ -490,7 +490,7 @@ function docker_pull()
 
 # pull
 	echo "docker compose -f ${DOCKER_COMPOSE_FILE} pull --quiet;"; # skip --env-file ./.env
-	docker compose -f "${DOCKER_COMPOSE_FILE}" pull --quiet &> /dev/null;
+	docker compose -f "${DOCKER_COMPOSE_FILE}" pull --quiet;
 	if [ "${?}" != "0" ];
 	then
 		rm -f "${TMP}" &> /dev/null < /dev/null;
