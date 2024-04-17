@@ -2,26 +2,14 @@
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function deploy()
 {
-	local DIR;
-	local MSG;
-	DIR="${1}";
-	MSG="${2}";
-
-
-	if [ ! -d "${DIR}" ];
-	then
-		exit 1;
-	fi
-	cd -- "${DIR}";
-
-
-	export DEPLOY_NOTIFY_MSG="${MSG}";
+	export DOCKER_DIR="${1}";
+	export DOCKER_NOTIFY_MSG="${2}";
 	/usr/local/bin/docker_tool.sh deploy;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 export TELEGRAM_BOT_TOKEN="TELEGRAM_BOT_TOKEN";
 export TELEGRAM_CHAT_ID="TELEGRAM_CHAT_ID";
-export DEPLOY_NOTIFY="/usr/local/bin/notify_telegram.sh";
+export DOCKER_NOTIFY="/usr/local/bin/notify_telegram.sh";
 
 
 deploy '/tmp/xxx' "xxx deploy";
