@@ -2,6 +2,9 @@
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function build()
 {
+	export PS1="dirty_hack";
+	source /root/.bashrc;
+
 	export DOCKER_DIR="${1}";
 	export DOCKER_NOTIFY_MSG="${2}";
 	/usr/local/bin/git_builder.sh;
