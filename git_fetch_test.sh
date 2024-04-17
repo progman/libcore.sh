@@ -1,5 +1,23 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# 0.0.2
+# Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# check depends
+function check_prog()
+{
+	for i in ${1};
+	do
+		if [ "$(command -v ${i})" == "" ];
+		then
+			echo "FATAL: you must install \"${i}\"...";
+			return 1;
+		fi
+	done
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function check_new_commit()
 {
 	local LOCAL_TMPDIR="/tmp";
@@ -109,23 +127,21 @@ function check_new_commit()
 # compare old and new commits
 	if [ "${HASH1}" == "${HASH2}" ];
 	then
-		return 2;
+		return 2; # nothing to fetch
 	fi
 
 
-	return 0;
+	return 0; # fetched something
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-function deploy()
+function fetch_test()
 {
 	local STATUS;
 	local TARGET_DIR;
-	local MSG;
 
 
 # get args
 	TARGET_DIR="${1}";
-	MSG="${2}";
 
 
 # go to target dir
@@ -150,8 +166,8 @@ function deploy()
 	fi
 
 
-# deploy
-	echo "deploy for ${TARGET_DIR}";
+# fetched something
+	echo "[$(date '+%Y-%m-%d %H:%M:%S')]: fetched something for ${TARGET_DIR}";
 
 
 	return "${STATUS}";
@@ -162,15 +178,22 @@ function main()
 {
 	local STATUS;
 	local TARGET_DIR;
-	local MSG;
+
 
 	TARGET_DIR="${1}";
-	MSG="${2}";
 
-	date '+%Y:%m:%d %H:%M:%S';
 
-	deploy "${TARGET_DIR}" "${MSG}";
+# check depends tools
+	check_prog "cat echo grep mktemp git shasum rm";
+	if [ "${?}" != "0" ];
+	then
+		return 1;
+	fi
+
+
+	fetch_test "${TARGET_DIR}";
 	STATUS="${?}";
+
 
 	return "${STATUS}";
 }
