@@ -145,10 +145,15 @@ function fetch_test()
 
 
 # go to target dir
+	if [ ! -d "${TARGET_DIR}" ];
+	then
+		echo "ERROR: target dir is not found";
+		return 1;
+	fi
 	cd -- "${TARGET_DIR}";
 	if [ "${?}" != "0" ];
 	then
-		echo "ERROR: target dir is not found";
+		echo "ERROR: target dir is not change";
 		return 1;
 	fi
 
@@ -173,6 +178,13 @@ function fetch_test()
 	return "${STATUS}";
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# show help
+function help()
+{
+	echo "example: ${1}";
+}
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # general function
 function main()
 {
@@ -191,6 +203,15 @@ function main()
 	fi
 
 
+# check args
+	if [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
+	then
+		help "${0}";
+		return 0;
+	fi
+
+
+# do it
 	fetch_test "${TARGET_DIR}";
 	STATUS="${?}";
 
