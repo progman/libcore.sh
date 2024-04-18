@@ -15,7 +15,7 @@ export TELEGRAM_CHAT_ID="TELEGRAM_CHAT_ID";
 export DOCKER_NOTIFY="/usr/local/bin/notify_telegram.sh";
 
 
-build '/tmp/xxx' "xxx builded"; # WARNING! Use special git dir for build - if you use one dir then push will be not detected
+build '/tmp/xxx' "xxx builded"; # WARNING! Use special/other git dir for build - if you use one dir then push will be not fetched/detected
 
 
 sleep 10;
