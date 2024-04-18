@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.2
+# 0.0.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -20,7 +20,6 @@ function check_prog()
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function check_new_commit()
 {
-	local LOCAL_TMPDIR="/tmp";
 	local a;
 	local b;
 	local HASH1;
@@ -35,37 +34,11 @@ function check_new_commit()
 	fi
 
 
-# create temp dir and files
-	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
-	then
-		LOCAL_TMPDIR="${TMPDIR}";
-	fi
-
-
-# create temp files
-	TMP1=$(mktemp --tmpdir="${LOCAL_TMPDIR}");
-	if [ "${?}" != "0" ];
-	then
-		echo "ERROR: can not make temp file";
-		return 1;
-	fi
-
-	TMP2=$(mktemp --tmpdir="${LOCAL_TMPDIR}");
-	if [ "${?}" != "0" ];
-	then
-		echo "ERROR: can not make temp file";
-		rm -rf -- "${TMP1}" &> /dev/null;
-		return 1;
-	fi
-
-
 # get old commit
-	git rev-parse HEAD &> "${TMP1}";
+	HASH1=$(git rev-parse HEAD | shasum -a 1 | { read a b; echo "${a}"; });
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: can not get old commit";
-		rm -rf -- "${TMP1}" &> /dev/null;
-		rm -rf -- "${TMP2}" &> /dev/null;
 		return 1;
 	fi
 
@@ -75,8 +48,6 @@ function check_new_commit()
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: can not fetch repo";
-		rm -rf -- "${TMP1}" &> /dev/null;
-		rm -rf -- "${TMP2}" &> /dev/null;
 		return 1;
 	fi
 
@@ -86,8 +57,6 @@ function check_new_commit()
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: can not pull repo";
-		rm -rf -- "${TMP1}" &> /dev/null;
-		rm -rf -- "${TMP2}" &> /dev/null;
 		return 1;
 	fi
 
@@ -97,31 +66,17 @@ function check_new_commit()
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: can not update submodules";
-		rm -rf -- "${TMP1}" &> /dev/null;
-		rm -rf -- "${TMP2}" &> /dev/null;
 		return 1;
 	fi
 
 
 # get new commit
-	git rev-parse HEAD &> "${TMP2}";
+	HASH2=$(git rev-parse HEAD | shasum -a 1 | { read a b; echo "${a}"; });
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: can not get new commit";
-		rm -rf -- "${TMP1}" &> /dev/null;
-		rm -rf -- "${TMP2}" &> /dev/null;
 		return 1;
 	fi
-
-
-# get old and new commits
-	HASH1=$(shasum -a 1 "${TMP1}" | { read a b; echo "${a}"; });
-	HASH2=$(shasum -a 1 "${TMP2}" | { read a b; echo "${a}"; });
-
-
-# delete temp files
-	rm -rf "${TMP1}" &> /dev/null < /dev/null;
-	rm -rf "${TMP2}" &> /dev/null < /dev/null;
 
 
 # compare old and new commits
