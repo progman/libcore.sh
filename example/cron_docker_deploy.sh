@@ -10,9 +10,11 @@ function deploy()
 	/usr/local/bin/docker_tool.sh deploy;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+export DOCKER_NOTIFY="/usr/local/bin/notify_telegram.sh";
+
+
 export TELEGRAM_BOT_TOKEN="TELEGRAM_BOT_TOKEN";
 export TELEGRAM_CHAT_ID="TELEGRAM_CHAT_ID";
-export DOCKER_NOTIFY="/usr/local/bin/notify_telegram.sh";
 
 
 deploy '/tmp/xxx' "xxx deploy";
