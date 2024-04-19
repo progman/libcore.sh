@@ -7,7 +7,7 @@ function deploy()
 
 	export DOCKER_DIR="${1}";
 	export DOCKER_NOTIFY_MSG="${2}";
-	/usr/local/bin/docker_tool.sh deploy;
+	/usr/local/bin/docker_tool.sh deploy &> /dev/null < /dev/null;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 export DOCKER_NOTIFY="/usr/local/bin/notify_telegram.sh";
