@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.1.7
+# 1.1.8
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -348,6 +348,9 @@ function docker_build()
 function docker_push()
 {
 	local DOCKER_IMAGE_TAG="${1}";
+	local HASH_SOURCE;
+	local HASH_TARGET;
+
 
 # are vars set?
 	if [ "${DOCKER_IMAGE_TAG}" == "" ];
@@ -389,24 +392,76 @@ function docker_push()
 	fi
 
 
-# push to registry
-	echo "docker push ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG};";
-	docker push "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG}" &> /dev/null < /dev/null
-	if [ "${?}" != "0" ];
-	then
-		echo "ERROR: docker push, did you login to registry?";
-		return 1;
-	fi
+# push and check
+	while true;
+	do
+
+
+# get hash
+		echo "docker image list --no-trunc ${DOCKER_IMAGE_TAG} --format \"{{lower .ID}}\";";
+		HASH_SOURCE=$(docker image list --no-trunc "${DOCKER_IMAGE_TAG}" --format "{{lower .ID}}");
+#		echo "HASH_SOURCE:${HASH_SOURCE}";
 
 
 # push to registry
-	echo "docker push ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST};";
-	docker push "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST}" &> /dev/null < /dev/null
-	if [ "${?}" != "0" ];
-	then
-		echo "ERROR: docker push, did you login to registry?";
-		return 1;
-	fi
+		echo "docker push ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG};";
+		docker push "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG}" &> /dev/null < /dev/null
+		if [ "${?}" != "0" ];
+		then
+			echo "ERROR: docker push, did you login to registry?";
+			return 1;
+		fi
+
+
+# check hash
+		echo "docker image list --no-trunc ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG} --format \"{{lower .ID}}\";";
+		HASH_TARGET=$(docker image list --no-trunc "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG}" --format "{{lower .ID}}");
+#		echo "HASH_TARGET:${HASH_TARGET}";
+
+
+# compare hashes
+		if [ "${HASH_SOURCE}" == "${HASH_TARGET}" ];
+		then
+			break
+		fi
+		echo "try again...";
+	done
+
+
+# push and check
+	while true;
+	do
+
+
+# get hash
+		echo "docker image list --no-trunc ${DOCKER_IMAGE_TAG_LATEST} --format \"{{lower .ID}}\";";
+		HASH_SOURCE=$(docker image list --no-trunc "${DOCKER_IMAGE_TAG_LATEST}" --format "{{lower .ID}}");
+#		echo "HASH_SOURCE:${HASH_SOURCE}";
+
+
+# push to registry
+		echo "docker push ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST};";
+		docker push "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST}" &> /dev/null < /dev/null
+		if [ "${?}" != "0" ];
+		then
+			echo "ERROR: docker push, did you login to registry?";
+			return 1;
+		fi
+
+
+# check hash
+		echo "docker image list --no-trunc ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST} --format \"{{lower .ID}}\";";
+		HASH_TARGET=$(docker image list --no-trunc "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST}" --format "{{lower .ID}}");
+#		echo "HASH_TARGET:${HASH_TARGET}";
+
+
+# compare hashes
+		if [ "${HASH_SOURCE}" == "${HASH_TARGET}" ];
+		then
+			break
+		fi
+		echo "try again...";
+	done
 
 
 # get hash of image
@@ -682,29 +737,29 @@ function docker_deploy()
 	FLAG_DEPLOY="0";
 	for CONTAINER_NAME in $(docker compose config | grep 'container_name:' | sed -e 's/.*:\ //g');
 	do
-#		echo "found: ${CONTAINER_NAME}";
+		echo "found: ${CONTAINER_NAME}";
 
 
 # is container image latest?
 		FLAG_LATEST=$(docker inspect --type container ${CONTAINER_NAME} | grep Image | grep latest | wc -l | { read COL1; echo ${COL1}; })
 		if [ "${FLAG_LATEST}" != "0" ];
 		then
-#			echo "found latest: ${CONTAINER_NAME}";
+			echo "found latest: ${CONTAINER_NAME}";
 
 
 # get container image
 			IMAGE=$(docker inspect --type container ${CONTAINER_NAME} | grep Image | grep latest | sed -e 's/:latest.*//g' | sed -e 's/.*"//g')":latest";
-#			echo "IMAGE: ${IMAGE}";
+			echo "IMAGE: ${IMAGE}";
 
 
 # get container image hash
 			HASH_OLD=$(docker inspect --type container ${CONTAINER_NAME} | grep Image | grep -v latest | sed -e 's/.*\ //g' | sed -e 's/^"//g' | sed -e 's/".*//g');
-#			echo "HASH_OLD: ${HASH_OLD}";
+			echo "HASH_OLD: ${HASH_OLD}";
 
 
 # get local docker image hash
 			HASH_NEW=$(docker image list --no-trunc --format "{{.ID}}" "${IMAGE}");
-#			echo "HASH_NEW: ${HASH_NEW}";
+			echo "HASH_NEW: ${HASH_NEW}";
 
 
 			if [ "${HASH_OLD}" != "${HASH_NEW}" ];
