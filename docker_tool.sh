@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.1.8
+# 1.1.9
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -372,9 +372,29 @@ function docker_push()
 	local DOCKER_IMAGE_TAG_LATEST="${DOCKER_IMAGE_NAME}:latest";
 
 
+# unset tag (maybe image uses)
+	echo "docker rmi -f ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG};";
+	docker rmi -f "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG}" &> /dev/null < /dev/null
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: docker tag";
+		return 1;
+	fi
+
+
 # set tag
 	echo "docker tag ${DOCKER_IMAGE_TAG} ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG};";
 	docker tag "${DOCKER_IMAGE_TAG}" "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG}" &> /dev/null < /dev/null
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: docker tag";
+		return 1;
+	fi
+
+
+# unset tag (maybe image uses)
+	echo "docker rmi -f ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST};";
+	docker rmi -f "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST}" &> /dev/null < /dev/null
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: docker tag";
@@ -392,15 +412,15 @@ function docker_push()
 	fi
 
 
-# push and check
-	while true;
-	do
+## push and check
+#	while true;
+#	do
 
 
-# get hash
-		echo "docker image list --no-trunc ${DOCKER_IMAGE_TAG} --format \"{{lower .ID}}\";";
-		HASH_SOURCE=$(docker image list --no-trunc "${DOCKER_IMAGE_TAG}" --format "{{lower .ID}}");
-#		echo "HASH_SOURCE:${HASH_SOURCE}";
+## get hash
+#		echo "docker image list --no-trunc ${DOCKER_IMAGE_TAG} --format \"{{lower .ID}}\";";
+#		HASH_SOURCE=$(docker image list --no-trunc "${DOCKER_IMAGE_TAG}" --format "{{lower .ID}}");
+##		echo "HASH_SOURCE:${HASH_SOURCE}";
 
 
 # push to registry
@@ -413,30 +433,30 @@ function docker_push()
 		fi
 
 
-# check hash
-		echo "docker image list --no-trunc ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG} --format \"{{lower .ID}}\";";
-		HASH_TARGET=$(docker image list --no-trunc "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG}" --format "{{lower .ID}}");
-#		echo "HASH_TARGET:${HASH_TARGET}";
+## check hash
+#		echo "docker image list --no-trunc ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG} --format \"{{lower .ID}}\";";
+#		HASH_TARGET=$(docker image list --no-trunc "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG}" --format "{{lower .ID}}");
+##		echo "HASH_TARGET:${HASH_TARGET}";
 
 
-# compare hashes
-		if [ "${HASH_SOURCE}" == "${HASH_TARGET}" ];
-		then
-			break
-		fi
-		echo "try again...";
-	done
+## compare hashes
+#		if [ "${HASH_SOURCE}" == "${HASH_TARGET}" ];
+#		then
+#			break
+#		fi
+#		echo "try again...";
+#	done
 
 
-# push and check
-	while true;
-	do
+## push and check
+#	while true;
+#	do
 
 
-# get hash
-		echo "docker image list --no-trunc ${DOCKER_IMAGE_TAG_LATEST} --format \"{{lower .ID}}\";";
-		HASH_SOURCE=$(docker image list --no-trunc "${DOCKER_IMAGE_TAG_LATEST}" --format "{{lower .ID}}");
-#		echo "HASH_SOURCE:${HASH_SOURCE}";
+## get hash
+#		echo "docker image list --no-trunc ${DOCKER_IMAGE_TAG_LATEST} --format \"{{lower .ID}}\";";
+#		HASH_SOURCE=$(docker image list --no-trunc "${DOCKER_IMAGE_TAG_LATEST}" --format "{{lower .ID}}");
+##		echo "HASH_SOURCE:${HASH_SOURCE}";
 
 
 # push to registry
@@ -449,19 +469,19 @@ function docker_push()
 		fi
 
 
-# check hash
-		echo "docker image list --no-trunc ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST} --format \"{{lower .ID}}\";";
-		HASH_TARGET=$(docker image list --no-trunc "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST}" --format "{{lower .ID}}");
-#		echo "HASH_TARGET:${HASH_TARGET}";
+## check hash
+#		echo "docker image list --no-trunc ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST} --format \"{{lower .ID}}\";";
+#		HASH_TARGET=$(docker image list --no-trunc "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST}" --format "{{lower .ID}}");
+##		echo "HASH_TARGET:${HASH_TARGET}";
 
 
-# compare hashes
-		if [ "${HASH_SOURCE}" == "${HASH_TARGET}" ];
-		then
-			break
-		fi
-		echo "try again...";
-	done
+## compare hashes
+#		if [ "${HASH_SOURCE}" == "${HASH_TARGET}" ];
+#		then
+#			break
+#		fi
+#		echo "try again...";
+#	done
 
 
 # get hash of image
