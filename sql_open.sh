@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.6
+# 0.0.7
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -139,9 +139,11 @@ function main()
 			CMD+=" --username=${SQL_LOGIN}";
 			CMD+=" -w";
 
-			echo "${CMD}";
+			if [ "${FLAG_DEBUG}" == "1" ];
+			then
+				echo "${CMD}";
+			fi
 			${CMD};
-#			psql --host="${SQL_HOST}" --port="${SQL_PORT}" --dbname="${SQL_DATABASE}" --username="${SQL_LOGIN}" -w;
 		else
 			CMD+="psql";
 			CMD+=" --host=${SQL_HOST}";
@@ -150,9 +152,11 @@ function main()
 			CMD+=" --username=${SQL_LOGIN}";
 			CMD+=" -w -f ${2}";
 
-			echo "${CMD}";
+			if [ "${FLAG_DEBUG}" == "1" ];
+			then
+				echo "${CMD}";
+			fi
 			${CMD};
-#			psql --host="${SQL_HOST}" --port="${SQL_PORT}" --dbname="${SQL_DATABASE}" --username="${SQL_LOGIN}" -w -f "${2}";
 		fi
 	fi
 
@@ -181,9 +185,11 @@ function main()
 			CMD+=" --database=${SQL_DATABASE}";
 			CMD+=" --user=${SQL_LOGIN}";
 
-			echo "${CMD}";
+			if [ "${FLAG_DEBUG}" == "1" ];
+			then
+				echo "${CMD}";
+			fi
 			${CMD};
-#			mysql --host="${SQL_HOST}" --port="${SQL_PORT}" --database="${SQL_DATABASE}" --user="${SQL_LOGIN}";
 		else
 			CMD+="mysql";
 			CMD+=" --host=${SQL_HOST}";
@@ -192,9 +198,11 @@ function main()
 			CMD+=" --user=${SQL_LOGIN}";
 			CMD+=" < ${2}";
 
-			echo "${CMD}";
+			if [ "${FLAG_DEBUG}" == "1" ];
+			then
+				echo "${CMD}";
+			fi
 			${CMD};
-#			mysql --host="${SQL_HOST}" --port="${SQL_PORT}" --database="${SQL_DATABASE}" --user="${SQL_LOGIN}" < "${2}";
 		fi
 	fi
 
