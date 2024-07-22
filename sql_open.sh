@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.5
+# 0.0.6
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -90,6 +90,7 @@ function main()
 		source "${1}";
 		export SQL_DUMP_DIR="${SQL_DUMP_DIR}";
 		export SQL_DUMP_MAX_COUNT="${SQL_DUMP_MAX_COUNT}";
+		export SQL_CONTAINER="${SQL_CONTAINER}";
 		export SQL_SERVER="${SQL_SERVER}";
 		export SQL_HOST="${SQL_HOST}";
 		export SQL_PORT="${SQL_PORT}";
@@ -123,11 +124,35 @@ function main()
 
 		export PGPASSWORD="${SQL_PASSWORD}";
 
+		local CMD="";
+		if [ "${SQL_CONTAINER}" != "" ];
+		then
+			CMD+="docker exec -it ${SQL_CONTAINER} ";
+		fi
+
 		if [ "${2}" == "" ] || [ ! -e "${2}" ];
 		then
-			psql --host="${SQL_HOST}" --port="${SQL_PORT}" --dbname="${SQL_DATABASE}" --username="${SQL_LOGIN}" -w;
+			CMD+="psql";
+			CMD+=" --host=${SQL_HOST}";
+			CMD+=" --port=${SQL_PORT}";
+			CMD+=" --dbname=${SQL_DATABASE}";
+			CMD+=" --username=${SQL_LOGIN}";
+			CMD+=" -w";
+
+			echo "${CMD}";
+			${CMD};
+#			psql --host="${SQL_HOST}" --port="${SQL_PORT}" --dbname="${SQL_DATABASE}" --username="${SQL_LOGIN}" -w;
 		else
-			psql --host="${SQL_HOST}" --port="${SQL_PORT}" --dbname="${SQL_DATABASE}" --username="${SQL_LOGIN}" -w -f "${2}";
+			CMD+="psql";
+			CMD+=" --host=${SQL_HOST}";
+			CMD+=" --port=${SQL_PORT}";
+			CMD+=" --dbname=${SQL_DATABASE}";
+			CMD+=" --username=${SQL_LOGIN}";
+			CMD+=" -w -f ${2}";
+
+			echo "${CMD}";
+			${CMD};
+#			psql --host="${SQL_HOST}" --port="${SQL_PORT}" --dbname="${SQL_DATABASE}" --username="${SQL_LOGIN}" -w -f "${2}";
 		fi
 	fi
 
@@ -142,11 +167,34 @@ function main()
 
 		export MYSQL_PWD="${SQL_PASSWORD}";
 
+		local CMD="";
+		if [ "${SQL_CONTAINER}" != "" ];
+		then
+			CMD+="docker exec -it ${SQL_CONTAINER} ";
+		fi
+
 		if [ "${2}" == "" ] || [ ! -e "${2}" ];
 		then
-			mysql --host="${SQL_HOST}" --port="${SQL_PORT}" --database="${SQL_DATABASE}" --user="${SQL_LOGIN}";
+			CMD+="mysql";
+			CMD+=" --host=${SQL_HOST}";
+			CMD+=" --port=${SQL_PORT}";
+			CMD+=" --database=${SQL_DATABASE}";
+			CMD+=" --user=${SQL_LOGIN}";
+
+			echo "${CMD}";
+			${CMD};
+#			mysql --host="${SQL_HOST}" --port="${SQL_PORT}" --database="${SQL_DATABASE}" --user="${SQL_LOGIN}";
 		else
-			mysql --host="${SQL_HOST}" --port="${SQL_PORT}" --database="${SQL_DATABASE}" --user="${SQL_LOGIN}" < "${2}";
+			CMD+="mysql";
+			CMD+=" --host=${SQL_HOST}";
+			CMD+=" --port=${SQL_PORT}";
+			CMD+=" --database=${SQL_DATABASE}";
+			CMD+=" --user=${SQL_LOGIN}";
+			CMD+=" < ${2}";
+
+			echo "${CMD}";
+			${CMD};
+#			mysql --host="${SQL_HOST}" --port="${SQL_PORT}" --database="${SQL_DATABASE}" --user="${SQL_LOGIN}" < "${2}";
 		fi
 	fi
 
