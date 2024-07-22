@@ -250,10 +250,12 @@ function backup_postgres_global()
 	CMD+=" --host=${SQL_HOST}";
 	CMD+=" --port=${SQL_PORT}";
 	CMD+=" --username=${SQL_LOGIN}";
-	CMD+=" > ${FILENAME}.tmp";
 
-	echo "${CMD}";
-	${CMD} 2> /dev/null;
+	if [ "${FLAG_DEBUG}" == "1" ];
+	then
+		echo "$(get_time)${CMD}";
+	fi
+	${CMD} > "${FILENAME}.tmp" 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
@@ -325,10 +327,12 @@ function backup_postgres_case1()
 	CMD+=" --port=${SQL_PORT}";          # номер порта сервера БД
 	CMD+=" --username=${SQL_LOGIN}";     # имя пользователя баз данных
 	CMD+=" ${SQL_DATABASE}";             # имя базы данных для выгрузки
-	CMD+=" > ${FILENAME}.tmp";
 
-	echo "${CMD}";
-	${CMD} 2> /dev/null;
+	if [ "${FLAG_DEBUG}" == "1" ];
+	then
+		echo "$(get_time)${CMD}";
+	fi
+	${CMD} > "${FILENAME}.tmp" 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
@@ -397,10 +401,12 @@ function backup_postgres_case2()
 	CMD+=" --port=${SQL_PORT}";          # номер порта сервера БД
 	CMD+=" --username=${SQL_LOGIN}";     # имя пользователя баз данных
 	CMD+=" ${SQL_DATABASE}";             # имя базы данных для выгрузки
-	CMD+=" > ${FILENAME}.tmp"
 
-	echo "${CMD}";
-	${CMD} 2> /dev/null;
+	if [ "${FLAG_DEBUG}" == "1" ];
+	then
+		echo "$(get_time)${CMD}";
+	fi
+	${CMD} > "${FILENAME}.tmp" 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
@@ -471,10 +477,12 @@ function backup_postgres_case3()
 	CMD+=" --port=${SQL_PORT}";          # номер порта сервера БД
 	CMD+=" --username=${SQL_LOGIN}";     # имя пользователя баз данных
 	CMD+=" ${SQL_DATABASE}";             # имя базы данных для выгрузки
-	CMD+=" > ${FILENAME}.tmp"
 
-	echo "${CMD}";
-	${CMD} 2> /dev/null;
+	if [ "${FLAG_DEBUG}" == "1" ];
+	then
+		echo "$(get_time)${CMD}";
+	fi
+	${CMD} > "${FILENAME}.tmp" 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
@@ -545,10 +553,12 @@ function backup_postgres_case4()
 	CMD+=" --port=${SQL_PORT}";          # номер порта сервера БД
 	CMD+=" --username=${SQL_LOGIN}";     # имя пользователя баз данных
 	CMD+=" ${SQL_DATABASE}";             # имя базы данных для выгрузки
-	CMD+=" > ${FILENAME}.tmp"
 
-	echo "${CMD}";
-	${CMD} 2> /dev/null;
+	if [ "${FLAG_DEBUG}" == "1" ];
+	then
+		echo "$(get_time)${CMD}";
+	fi
+	${CMD} > "${FILENAME}.tmp" 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
