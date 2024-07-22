@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.2.4
+# 1.2.6
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -614,8 +614,19 @@ function docker_pull()
 
 
 # pull
-	echo "docker compose -f ${DOCKER_COMPOSE_FILE} pull --quiet;"; # skip --env-file ./.env
-	docker compose -f "${DOCKER_COMPOSE_FILE}" pull --quiet;
+	local CMD="";
+	CMD+="docker compose";
+	CMD+=" -f ${DOCKER_COMPOSE_FILE}";
+	CMD+=" pull";
+#	CMD+=" --env-file ./.env";
+
+	if [ "${FLAG_DEBUG}" != "1" ];
+	then
+		CMD+=" --quiet";
+	fi
+
+	echo "${CMD};";
+	${CMD};
 	if [ "${?}" != "0" ];
 	then
 		rm -f "${TMP}" &> /dev/null < /dev/null;
@@ -1010,7 +1021,7 @@ function main()
 	local OPERATION="${1}";
 	local ARG="${2}";
 	local STATUS;
-	local FLAG_DEBUG="1";
+#	local FLAG_DEBUG="1";
 
 
 # check operation
@@ -1033,10 +1044,10 @@ function main()
 
 
 # disable debug for test
-	if [ "${OPERATION}" == "test" ] || [ "${OPERATION}" == "t" ];
-	then
-		FLAG_DEBUG="0";
-	fi
+#	if [ "${OPERATION}" == "test" ] || [ "${OPERATION}" == "t" ];
+#	then
+#		FLAG_DEBUG="0";
+#	fi
 
 
 # check depends tools
