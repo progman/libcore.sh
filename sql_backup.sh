@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.1.1
+# 0.1.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # view current time
@@ -236,7 +236,24 @@ function backup_postgres_global()
 	FILENAME="${SQL_DATABASE}_${SQL_SERVER}-${TIMESTAMP}.sql";
 	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${PACK_NAME}\"";
-	pg_dumpall -g -c --if-exists --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" > "${FILENAME}.tmp" 2> /dev/null;
+
+
+	local CMD="";
+	if [ "${SQL_CONTAINER}" != "" ];
+	then
+		CMD+="docker exec -it ${SQL_CONTAINER} ";
+	fi
+	CMD+="pg_dumpall";
+	CMD+=" -g";
+	CMD+=" -c";
+	CMD+=" --if-exists";
+	CMD+=" --host=${SQL_HOST}";
+	CMD+=" --port=${SQL_PORT}";
+	CMD+=" --username=${SQL_LOGIN}";
+	CMD+=" > ${FILENAME}.tmp";
+
+	echo "${CMD}";
+	${CMD} 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
@@ -290,26 +307,28 @@ function backup_postgres_case1()
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 
 
-	OPT="";
-	OPT="${OPT} --schema-only";               # выгрузить только схему, без данных
+	local CMD="";
+	if [ "${SQL_CONTAINER}" != "" ];
+	then
+		CMD+="docker exec -it ${SQL_CONTAINER} ";
+	fi
+	CMD+="pg_dump";
+	CMD+=" --schema-only";               # выгрузить только схему, без данных
+#	CMD+=" --jobs=2";                    # распараллелить копирование на указанное число заданий
+	CMD+=" --exclude-schema=not_backup"; # НЕ выгружать указанную схему(ы)
+	CMD+=" --clean";                     # очистить (удалить) объекты БД при восстановлении
+	CMD+=" --if-exists";                 # применять IF EXISTS при удалении объектов
+	CMD+=" --compress=0";                # уровень сжатия при архивации
+	CMD+=" --format=p";                  # формат выводимых данных: текстовый (по умолчанию))
+	CMD+=" --serializable-deferrable";   # дождаться момента для выгрузки данных без аномалий
+	CMD+=" --host=${SQL_HOST}";          # имя сервера баз данных или каталог сокетов
+	CMD+=" --port=${SQL_PORT}";          # номер порта сервера БД
+	CMD+=" --username=${SQL_LOGIN}";     # имя пользователя баз данных
+	CMD+=" ${SQL_DATABASE}";             # имя базы данных для выгрузки
+	CMD+=" > ${FILENAME}.tmp";
 
-#	OPT="${OPT} --jobs=2";                    # распараллелить копирование на указанное число заданий
-	OPT="${OPT} --exclude-schema=not_backup"; # НЕ выгружать указанную схему(ы)
-	OPT="${OPT} --clean";                     # очистить (удалить) объекты БД при восстановлении
-	OPT="${OPT} --if-exists";                 # применять IF EXISTS при удалении объектов
-	OPT="${OPT} --compress=0";                # уровень сжатия при архивации
-	OPT="${OPT} --format=p";                  # формат выводимых данных: текстовый (по умолчанию))
-	OPT="${OPT} --serializable-deferrable";   # дождаться момента для выгрузки данных без аномалий
-	OPT="${OPT} --host=${SQL_HOST}";          # имя сервера баз данных или каталог сокетов
-	OPT="${OPT} --port=${SQL_PORT}";          # номер порта сервера БД
-	OPT="${OPT} --username=${SQL_LOGIN}";     # имя пользователя баз данных
-	OPT="${OPT} ${SQL_DATABASE}";             # имя базы данных для выгрузки
-
-
-#	echo ${OPT};
-#	pg_dump ${OPT};
-	pg_dump ${OPT} > "${FILENAME}.tmp" 2> /dev/null;
-#	pg_dump --exclude-schema="not_backup" --schema-only --clean --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+	echo "${CMD}";
+	${CMD} 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
@@ -360,26 +379,28 @@ function backup_postgres_case2()
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 
 
-	OPT="";
-	OPT="${OPT} --blobs";                     # выгрузить также большие объекты
+	local CMD="";
+	if [ "${SQL_CONTAINER}" != "" ];
+	then
+		CMD+="docker exec -it ${SQL_CONTAINER} ";
+	fi
+	CMD+="pg_dump";
+	CMD+=" --blobs";                     # выгрузить также большие объекты
+#	CMD+=" --jobs=2";                    # распараллелить копирование на указанное число заданий
+	CMD+=" --exclude-schema=not_backup"; # НЕ выгружать указанную схему(ы)
+	CMD+=" --clean";                     # очистить (удалить) объекты БД при восстановлении
+	CMD+=" --if-exists";                 # применять IF EXISTS при удалении объектов
+	CMD+=" --compress=0";                # уровень сжатия при архивации
+	CMD+=" --format=p";                  # формат выводимых данных: текстовый (по умолчанию))
+	CMD+=" --serializable-deferrable";   # дождаться момента для выгрузки данных без аномалий
+	CMD+=" --host=${SQL_HOST}";          # имя сервера баз данных или каталог сокетов
+	CMD+=" --port=${SQL_PORT}";          # номер порта сервера БД
+	CMD+=" --username=${SQL_LOGIN}";     # имя пользователя баз данных
+	CMD+=" ${SQL_DATABASE}";             # имя базы данных для выгрузки
+	CMD+=" > ${FILENAME}.tmp"
 
-#	OPT="${OPT} --jobs=2";                    # распараллелить копирование на указанное число заданий
-	OPT="${OPT} --exclude-schema=not_backup"; # НЕ выгружать указанную схему(ы)
-	OPT="${OPT} --clean";                     # очистить (удалить) объекты БД при восстановлении
-	OPT="${OPT} --if-exists";                 # применять IF EXISTS при удалении объектов
-	OPT="${OPT} --compress=0";                # уровень сжатия при архивации
-	OPT="${OPT} --format=p";                  # формат выводимых данных: текстовый (по умолчанию))
-	OPT="${OPT} --serializable-deferrable";   # дождаться момента для выгрузки данных без аномалий
-	OPT="${OPT} --host=${SQL_HOST}";          # имя сервера баз данных или каталог сокетов
-	OPT="${OPT} --port=${SQL_PORT}";          # номер порта сервера БД
-	OPT="${OPT} --username=${SQL_LOGIN}";     # имя пользователя баз данных
-	OPT="${OPT} ${SQL_DATABASE}";             # имя базы данных для выгрузки
-
-
-#	echo ${OPT};
-#	pg_dump ${OPT};
-	pg_dump ${OPT} > "${FILENAME}.tmp" 2> /dev/null;
-#	pg_dump --exclude-schema="not_backup" --blobs --clean --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+	echo "${CMD}";
+	${CMD} 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
@@ -430,29 +451,30 @@ function backup_postgres_case3()
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 
 
-	OPT="";
-	OPT="${OPT} --create";                    # добавить в копию команды создания базы данных
-	OPT="${OPT} --inserts";                   # выгрузить данные в виде команд INSERT, не COPY
+	local CMD="";
+	if [ "${SQL_CONTAINER}" != "" ];
+	then
+		CMD+="docker exec -it ${SQL_CONTAINER} ";
+	fi
+	CMD+="pg_dump";
+	CMD+=" --create";                    # добавить в копию команды создания базы данных
+	CMD+=" --inserts";                   # выгрузить данные в виде команд INSERT, не COPY
+	CMD+=" --blobs";                     # выгрузить также большие объекты
+#	CMD+=" --jobs=2";                    # распараллелить копирование на указанное число заданий
+	CMD+=" --exclude-schema=not_backup"; # НЕ выгружать указанную схему(ы)
+	CMD+=" --clean";                     # очистить (удалить) объекты БД при восстановлении
+	CMD+=" --if-exists";                 # применять IF EXISTS при удалении объектов
+	CMD+=" --compress=0";                # уровень сжатия при архивации
+	CMD+=" --format=p";                  # формат выводимых данных: текстовый (по умолчанию))
+	CMD+=" --serializable-deferrable";   # дождаться момента для выгрузки данных без аномалий
+	CMD+=" --host=${SQL_HOST}";          # имя сервера баз данных или каталог сокетов
+	CMD+=" --port=${SQL_PORT}";          # номер порта сервера БД
+	CMD+=" --username=${SQL_LOGIN}";     # имя пользователя баз данных
+	CMD+=" ${SQL_DATABASE}";             # имя базы данных для выгрузки
+	CMD+=" > ${FILENAME}.tmp"
 
-	OPT="${OPT} --blobs";                     # выгрузить также большие объекты
-
-#	OPT="${OPT} --jobs=2";                    # распараллелить копирование на указанное число заданий
-	OPT="${OPT} --exclude-schema=not_backup"; # НЕ выгружать указанную схему(ы)
-	OPT="${OPT} --clean";                     # очистить (удалить) объекты БД при восстановлении
-	OPT="${OPT} --if-exists";                 # применять IF EXISTS при удалении объектов
-	OPT="${OPT} --compress=0";                # уровень сжатия при архивации
-	OPT="${OPT} --format=p";                  # формат выводимых данных: текстовый (по умолчанию))
-	OPT="${OPT} --serializable-deferrable";   # дождаться момента для выгрузки данных без аномалий
-	OPT="${OPT} --host=${SQL_HOST}";          # имя сервера баз данных или каталог сокетов
-	OPT="${OPT} --port=${SQL_PORT}";          # номер порта сервера БД
-	OPT="${OPT} --username=${SQL_LOGIN}";     # имя пользователя баз данных
-	OPT="${OPT} ${SQL_DATABASE}";             # имя базы данных для выгрузки
-
-
-#	echo ${OPT};
-#	pg_dump ${OPT};
-	pg_dump ${OPT} > "${FILENAME}.tmp" 2> /dev/null;
-#	pg_dump --exclude-schema="not_backup" --blobs --create --clean --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+	echo "${CMD}";
+	${CMD} 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
@@ -503,28 +525,30 @@ function backup_postgres_case4()
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 
 
-	OPT="";
-	OPT="${OPT} --no-owner";                  # не восстанавливать владение объектами
-	OPT="${OPT} --no-privileges";             # не выгружать права (назначение/отзыв)
-	OPT="${OPT} --blobs";                     # выгрузить также большие объекты
+	local CMD="";
+	if [ "${SQL_CONTAINER}" != "" ];
+	then
+		CMD+="docker exec -it ${SQL_CONTAINER} ";
+	fi
+	CMD+="pg_dump";
+	CMD+=" --no-owner";                  # не восстанавливать владение объектами
+	CMD+=" --no-privileges";             # не выгружать права (назначение/отзыв)
+	CMD+=" --blobs";                     # выгрузить также большие объекты
+#	CMD+=" --jobs=2";                    # распараллелить копирование на указанное число заданий
+	CMD+=" --exclude-schema=not_backup"; # НЕ выгружать указанную схему(ы)
+	CMD+=" --clean";                     # очистить (удалить) объекты БД при восстановлении
+	CMD+=" --if-exists";                 # применять IF EXISTS при удалении объектов
+	CMD+=" --compress=0";                # уровень сжатия при архивации
+	CMD+=" --format=p";                  # формат выводимых данных: текстовый (по умолчанию))
+	CMD+=" --serializable-deferrable";   # дождаться момента для выгрузки данных без аномалий
+	CMD+=" --host=${SQL_HOST}";          # имя сервера баз данных или каталог сокетов
+	CMD+=" --port=${SQL_PORT}";          # номер порта сервера БД
+	CMD+=" --username=${SQL_LOGIN}";     # имя пользователя баз данных
+	CMD+=" ${SQL_DATABASE}";             # имя базы данных для выгрузки
+	CMD+=" > ${FILENAME}.tmp"
 
-#	OPT="${OPT} --jobs=2";                    # распараллелить копирование на указанное число заданий
-	OPT="${OPT} --exclude-schema=not_backup"; # НЕ выгружать указанную схему(ы)
-	OPT="${OPT} --clean";                     # очистить (удалить) объекты БД при восстановлении
-	OPT="${OPT} --if-exists";                 # применять IF EXISTS при удалении объектов
-	OPT="${OPT} --compress=0";                # уровень сжатия при архивации
-	OPT="${OPT} --format=p";                  # формат выводимых данных: текстовый (по умолчанию))
-	OPT="${OPT} --serializable-deferrable";   # дождаться момента для выгрузки данных без аномалий
-	OPT="${OPT} --host=${SQL_HOST}";          # имя сервера баз данных или каталог сокетов
-	OPT="${OPT} --port=${SQL_PORT}";          # номер порта сервера БД
-	OPT="${OPT} --username=${SQL_LOGIN}";     # имя пользователя баз данных
-	OPT="${OPT} ${SQL_DATABASE}";             # имя базы данных для выгрузки
-
-
-#	echo ${OPT};
-#	pg_dump ${OPT};
-	pg_dump ${OPT} > "${FILENAME}.tmp" 2> /dev/null;
-#	pg_dump --exclude-schema="not_backup" --no-owner --no-privileges --blobs --clean --if-exists --compress=0 --format=p --serializable-deferrable --host="${SQL_HOST}" --port="${SQL_PORT}" --username="${SQL_LOGIN}" "${SQL_DATABASE}" > "${FILENAME}.tmp" 2> /dev/null;
+	echo "${CMD}";
+	${CMD} 2> /dev/null;
 	if [ "${?}" != "0" ];
 	then
 		rm -rf -- "${FILENAME}.tmp";
