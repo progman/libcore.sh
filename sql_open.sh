@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.8
+# 0.0.9
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -124,14 +124,14 @@ function main()
 
 		export PGPASSWORD="${SQL_PASSWORD}";
 
-		local CMD="";
-		if [ "${SQL_CONTAINER}" != "" ];
-		then
-			CMD+="docker exec -it ${SQL_CONTAINER} ";
-		fi
-
 		if [ "${2}" == "" ] || [ ! -e "${2}" ];
 		then
+			local CMD="";
+			if [ "${SQL_CONTAINER}" != "" ];
+			then
+				CMD+="docker exec -it ${SQL_CONTAINER} "; # -it
+			fi
+
 			CMD+="psql";
 			CMD+=" --host=${SQL_HOST}";
 			CMD+=" --port=${SQL_PORT}";
@@ -145,18 +145,25 @@ function main()
 			fi
 			${CMD};
 		else
+			local CMD="";
+			if [ "${SQL_CONTAINER}" != "" ];
+			then
+				CMD+="docker exec -i ${SQL_CONTAINER} "; # -i
+			fi
+
 			CMD+="psql";
 			CMD+=" --host=${SQL_HOST}";
 			CMD+=" --port=${SQL_PORT}";
 			CMD+=" --dbname=${SQL_DATABASE}";
 			CMD+=" --username=${SQL_LOGIN}";
-			CMD+=" -w -f ${2}";
+			CMD+=" -w";
+#			CMD+=" -w -f ${2}";
 
 			if [ "${FLAG_DEBUG}" == "1" ];
 			then
 				echo "${CMD}";
 			fi
-			${CMD};
+			${CMD} < ${2};
 		fi
 	fi
 
@@ -171,14 +178,14 @@ function main()
 
 		export MYSQL_PWD="${SQL_PASSWORD}";
 
-		local CMD="";
-		if [ "${SQL_CONTAINER}" != "" ];
-		then
-			CMD+="docker exec -it ${SQL_CONTAINER} ";
-		fi
-
 		if [ "${2}" == "" ] || [ ! -e "${2}" ];
 		then
+			local CMD="";
+			if [ "${SQL_CONTAINER}" != "" ];
+			then
+				CMD+="docker exec -it ${SQL_CONTAINER} "; # -it
+			fi
+
 			CMD+="mysql";
 			CMD+=" --host=${SQL_HOST}";
 			CMD+=" --port=${SQL_PORT}";
@@ -191,6 +198,12 @@ function main()
 			fi
 			${CMD};
 		else
+			local CMD="";
+			if [ "${SQL_CONTAINER}" != "" ];
+			then
+				CMD+="docker exec -i ${SQL_CONTAINER} "; # -i
+			fi
+
 			CMD+="mysql";
 			CMD+=" --host=${SQL_HOST}";
 			CMD+=" --port=${SQL_PORT}";
