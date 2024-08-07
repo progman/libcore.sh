@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.9
+# 0.1.0
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -116,12 +116,6 @@ function main()
 
 	if [ "${SQL_SERVER}" == "postgresql" ];
 	then
-		check_prog "psql";
-		if [ "${?}" != "0" ];
-		then
-			return 1;
-		fi
-
 		export PGPASSWORD="${SQL_PASSWORD}";
 
 		if [ "${2}" == "" ] || [ ! -e "${2}" ];
@@ -130,6 +124,12 @@ function main()
 			if [ "${SQL_CONTAINER}" != "" ];
 			then
 				CMD+="docker exec -it ${SQL_CONTAINER} "; # -it
+			else
+				check_prog "psql";
+				if [ "${?}" != "0" ];
+				then
+					return 1;
+				fi
 			fi
 
 			CMD+="psql";
@@ -149,6 +149,12 @@ function main()
 			if [ "${SQL_CONTAINER}" != "" ];
 			then
 				CMD+="docker exec -i ${SQL_CONTAINER} "; # -i
+			else
+				check_prog "psql";
+				if [ "${?}" != "0" ];
+				then
+					return 1;
+				fi
 			fi
 
 			CMD+="psql";
@@ -170,13 +176,9 @@ function main()
 
 	if [ "${SQL_SERVER}" == "mysql" ];
 	then
-		check_prog "mysql";
-		if [ "${?}" != "0" ];
-		then
-			return 1;
-		fi
-
 		export MYSQL_PWD="${SQL_PASSWORD}";
+		export MYSQL_PASSWORD="${SQL_PASSWORD}";
+		export MYSQL_ROOT_PASSWORD="${SQL_PASSWORD}";
 
 		if [ "${2}" == "" ] || [ ! -e "${2}" ];
 		then
@@ -184,6 +186,12 @@ function main()
 			if [ "${SQL_CONTAINER}" != "" ];
 			then
 				CMD+="docker exec -it ${SQL_CONTAINER} "; # -it
+			else
+				check_prog "mysql";
+				if [ "${?}" != "0" ];
+				then
+					return 1;
+				fi
 			fi
 
 			CMD+="mysql";
@@ -191,6 +199,7 @@ function main()
 			CMD+=" --port=${SQL_PORT}";
 			CMD+=" --database=${SQL_DATABASE}";
 			CMD+=" --user=${SQL_LOGIN}";
+			CMD+=" --password=${SQL_PASSWORD}";
 
 			if [ "${FLAG_DEBUG}" == "1" ];
 			then
@@ -202,6 +211,12 @@ function main()
 			if [ "${SQL_CONTAINER}" != "" ];
 			then
 				CMD+="docker exec -i ${SQL_CONTAINER} "; # -i
+			else
+				check_prog "mysql";
+				if [ "${?}" != "0" ];
+				then
+					return 1;
+				fi
 			fi
 
 			CMD+="mysql";
@@ -209,6 +224,7 @@ function main()
 			CMD+=" --port=${SQL_PORT}";
 			CMD+=" --database=${SQL_DATABASE}";
 			CMD+=" --user=${SQL_LOGIN}";
+			CMD+=" --password=${SQL_PASSWORD}";
 
 			if [ "${FLAG_DEBUG}" == "1" ];
 			then
