@@ -31,20 +31,31 @@ function main()
 
 	if [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
 	then
-		echo "example: ${0} [--fast]";
+		echo "example: ${0} [ --fast | -6 ]";
 		return 0;
 	fi
 
 
-# 64 bytes = 512 bits = 128 chars
+	DEVICE='/dev/random';
 	if [ "${1}" == "--fast" ];
 	then
-		head -c 64 /dev/urandom | hexdump -v -e '/1 "%02X"' | tr [:upper:] [:lower:];
-		echo;
-	else
-		head -c 64 /dev/random  | hexdump -v -e '/1 "%02X"' | tr [:upper:] [:lower:];
-		echo;
+		DEVICE='/dev/urandom';
 	fi
+
+
+	COUNT=64; # 64 bytes = 512 bits = 128 chars
+	if [ "${1}" == "-6" ] || [ "${1}" == "--6" ];
+	then
+		COUNT=3; # 3 bytes = 24 bits = 6 chars
+	fi
+	if [ "${1}" == "-8" ] || [ "${1}" == "--8" ];
+	then
+		COUNT=4; # 4 bytes = 32 bits = 8 chars
+	fi
+
+
+	head -c ${COUNT} ${DEVICE} | hexdump -v -e '/1 "%02X"' | tr [:upper:] [:lower:];
+	echo;
 
 
 	return 0;
