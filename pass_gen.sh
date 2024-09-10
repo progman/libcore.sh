@@ -31,7 +31,7 @@ function main()
 
 	if [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
 	then
-		echo "example: ${0} [ --fast | -6 ]";
+		echo "example: ${0} [ --fast | -6 | -8 ]";
 		return 0;
 	fi
 
