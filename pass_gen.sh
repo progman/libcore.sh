@@ -31,7 +31,7 @@ function main()
 
 	if [ "${1}" == "-h" ] || [ "${1}" == "-help" ] || [ "${1}" == "--help" ];
 	then
-		echo "example: ${0} [ --fast | -6 | -8 ]";
+		echo "example: ${0} [ --fast | -2 | -4 | -6 | -8 ]";
 		return 0;
 	fi
 
@@ -44,6 +44,15 @@ function main()
 
 
 	COUNT=64; # 64 bytes = 512 bits = 128 chars
+	if [ "${1}" == "-2" ] || [ "${1}" == "--2" ];
+	then
+		COUNT=1; # 1 byte = 8 bits = 2 chars
+	fi
+
+	if [ "${1}" == "-4" ] || [ "${1}" == "--4" ];
+	then
+		COUNT=2; # 2 bytes = 16 bits = 4 chars
+	fi
 	if [ "${1}" == "-6" ] || [ "${1}" == "--6" ];
 	then
 		COUNT=3; # 3 bytes = 24 bits = 6 chars
