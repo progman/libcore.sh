@@ -31,6 +31,7 @@ function git_builder()
 
 
 # try fetch
+	echo "git_tool_fetcher.sh";
 	git_tool_fetcher.sh "${DOCKER_DIR}";
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
@@ -40,6 +41,7 @@ function git_builder()
 
 
 # build docker image and push to registry
+	echo "docker_tool.sh";
 	docker_tool.sh f;
 	STATUS="${?}";
 	if [ "${STATUS}" != "0" ];
