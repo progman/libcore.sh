@@ -21,13 +21,118 @@ function check_prog()
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function lxc_ls()
 {
+	local STATUS;
+
 	lxc ls -c n -f compact | sed -e 's/\ //g' | grep -v '^NAME$'
+	STATUS="${?}";
+	if [ "${STATUS}" != "0" ];
+	then
+		return "${STATUS}";
+	fi
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function lxc_export()
+{
+	local STATUS;
+
+
+	while read -r NAME;
+	do
+		echo "lxc export ${NAME} ./${NAME}.tar.gz --instance-only";
+		lxc export ${NAME} ./${NAME}.tar.gz --instance-only;
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			echo "ERROR: export was broken";
+			return "${STATUS}";
+		fi
+	done
+
+
+#lxc export super-test /backups/super-test.tar.gz --instance-only;                                                                               # export в архив
+#lxc export super-test /backups/super-test.tar    --instance-only --compression=none; ls -1 super-test.tar | repack.sh --zstd;                   # export в архив
+
+#lxc import /backups/super-test.tar.zst;
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function lxc_import()
+{
+	local STATUS;
+
+
+	while read -r NAME;
+	do
+		echo "lxc import ./${NAME}.tar*";
+		lxc import ./${NAME}.tar*;
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			echo "ERROR: import was broken";
+			return "${STATUS}";
+		fi
+	done
+
+
+#lxc export super-test /backups/super-test.tar.gz --instance-only;                                                                               # export в архив
+#lxc export super-test /backups/super-test.tar    --instance-only --compression=none; ls -1 super-test.tar | repack.sh --zstd;                   # export в архив
+
+#lxc import /backups/super-test.tar.zst;
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function lxc_start()
+{
+	local STATUS;
+
+
+	while read -r NAME;
+	do
+		echo "lxc start ${NAME}";
+		lxc start ${NAME};
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			echo "ERROR: start was broken";
+			return "${STATUS}";
+		fi
+	done
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function lxc_stop()
+{
+	local STATUS;
+
+
+	while read -r NAME;
+	do
+		echo "lxc stop ${NAME}";
+		lxc stop ${NAME};
+		STATUS="${?}";
+		if [ "${STATUS}" != "0" ];
+		then
+			echo "ERROR: stop was broken";
+			return "${STATUS}";
+		fi
+	done
+
+
+	return 0;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # show help
 function help()
 {
-	echo "example: ${1} [ ls ]";
+	echo "example: ${1} [ ls | export | import | start | stop ]";
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
@@ -40,6 +145,34 @@ function main()
 	if [ "${OPERATION}" == "ls" ]
 	then
 		lxc_ls;
+		STATUS="${?}";
+		return "${STATUS}";
+	fi
+
+	if [ "${OPERATION}" == "export" ]
+	then
+		lxc_export;
+		STATUS="${?}";
+		return "${STATUS}";
+	fi
+
+	if [ "${OPERATION}" == "import" ]
+	then
+		lxc_import;
+		STATUS="${?}";
+		return "${STATUS}";
+	fi
+
+	if [ "${OPERATION}" == "start" ]
+	then
+		lxc_start;
+		STATUS="${?}";
+		return "${STATUS}";
+	fi
+
+	if [ "${OPERATION}" == "stop" ]
+	then
+		lxc_stop;
 		STATUS="${?}";
 		return "${STATUS}";
 	fi
