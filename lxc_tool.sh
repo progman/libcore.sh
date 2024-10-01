@@ -65,10 +65,14 @@ function lxc_import()
 	local STATUS;
 
 
-	while read -r NAME;
+#	while read -r NAME;
+	while read -r FILE;
 	do
-		echo "lxc import ./${NAME}.tar*";
-		lxc import ./${NAME}.tar*;
+#		echo "lxc import ./${NAME}.tar*";
+#		lxc import ./${NAME}.tar*;
+
+		echo "lxc import ${FILE}";
+		lxc import "${FILE}";
 		STATUS="${?}";
 		if [ "${STATUS}" != "0" ];
 		then
