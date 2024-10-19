@@ -47,7 +47,7 @@ function lxc_export()
 
 
 		echo "lxc export ${NAME} ${FILE} --instance-only --compression=none;";
-		lxc export ${NAME} ${FILE} --instance-only --compression=none;
+		lxc export ${NAME} ${FILE} --instance-only --compression=none &> /dev/null < /dev/null;
 		STATUS="${?}";
 		if [ "${STATUS}" != "0" ];
 		then
@@ -149,6 +149,7 @@ function lxc_stop()
 function help()
 {
 	echo "example: ${1} [ ls | export | import | start | stop ]";
+	echo "example: ${1} ls | ${1} export";
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
