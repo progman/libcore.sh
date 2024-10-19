@@ -1005,10 +1005,25 @@ function docker_reup()
 	return 0;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function docker_gc_log()
+{
+	for LOG in /var/lib/docker/containers/*/*.log;
+	do
+		echo "truncate -s 0 ${LOG};";
+		truncate -s 0 "${LOG}";
+	done
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function docker_gc()
 {
 	echo "docker system prune -a -f;";
 	docker system prune -a -f
+
+
+	docker_gc_log;
 
 
 	return 0;
@@ -1017,7 +1032,7 @@ function docker_gc()
 # show help
 function help()
 {
-	echo "example: ${1} [ login | build, b | pull | push DOCKER_IMAGE | flush, f | ps | test, t | deploy | up, u | down, d | reup, r | gc ]";
+	echo "example: ${1} [ login | build, b | pull | push DOCKER_IMAGE | flush, f | ps | test, t | deploy | up, u | down, d | reup, r | gc | gc_log ]";
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
@@ -1041,6 +1056,7 @@ function main()
 	   [ "${OPERATION}" != "up" ]     && [ "${OPERATION}" != "u" ] && \
 	   [ "${OPERATION}" != "down" ]   && [ "${OPERATION}" != "d" ] && \
 	   [ "${OPERATION}" != "reup" ]   && [ "${OPERATION}" != "r" ] && \
+	   [ "${OPERATION}" != "gc_log" ] && \
 	   [ "${OPERATION}" != "gc" ];
 	then
 		help "${0}";
@@ -1249,6 +1265,14 @@ function main()
 	then
 		FLAG_PULL="1";
 		docker_reup;
+		STATUS="${?}";
+		return "${STATUS}";
+	fi
+
+
+	if [ "${OPERATION}" == "gc_log" ]
+	then
+		docker_gc_log;
 		STATUS="${?}";
 		return "${STATUS}";
 	fi
