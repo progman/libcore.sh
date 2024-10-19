@@ -56,26 +56,27 @@ function lxc_export()
 		fi
 
 
-		if [ "$(command -v zstd)" != "" ];
-		then
-			echo "zstd -C --ultra -22 --threads=0 -f -o ${FILE}.zst 2> /dev/null < ${FILE};";
-			zstd -C --ultra -22 --threads=0 -f -o "${FILE}.zst" 2> /dev/null < "${FILE}";
-			STATUS="${?}";
-			if [ "${STATUS}" != "0" ];
-			then
-				echo "ERROR: zstd pack was broken";
-				return "${STATUS}";
-			fi
-
-			echo "rm -rf ${FILE} &> /dev/null < /dev/null;";
-			rm -rf ${FILE} &> /dev/null < /dev/null;
-			STATUS="${?}";
-			if [ "${STATUS}" != "0" ];
-			then
-				echo "ERROR: rm was broken";
-				return "${STATUS}";
-			fi
-		fi
+# use ls -1 | repack --zstd
+#		if [ "$(command -v zstd)" != "" ];
+#		then
+#			echo "zstd -C --ultra -22 --threads=0 -f -o ${FILE}.zst 2> /dev/null < ${FILE};";
+#			zstd -C --ultra -22 --threads=0 -f -o "${FILE}.zst" 2> /dev/null < "${FILE}";
+#			STATUS="${?}";
+#			if [ "${STATUS}" != "0" ];
+#			then
+#				echo "ERROR: zstd pack was broken";
+#				return "${STATUS}";
+#			fi
+#
+#			echo "rm -rf ${FILE} &> /dev/null < /dev/null;";
+#			rm -rf ${FILE} &> /dev/null < /dev/null;
+#			STATUS="${?}";
+#			if [ "${STATUS}" != "0" ];
+#			then
+#				echo "ERROR: rm was broken";
+#				return "${STATUS}";
+#			fi
+#		fi
 	done
 
 
