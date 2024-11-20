@@ -167,7 +167,7 @@ function export_source()
 
 
 # replace from declare to export
-	sed -e 's/^declare\ [a-ZA-Z-]*/export/g' "${temp_file3}" > "${temp_file4}";
+	sed -e 's/^declare\ [a-zA-Z-]*/export/g' "${temp_file3}" > "${temp_file4}";
 	if [ "${?}" != "0" ];
 	then
 		rm -f "${temp_file1}" &> /dev/null < /dev/null;
@@ -1184,7 +1184,7 @@ function main()
 		fi
 		while read -e ENV;
 		do
-			if [ $(export -p | sed -e 's/^declare\ [a-ZA-Z-]*\ //g' | grep "^${ENV}=" | wc -l) != 1 ]; # is env exported?
+			if [ $(export -p | sed -e 's/^declare\ [a-zA-Z-]*\ //g' | grep "^${ENV}=" | wc -l) != 1 ]; # is env exported?
 			then
 				echo "ERROR: environment variable \"${ENV}\" must be set (see .env.example)";
 				return 1;
