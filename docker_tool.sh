@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.3.0
+# 1.3.1
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -642,21 +642,26 @@ function docker_ps()
 	done
 
 
-	echo -n "CONTAINER_ID";
+	if [ "${#CONTAINER_NAME_LIST[@]}" != "0" ];
+	then
+		echo -n "CONTAINER_ID";
 
-	echo -n "  ";
-	echo -n "IMAGE_ID";
+		echo -n "  ";
+		echo -n "IMAGE_ID";
 
-	echo -n "      ";
-	echo -n "NAME";
+		echo -n "      ";
+		echo -n "NAME";
 
-	for ((i = 3; i <= ${MAX_SIZE}; i++));
-	do
-		echo -n " ";
-	done
+		for ((i = 3; i <= ${MAX_SIZE}; i++));
+		do
+			echo -n " ";
+		done
 
-	echo -n "REGISTRY_PATH";
-	echo;
+		echo -n "REGISTRY_PATH";
+		echo;
+	else
+		echo "CONTAINER_ID  IMAGE_ID  NAME  REGISTRY_PATH";
+	fi
 
 
 	for INDEX in "${!CONTAINER_ID_LIST[@]}";
