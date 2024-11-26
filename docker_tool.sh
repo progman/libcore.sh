@@ -570,22 +570,113 @@ function docker_ps()
 # ps
 	if [ "${DOCKER_COMPOSE_FILE}" != "" ];
 	then
-		echo "docker compose --project-name ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} ps --format \"table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}\";";
-		docker compose --project-name ${DOCKER_PROJECT_NAME} -f "${DOCKER_COMPOSE_FILE}" ps --format "table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}";
+#		echo "docker compose --project-name ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} ps --format \"table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}\";";
+#		docker compose --project-name ${DOCKER_PROJECT_NAME} -f "${DOCKER_COMPOSE_FILE}" ps --format "table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}";
+
+		CONTAINER_ID_LIST=( $(docker compose --project-name ${DOCKER_PROJECT_NAME} -f "${DOCKER_COMPOSE_FILE}" ps --format "{{.ID}}") );
 		if [ "${?}" != "0" ];
 		then
 			echo "ERROR: docker compose ps";
 			return 1;
 		fi
 	else
-		echo "docker ps --format \"table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}\";";
-		docker ps --format "table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}";
+#		echo "docker ps --format \"table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}\";";
+#		docker ps --format "table {{lower .ID}}\t{{lower .Names}}\t{{lower .Status}}";
+
+		CONTAINER_ID_LIST=( $(docker ps --format "{{.ID}}") );
 		if [ "${?}" != "0" ];
 		then
 			echo "ERROR: docker compose ps";
 			return 1;
 		fi
 	fi
+
+
+	CONTAINER_NAME_LIST=();
+	IMAGE_ID_LIST=();
+	REGISTRY_PATH_LIST=();
+
+	for INDEX in "${!CONTAINER_ID_LIST[@]}";
+	do
+		CONTAINER_ID=${CONTAINER_ID_LIST[$INDEX]};
+
+
+		CONTAINER_NAME=$(docker inspect --format='{{.Name}}' ${CONTAINER_ID} | sed -e 's/^\///g');
+		if [ "${?}" != "0" ];
+		then
+			echo "ERROR: docker compose ps";
+			return 1;
+		fi
+		CONTAINER_NAME_LIST+=(${CONTAINER_NAME});
+
+
+		IMAGE_HASH=$(docker inspect --format='{{.Image}}' ${CONTAINER_ID} | sed -e 's/.*://g');
+		if [ "${?}" != "0" ];
+		then
+			echo "ERROR: docker compose ps";
+			return 1;
+		fi
+		IMAGE_HASH_SHORT=$(echo ${IMAGE_HASH} | head -c 12);
+		IMAGE_ID_LIST+=(${IMAGE_HASH_SHORT});
+
+
+		REGISTRY_PATH=$(docker image inspect --format='{{json .RepoDigests}}' ${IMAGE_HASH});
+		if [ "${?}" != "0" ];
+		then
+			echo "ERROR: docker compose ps";
+			return 1;
+		fi
+		REGISTRY_PATH_LIST+=(${REGISTRY_PATH});
+	done
+
+
+	MAX_SIZE=0;
+	for INDEX in "${!CONTAINER_NAME_LIST[@]}";
+	do
+		SIZE=${#CONTAINER_NAME_LIST[$INDEX]};
+
+		if [ ${MAX_SIZE} -lt ${SIZE} ]; # INTEGER1 is less than INTEGER2
+		then
+			MAX_SIZE=${SIZE};
+		fi
+	done
+
+
+	echo -n "CONTAINER_ID";
+
+	echo -n "  ";
+	echo -n "IMAGE_ID";
+
+	echo -n "      ";
+	echo -n "NAME";
+
+	for ((i = 3; i <= ${MAX_SIZE}; i++));
+	do
+		echo -n " ";
+	done
+
+	echo -n "REGISTRY_PATH";
+	echo;
+
+
+	for INDEX in "${!CONTAINER_ID_LIST[@]}";
+	do
+		echo -n "${CONTAINER_ID_LIST[$INDEX]}";
+
+		echo -n "  ";
+		echo -n "${IMAGE_ID_LIST[$INDEX]}";
+
+		echo -n "  ";
+		echo -n "${CONTAINER_NAME_LIST[$INDEX]}";
+
+		for ((i = ${#CONTAINER_NAME_LIST[$INDEX]}; i <= ${MAX_SIZE}; i++));
+		do
+			echo -n " ";
+		done
+		echo -n " ";
+		echo -n "${REGISTRY_PATH_LIST[$INDEX]}";
+		echo;
+	done
 
 
 	return 0;
