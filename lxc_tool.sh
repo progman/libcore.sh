@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.2
+# 0.0.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -38,7 +38,9 @@ function lxc_ls()
 function lxc_export()
 {
 	local STATUS;
+	local BAD_STATUS;
 	local FILE;
+	BAD_STATUS="0";
 
 
 	while read -r NAME;
@@ -52,7 +54,7 @@ function lxc_export()
 		if [ "${STATUS}" != "0" ];
 		then
 			echo "ERROR: export was broken";
-			return "${STATUS}";
+			BAD_STATUS="${STATUS}";
 		fi
 
 
@@ -80,12 +82,20 @@ function lxc_export()
 	done
 
 
+	if [ "${BAD_STATUS}" != "0" ];
+	then
+		return "${BAD_STATUS}";
+	fi
+
+
 	return 0;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function lxc_import()
 {
 	local STATUS;
+	local BAD_STATUS;
+	BAD_STATUS="0";
 
 
 	while read -r FILE;
@@ -96,9 +106,15 @@ function lxc_import()
 		if [ "${STATUS}" != "0" ];
 		then
 			echo "ERROR: import was broken";
-			return "${STATUS}";
+			BAD_STATUS="${STATUS}";
 		fi
 	done
+
+
+	if [ "${BAD_STATUS}" != "0" ];
+	then
+		return "${BAD_STATUS}";
+	fi
 
 
 	return 0;
@@ -107,6 +123,8 @@ function lxc_import()
 function lxc_start()
 {
 	local STATUS;
+	local BAD_STATUS;
+	BAD_STATUS="0";
 
 
 	while read -r NAME;
@@ -117,9 +135,15 @@ function lxc_start()
 		if [ "${STATUS}" != "0" ];
 		then
 			echo "ERROR: start was broken";
-			return "${STATUS}";
+			BAD_STATUS="${STATUS}";
 		fi
 	done
+
+
+	if [ "${BAD_STATUS}" != "0" ];
+	then
+		return "${BAD_STATUS}";
+	fi
 
 
 	return 0;
@@ -128,6 +152,8 @@ function lxc_start()
 function lxc_stop()
 {
 	local STATUS;
+	local BAD_STATUS;
+	BAD_STATUS="0";
 
 
 	while read -r NAME;
@@ -138,9 +164,15 @@ function lxc_stop()
 		if [ "${STATUS}" != "0" ];
 		then
 			echo "ERROR: stop was broken";
-			return "${STATUS}";
+			BAD_STATUS="${STATUS}";
 		fi
 	done
+
+
+	if [ "${BAD_STATUS}" != "0" ];
+	then
+		return "${BAD_STATUS}";
+	fi
 
 
 	return 0;
