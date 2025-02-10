@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.3.3
+# 1.3.4
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -306,25 +306,25 @@ function docker_build()
 
 	if [ "${GIT_URL}" != "" ];
 	then
-		OPT+=" --label     GIT_URL=${GIT_URL}";
+		OPT+=" --label GIT_URL=${GIT_URL}";
 		OPT+=" --build-arg GIT_URL=${GIT_URL}";
 	fi
 
 	if [ "${GIT_COMMIT_HASH}" != "" ];
 	then
-		OPT+=" --label     GIT_COMMIT_HASH=${GIT_COMMIT_HASH}";
+		OPT+=" --label GIT_COMMIT_HASH=${GIT_COMMIT_HASH}";
 		OPT+=" --build-arg GIT_COMMIT_HASH=${GIT_COMMIT_HASH}";
 	fi
 
 	if [ "${GIT_BRANCH}" != "" ];
 	then
-		OPT+=" --label     GIT_BRANCH=${GIT_BRANCH}";
+		OPT+=" --label GIT_BRANCH=${GIT_BRANCH}";
 		OPT+=" --build-arg GIT_BRANCH=${GIT_BRANCH}";
 	fi
 
 	if [ "${GIT_COMMITTED}" != "" ];
 	then
-		OPT+=" --label     GIT_COMMITTED=${GIT_COMMITTED}";
+		OPT+=" --label GIT_COMMITTED=${GIT_COMMITTED}";
 		OPT+=" --build-arg GIT_COMMITTED=${GIT_COMMITTED}";
 	fi
 
