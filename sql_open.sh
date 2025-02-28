@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.1.0
+# 0.1.1
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -21,15 +21,15 @@ function check_prog()
 # check var list
 function var_check()
 {
-	if [ "${SQL_SERVER}" == "" ];
+	if [ "${SQL_TYPE}" == "" ];
 	then
-		echo "FATAL: var \"SQL_SERVER\" is not set";
+		echo "FATAL: var \"SQL_TYPE\" is not set";
 		return 1;
 	fi
 
-	if [ "${SQL_SERVER}" != "postgresql" ] && [ "${SQL_SERVER}" != "mysql" ];
+	if [ "${SQL_TYPE}" != "postgres" ] && [ "${SQL_TYPE}" != "mysql" ];
 	then
-		echo "FATAL: var \"SQL_SERVER\" is not \"postgresql\" or \"mysql\"";
+		echo "FATAL: var \"SQL_TYPE\" is not \"postgres\" or \"mysql\"";
 		return 1;
 	fi
 
@@ -91,7 +91,7 @@ function main()
 		export SQL_DUMP_DIR="${SQL_DUMP_DIR}";
 		export SQL_DUMP_MAX_COUNT="${SQL_DUMP_MAX_COUNT}";
 		export SQL_CONTAINER="${SQL_CONTAINER}";
-		export SQL_SERVER="${SQL_SERVER}";
+		export SQL_TYPE="${SQL_TYPE}";
 		export SQL_HOST="${SQL_HOST}";
 		export SQL_PORT="${SQL_PORT}";
 		export SQL_DATABASE="${SQL_DATABASE}";
@@ -114,7 +114,7 @@ function main()
 	fi
 
 
-	if [ "${SQL_SERVER}" == "postgresql" ];
+	if [ "${SQL_TYPE}" == "postgres" ];
 	then
 		export PGPASSWORD="${SQL_PASSWORD}";
 
@@ -174,7 +174,7 @@ function main()
 	fi
 
 
-	if [ "${SQL_SERVER}" == "mysql" ];
+	if [ "${SQL_TYPE}" == "mysql" ];
 	then
 		export MYSQL_PWD="${SQL_PASSWORD}";
 		export MYSQL_PASSWORD="${SQL_PASSWORD}";
