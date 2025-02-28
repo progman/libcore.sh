@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.1.2
+# 0.1.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # view current time
@@ -161,15 +161,15 @@ function pack()
 # check var list
 function var_check()
 {
-	if [ "${SQL_SERVER}" == "" ];
+	if [ "${SQL_TYPE}" == "" ];
 	then
-		echo "FATAL: var \"SQL_SERVER\" is not set";
+		echo "FATAL: var \"SQL_TYPE\" is not set";
 		return 1;
 	fi
 
-	if [ "${SQL_SERVER}" != "postgresql" ] && [ "${SQL_SERVER}" != "mysql" ];
+	if [ "${SQL_TYPE}" != "postgres" ] && [ "${SQL_TYPE}" != "mysql" ];
 	then
-		echo "FATAL: var \"SQL_SERVER\" is not \"postgresql\" or \"mysql\"";
+		echo "FATAL: var \"SQL_TYPE\" is not \"postgres\" or \"mysql\"";
 		return 1;
 	fi
 
@@ -233,7 +233,7 @@ function backup_postgres_global()
 	export PGPASSWORD;
 
 
-	FILENAME="${SQL_DATABASE}_${SQL_SERVER}-${TIMESTAMP}.sql";
+	FILENAME="${SQL_DATABASE}_${SQL_TYPE}-${TIMESTAMP}.sql";
 	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${PACK_NAME}\"";
 
@@ -300,11 +300,11 @@ function backup_postgres_case1()
 
 
 # create template dump
-	mkdir "${SQL_SERVER}_template" &> /dev/null;
-	CUR_DIR="${SQL_SERVER}_template";
+	mkdir "${SQL_TYPE}_template" &> /dev/null;
+	CUR_DIR="${SQL_TYPE}_template";
 	cd "${CUR_DIR}";
 
-	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_template-${TIMESTAMP}.sql";
+	FILENAME="${SQL_DATABASE}_${SQL_TYPE}_template-${TIMESTAMP}.sql";
 	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 
@@ -374,11 +374,11 @@ function backup_postgres_case2()
 
 
 # create dump
-	mkdir "${SQL_SERVER}_dump" &> /dev/null;
-	CUR_DIR="${SQL_SERVER}_dump";
+	mkdir "${SQL_TYPE}_dump" &> /dev/null;
+	CUR_DIR="${SQL_TYPE}_dump";
 	cd "${CUR_DIR}";
 
-	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
+	FILENAME="${SQL_DATABASE}_${SQL_TYPE}_dump-${TIMESTAMP}.sql";
 	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 
@@ -448,11 +448,11 @@ function backup_postgres_case3()
 
 
 # create clear dump
-	mkdir "${SQL_SERVER}_cdump" &> /dev/null;
-	CUR_DIR="${SQL_SERVER}_cdump";
+	mkdir "${SQL_TYPE}_cdump" &> /dev/null;
+	CUR_DIR="${SQL_TYPE}_cdump";
 	cd "${CUR_DIR}";
 
-	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_cdump-${TIMESTAMP}.sql";
+	FILENAME="${SQL_DATABASE}_${SQL_TYPE}_cdump-${TIMESTAMP}.sql";
 	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 
@@ -524,11 +524,11 @@ function backup_postgres_case4()
 
 
 # create xdump
-	mkdir "${SQL_SERVER}_xdump" &> /dev/null;
-	CUR_DIR="${SQL_SERVER}_xdump";
+	mkdir "${SQL_TYPE}_xdump" &> /dev/null;
+	CUR_DIR="${SQL_TYPE}_xdump";
 	cd "${CUR_DIR}";
 
-	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
+	FILENAME="${SQL_DATABASE}_${SQL_TYPE}_dump-${TIMESTAMP}.sql";
 	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 
@@ -646,11 +646,11 @@ function backup_postgres()
 function backup_mysql_case1()
 {
 # create dump
-	mkdir "${SQL_SERVER}_dump" &> /dev/null;
-	CUR_DIR="${SQL_SERVER}_dump";
+	mkdir "${SQL_TYPE}_dump" &> /dev/null;
+	CUR_DIR="${SQL_TYPE}_dump";
 	cd "${CUR_DIR}";
 
-	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
+	FILENAME="${SQL_DATABASE}_${SQL_TYPE}_dump-${TIMESTAMP}.sql";
 	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 #	OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql -t --compact --skip-opt';
@@ -677,11 +677,11 @@ function backup_mysql_case1()
 function backup_mysql_case2()
 {
 # create clear dump
-	mkdir "${SQL_SERVER}_cdump" &> /dev/null;
-	CUR_DIR="${SQL_SERVER}_cdump";
+	mkdir "${SQL_TYPE}_cdump" &> /dev/null;
+	CUR_DIR="${SQL_TYPE}_cdump";
 	cd "${CUR_DIR}";
 
-	FILENAME="${SQL_DATABASE}_${SQL_SERVER}_dump-${TIMESTAMP}.sql";
+	FILENAME="${SQL_DATABASE}_${SQL_TYPE}_dump-${TIMESTAMP}.sql";
 	PACK_NAME=$(pack_name ${FILENAME} "${SQL_BACKUP_FLAG_DISABLE_XZ}" "${SQL_BACKUP_FLAG_DISABLE_BZIP2}" "${SQL_BACKUP_FLAG_DISABLE_GZIP}");
 	echo "$(get_time)make \"${SQL_DUMP_DIR}/${CUR_DIR}/${PACK_NAME}\"";
 #	OPTIONS='--default-character-set=utf8 --single-transaction --compatible=postgresql --opt';
@@ -760,7 +760,7 @@ function main()
 		source "${1}";
 		export SQL_DUMP_DIR="${SQL_DUMP_DIR}";
 		export SQL_DUMP_MAX_COUNT="${SQL_DUMP_MAX_COUNT}";
-		export SQL_SERVER="${SQL_SERVER}";
+		export SQL_TYPE="${SQL_TYPE}";
 		export SQL_HOST="${SQL_HOST}";
 		export SQL_PORT="${SQL_PORT}";
 		export SQL_DATABASE="${SQL_DATABASE}";
@@ -872,7 +872,7 @@ function main()
 	export TIMESTAMP=$(date +'%Y%m%d_%H%M%S');
 
 
-	if [ "${SQL_SERVER}" == "postgresql" ];
+	if [ "${SQL_TYPE}" == "postgres" ];
 	then
 		backup_postgres;
 		if [ "${?}" != "0" ];
@@ -882,7 +882,7 @@ function main()
 	fi
 
 
-	if [ "${SQL_SERVER}" == "mysql" ];
+	if [ "${SQL_TYPE}" == "mysql" ];
 	then
 		backup_mysql;
 		if [ "${?}" != "0" ];
