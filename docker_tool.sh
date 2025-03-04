@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.3.6
+# 1.3.7
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -559,7 +559,7 @@ function docker_flush()
 
 
 #	echo "flush go baby go";
-	notify "${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" "builded" &> /dev/null < /dev/null &
+	notify "${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" "is builded" &> /dev/null < /dev/null &
 
 
 	return 0;
@@ -955,7 +955,7 @@ function docker_deploy()
 
 
 #	echo "deploy go baby go";
-	notify "${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" "deployed" &> /dev/null < /dev/null &
+	notify "${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" "is deployed" &> /dev/null < /dev/null &
 
 
 	return 0;
