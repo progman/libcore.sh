@@ -544,7 +544,7 @@ function docker_flush()
 	docker_build;
 	if [ "${?}" != "0" ];
 	then
-		notify "${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" "was NOT build" &> /dev/null < /dev/null &
+		notify "${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" "was NOT builded" &> /dev/null < /dev/null &
 		return 1;
 	fi
 
@@ -955,7 +955,7 @@ function docker_deploy()
 
 
 #	echo "deploy go baby go";
-	notify "${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" "deploy" &> /dev/null < /dev/null &
+	notify "${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" "deployed" &> /dev/null < /dev/null &
 
 
 	return 0;
