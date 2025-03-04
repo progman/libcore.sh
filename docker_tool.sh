@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.3.5
+# 1.3.6
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -14,6 +14,27 @@ function check_prog()
 			return 1;
 		fi
 	done
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function notify()
+{
+	export DOCKER_NOTIFY="${1}";
+	export DOCKER_NOTIFY_MSG="${2}";
+
+
+	if [ "${DOCKER_NOTIFY}" == "" ] || [ "${DOCKER_NOTIFY_MSG}" == "" ];
+	then
+		return 1;
+	fi
+
+
+	export DOCKER_NOTIFY_MSG="${2} ${3}";
+
+
+	"${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" &> /dev/null < /dev/null &
 
 
 	return 0;
@@ -523,6 +544,7 @@ function docker_flush()
 	docker_build;
 	if [ "${?}" != "0" ];
 	then
+		notify "${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" "was NOT build" &> /dev/null < /dev/null &
 		return 1;
 	fi
 
@@ -531,15 +553,13 @@ function docker_flush()
 	docker_push "${DOCKER_IMAGE_TAG}";
 	if [ "${?}" != "0" ];
 	then
+		notify "${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" "was NOT push to registry" &> /dev/null < /dev/null &
 		return 1;
 	fi
 
 
 #	echo "flush go baby go";
-	if [ "${DOCKER_NOTIFY}" != "" ] && [ "${DOCKER_NOTIFY_MSG}" != "" ];
-	then
-		"${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" &> /dev/null < /dev/null &
-	fi
+	notify "${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" "builded" &> /dev/null < /dev/null &
 
 
 	return 0;
@@ -935,10 +955,7 @@ function docker_deploy()
 
 
 #	echo "deploy go baby go";
-	if [ "${DOCKER_NOTIFY}" != "" ] && [ "${DOCKER_NOTIFY_MSG}" != "" ];
-	then
-		"${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" &> /dev/null < /dev/null &
-	fi
+	notify "${DOCKER_NOTIFY}" "${DOCKER_NOTIFY_MSG}" "deploy" &> /dev/null < /dev/null &
 
 
 	return 0;
