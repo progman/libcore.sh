@@ -1,13 +1,13 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.5
+# 0.0.6
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # 1) install packets: apt install cuetools shntool id3v2
 # 2) check shntool version: shnsplit -v 2>&1 | head -n 1
 # 3) if shnsplit has version 3.0.10 than we must patch it
 # 4) make shntool from sourses with patch:
-#    git clone https://github.com/max619/shntool
+#    git clone https://github.com/max619/shntool  OR  see https://packages.debian.org/sid/shntool  AND  get from http://shnutils.freeshell.org/shntool/
 #    cd shntool/
 #    git checkout -b flac_format_value_fffe remotes/origin/fix/flac_format_value_fffe
 #    git fetch --append --prune
