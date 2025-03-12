@@ -119,8 +119,8 @@ function main()
 	fi
 
 
-	cuebreakpoints "${CUE}" &> "${TMP}";
-#	cat "${CUE}" | grep INDEX | sed -e 's/.*\ //g' &> "${TMP}";
+#	cuebreakpoints "${CUE}" &> "${TMP}";
+	cat "${CUE}" | grep INDEX | sed -e 's/.*\ //g' | grep -v '00:00:000' &> "${TMP}";
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR[cuebreakpoints()]: unknown error";
