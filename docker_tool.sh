@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.3.7
+# 1.3.8
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -904,20 +904,13 @@ function docker_deploy()
 		echo "found: ${CONTAINER_NAME}";
 
 
-# is container image latest?
-		FLAG_LATEST=$(docker inspect --type container ${CONTAINER_NAME} | grep Image | grep latest | wc -l | { read COL1; echo ${COL1}; })
-		if [ "${FLAG_LATEST}" != "0" ];
-		then
-			echo "found latest: ${CONTAINER_NAME}";
-
-
 # get container image
-			IMAGE=$(docker inspect --type container ${CONTAINER_NAME} | grep Image | grep latest | sed -e 's/:latest.*//g' | sed -e 's/.*"//g')":latest";
+			IMAGE=$(docker inspect --type container ${CONTAINER_NAME} | grep Image | tail -n 1 | sed -e 's/",//g' | sed -e 's/.*"//g');
 			echo "IMAGE: ${IMAGE}";
 
 
 # get container image hash
-			HASH_OLD=$(docker inspect --type container ${CONTAINER_NAME} | grep Image | grep -v latest | sed -e 's/.*\ //g' | sed -e 's/^"//g' | sed -e 's/".*//g');
+			HASH_OLD=$(docker inspect --type container ${CONTAINER_NAME} | grep Image | head -n 1 | sed -e 's/",//g' | sed -e 's/.*"//g');
 			echo "HASH_OLD: ${HASH_OLD}";
 
 
@@ -931,7 +924,6 @@ function docker_deploy()
 				FLAG_DEPLOY="1";
 				break;
 			fi
-		fi
 	done
 
 
