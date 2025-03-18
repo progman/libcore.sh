@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.8
+# 0.0.9
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # 1) install packets: apt install cuetools shntool id3v2
@@ -40,7 +40,7 @@ function check_prog()
 # general function
 function main()
 {
-	local MPLAYER;
+#	local MPLAYER;
 
 	if [ "${1}" == "" ] || [ "${2}" == "" ] || [ ! -e "${1}" ] || [ ! -e "${2}" ];
 	then
@@ -51,94 +51,107 @@ function main()
 
 
 # check depends tools
-	check_prog "echo cuebreakpoints shnsplit cueprint printf lame id3v2 wc grep sed"; # cuebreakpoints must remove!
+#	check_prog "echo cuebreakpoints shnsplit cueprint printf lame id3v2 wc grep sed"; # cuebreakpoints must remove!
+	check_prog "echo shntool printf cueprint lame id3v2";
+
+
 	if [ "${?}" != "0" ];
 	then
 		return 1;
 	fi
 
 
-	if [ "$(command -v mplayer)" == "" ] && [ "$(command -v mpv)" == "" ];
-	then
-		echo "FATAL: you must install \"mplayer\" or \"mpv\"...";
-		return 1;
-	fi
+#	if [ "$(command -v mplayer)" == "" ] && [ "$(command -v mpv)" == "" ];
+#	then
+#		echo "FATAL: you must install \"mplayer\" or \"mpv\"...";
+#		return 1;
+#	fi
 
 
-	MPLAYER='mplayer'
-	if [ "$(command -v mpv)" != "" ];
-	then
-		MPLAYER='mpv'
-	fi
+#	MPLAYER='mplayer'
+#	if [ "$(command -v mpv)" != "" ];
+#	then
+#		MPLAYER='mpv'
+#	fi
 
 
-# create temp dir and files
-	local LOCAL_TMPDIR="/tmp";
-	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
-	then
-		LOCAL_TMPDIR="${TMPDIR}";
-	fi
+## create temp dir and files
+#	local LOCAL_TMPDIR="/tmp";
+#	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
+#	then
+#		LOCAL_TMPDIR="${TMPDIR}";
+#	fi
 
 
 	local FLAC;
 	local CUE;
-	local WAV;
+#	local WAV;
 
 	FLAC="${1}";
 	CUE="${2}";
-	WAV="${FLAC}.wav";
+#	WAV="${FLAC}.wav";
 
 
-	echo "convert FLAC to WAV...";
+#	echo "convert FLAC to WAV...";
 
-	${MPLAYER} --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${FLAC}" &> /dev/null < /dev/null;
-	if [ "${?}" != "0" ];
-	then
-		echo "ERROR[mac()]: unknown error";
-		return 1;
-	fi
+#	${MPLAYER} --vo=null --ao=pcm --ao-pcm-file="${WAV}.tmp" "${FLAC}" &> /dev/null < /dev/null;
+#	if [ "${?}" != "0" ];
+#	then
+#		echo "ERROR[mac()]: unknown error";
+#		return 1;
+#	fi
 
-# rename
-	mv -- "${WAV}.tmp" "${WAV}" &> /dev/null < /dev/null;
-	if [ "${?}" != "0" ];
-	then
-		echo "ERROR[rename()]: unknown error";
-		return 1;
-	fi
+## rename
+#	mv -- "${WAV}.tmp" "${WAV}" &> /dev/null < /dev/null;
+#	if [ "${?}" != "0" ];
+#	then
+#		echo "ERROR[rename()]: unknown error";
+#		return 1;
+#	fi
 
 
 	echo "split WAV...";
 
 
-	local TMP;
-	TMP="$(mktemp --tmpdir="${LOCAL_TMPDIR}" 2> /dev/null)";
-	if [ "${?}" != "0" ];
-	then
-		echo "ERROR: can't make tmp file";
-		return 1;
-	fi
+#	local TMP;
+#	TMP="$(mktemp --tmpdir="${LOCAL_TMPDIR}" 2> /dev/null)";
+#	if [ "${?}" != "0" ];
+#	then
+#		echo "ERROR: can't make tmp file";
+#		return 1;
+#	fi
 
 
-#	cuebreakpoints "${CUE}" &> "${TMP}";
-	cat "${CUE}" | grep INDEX | sed -e 's/.*\ //g' | grep -v '00:00:000' &> "${TMP}";
+##	cuebreakpoints "${CUE}" &> "${TMP}";
+#	cat "${CUE}" | grep INDEX | sed -e 's/.*\ //g' | grep -v '00:00:000' &> "${TMP}";
+#	if [ "${?}" != "0" ];
+#	then
+#		echo "ERROR[cuebreakpoints()]: unknown error";
+#		rm -rf -- "${TMP}";
+#		return 1;
+#	fi
+
+
+#	shnsplit -o wav -a 'track' "${WAV}" &> /dev/null < "${TMP}"; # need patch https://github.com/max619/shntool/tree/fix/flac_format_value_fffe
+#	if [ "${?}" != "0" ];
+#	then
+#		echo "ERROR[shnsplit()]: unknown error";
+#		rm -rf -- "${TMP}";
+#		return 1;
+#	fi
+
+
+#	rm -rf -- "${TMP}";
+
+
+	shntool split -a 'track' -f "${CUE}" -o wav "${FLAC}" &> /dev/null < /dev/null;
 	if [ "${?}" != "0" ];
 	then
-		echo "ERROR[cuebreakpoints()]: unknown error";
+		echo "ERROR[shntool()]: unknown error";
 		rm -rf -- "${TMP}";
 		return 1;
 	fi
 
-
-	shnsplit -o wav -a 'track' "${WAV}" &> /dev/null < "${TMP}"; # need patch https://github.com/max619/shntool/tree/fix/flac_format_value_fffe
-	if [ "${?}" != "0" ];
-	then
-		echo "ERROR[shnsplit()]: unknown error";
-		rm -rf -- "${TMP}";
-		return 1;
-	fi
-
-
-	rm -rf -- "${TMP}";
 
 
 	local TRACK_COUNT;
