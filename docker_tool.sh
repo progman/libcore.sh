@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.3.9
+# 1.4.0
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -218,6 +218,20 @@ function export_source()
 	rm -f "${temp_file2}" &> /dev/null < /dev/null;
 	rm -f "${temp_file3}" &> /dev/null < /dev/null;
 	rm -f "${temp_file4}" &> /dev/null < /dev/null;
+
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function docker_registry()
+{
+	echo "docker run -d -p 5000:5000 --restart always --name registry registry:3;";
+	docker run -d -p 5000:5000 --restart always --name registry registry:3 &> /dev/null
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: docker registry";
+		return 1;
+	fi
 
 
 	return 0;
@@ -442,7 +456,12 @@ function docker_push()
 
 # push to registry
 		echo "docker push ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG};";
-		docker push "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG}" &> /dev/null < /dev/null
+		if [ "${FLAG_DEBUG}" != "1" ];
+		then
+			docker push "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG}" &> /dev/null < /dev/null
+		else
+			docker push "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG}";
+		fi
 		if [ "${?}" != "0" ];
 		then
 			echo "ERROR: docker push, did you login to registry?";
@@ -498,7 +517,12 @@ function docker_push()
 
 # push to registry
 		echo "docker push ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST};";
-		docker push "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST}" &> /dev/null < /dev/null
+		if [ "${FLAG_DEBUG}" != "1" ];
+		then
+			docker push "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST}" &> /dev/null < /dev/null
+		else
+			docker push "${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST}";
+		fi
 		if [ "${?}" != "0" ];
 		then
 			echo "ERROR: docker push, did you login to registry?";
@@ -1156,7 +1180,7 @@ function docker_gc()
 # show help
 function help()
 {
-	echo "example: ${1} [ login | build, b | pull | push DOCKER_IMAGE | flush, f | ps | test, t | deploy | up, u | down, d | reup, r | gc | gc_log ]";
+	echo "example: ${1} [ registry | login | build, b | pull | push DOCKER_IMAGE | flush, f | ps | test, t | deploy | up, u | down, d | reup, r | gc | gc_log ]";
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
@@ -1169,7 +1193,8 @@ function main()
 
 
 # check operation
-	if [ "${OPERATION}" != "login" ]  && \
+	if [ "${OPERATION}" != "registry" ]  && \
+	   [ "${OPERATION}" != "login" ]  && \
 	   [ "${OPERATION}" != "build" ]  && [ "${OPERATION}" != "b" ] && \
 	   [ "${OPERATION}" != "pull" ]   && \
 	   [ "${OPERATION}" != "push" ]   && \
@@ -1304,6 +1329,14 @@ function main()
 
 
 # select operation
+	if [ "${OPERATION}" == "registry" ]
+	then
+		docker_registry;
+		STATUS="${?}";
+		return "${STATUS}";
+	fi
+
+
 	if [ "${OPERATION}" == "login" ]
 	then
 		docker_login;
