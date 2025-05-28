@@ -13,11 +13,9 @@ function deploy()
 export DOCKER_NOTIFY="/usr/local/bin/notify_telegram.sh";
 
 
-export TELEGRAM_BOT_TOKEN="TELEGRAM_BOT_TOKEN";
-export TELEGRAM_CHAT_ID="TELEGRAM_CHAT_ID";
-
-
-deploy '/tmp/xxx' "xxx deploy";
+export TELEGRAM_BOT_TOKEN="HERE_TELEGRAM_BOT_TOKEN";
+export TELEGRAM_CHAT_ID="HERE_TELEGRAM_CHAT_ID";
+deploy 'HERE_DIR_OF_DOCKER_COMPOSE_CONFIG' "HERE_MESSAGE_FOR_TELEGRAM";
 
 
 sleep 10;
