@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.4.1
+# 1.4.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -598,7 +598,7 @@ function docker_ps()
 		then
 			DOCKER_PROJECT_NAME="${COMPOSE_PROJECT_NAME}";
 		else
-			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g');
+			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g' | tr '[:upper:]' '[:lower:]');
 		fi
 	fi
 
@@ -748,7 +748,7 @@ function docker_pull()
 		then
 			DOCKER_PROJECT_NAME="${COMPOSE_PROJECT_NAME}";
 		else
-			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g');
+			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g' | tr '[:upper:]' '[:lower:]');
 		fi
 	fi
 
@@ -812,7 +812,7 @@ function docker_test()
 		then
 			DOCKER_PROJECT_NAME="${COMPOSE_PROJECT_NAME}";
 		else
-			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g');
+			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g' | tr '[:upper:]' '[:lower:]');
 		fi
 	fi
 
@@ -990,7 +990,7 @@ function docker_up()
 		then
 			DOCKER_PROJECT_NAME="${COMPOSE_PROJECT_NAME}";
 		else
-			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g');
+			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g' | tr '[:upper:]' '[:lower:]');
 		fi
 	fi
 
@@ -1071,7 +1071,7 @@ function docker_down()
 		then
 			DOCKER_PROJECT_NAME="${COMPOSE_PROJECT_NAME}";
 		else
-			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g');
+			DOCKER_PROJECT_NAME=$(pwd | sed -e 's/.*\///g' | tr '[:upper:]' '[:lower:]');
 		fi
 	fi
 
