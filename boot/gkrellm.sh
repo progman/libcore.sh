@@ -42,6 +42,7 @@ function main()
 	if [ "${WIDTH}" == "1920" ];
 	then
 		X=1858; # gkrellm width: 50px
+		Y=65;
 	fi
 
 
