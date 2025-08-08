@@ -18,7 +18,7 @@ export LC_ALL="${LANG}";
 
 export DISABLE_SET_LOCALE="1";
 
-if [ "$(hostname)" != "book" ];
+if [ "$(hostname)" != "book" ] || [ "$(lscpu | grep 7730U | wc -l)" != "0" ] ;
 then
 #export COLUMNS=82;
 #export LINES=60;
