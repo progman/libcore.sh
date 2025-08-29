@@ -17,5 +17,6 @@ export LC_IDENTIFICATION="${LANG}";
 export LC_ALL="${LANG}";
 
 export G_BROKEN_FILENAMES=1;
+export GQ_DISABLE_CLUTTER=y;
 
-geeqie --disable-clutter "${@}" &> /dev/null < /dev/null &
+geeqie "${@}" &> /dev/null < /dev/null &
