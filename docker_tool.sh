@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.4.4
+# 1.4.5
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -226,7 +226,12 @@ function export_source()
 function docker_registry()
 {
 	echo "docker run -d -p 5000:5000 --restart always -e OTEL_TRACES_EXPORTER=none -e OTEL_PROPAGATORS=none -e OTEL_TRACES_SAMPLER=never -e REGISTRY_LOG_LEVEL=info --name registry registry:3;";
-	docker run -d -p 5000:5000 --restart always -e OTEL_TRACES_EXPORTER=none -e OTEL_PROPAGATORS=none -e OTEL_TRACES_SAMPLER=never -e REGISTRY_LOG_LEVEL=info --name registry registry:3 &> /dev/null < /dev/null
+	if [ "${FLAG_DEBUG}" != "1" ];
+	then
+		docker run -d -p 5000:5000 --restart always -e OTEL_TRACES_EXPORTER=none -e OTEL_PROPAGATORS=none -e OTEL_TRACES_SAMPLER=never -e REGISTRY_LOG_LEVEL=info --name registry registry:3 &> /dev/null < /dev/null
+	else
+		docker run -d -p 5000:5000 --restart always -e OTEL_TRACES_EXPORTER=none -e OTEL_PROPAGATORS=none -e OTEL_TRACES_SAMPLER=never -e REGISTRY_LOG_LEVEL=info --name registry registry:3
+	fi
 	if [ "${?}" != "0" ];
 	then
 		echo "ERROR: docker registry";
