@@ -22,28 +22,32 @@ function main()
 	fi
 
 
+# make tmp file
+	local TMP
+	TMP="$(mktemp --tmpdir="${REPACK_TMPDIR}" 2> /dev/null)";
+	if [ "${?}" != "0" ];
+	then
+		echo "can't make tmp file";
+		return 1;
+	fi
 
 
 	for FILE in $(ls -1 | grep ^swagger);
 	do
-#		echo "${FILE}";
+		echo "${FILE}";
 
 
-		local TMP
-		TMP="$(mktemp --tmpdir="${REPACK_TMPDIR}" 2> /dev/null)";
-		if [ "${?}" != "0" ];
-		then
-			echo "can't make tmp file";
-			return 1;
-		fi
-
-
-		cat "${FILE}" | sed -e 's/package main/package main/g' > "${TMP}";
+		cat "${FILE}" | sed -e 's/package swagger/package main/g' > "${TMP}";
 		mv "${TMP}" "${FILE}";
 
 
-		rm -rf -- "${TMP}";
+		cat "${FILE}" | sed -e 's/\tw\./\/\/\tw\./g' > "${TMP}";
+		mv "${TMP}" "${FILE}";
 	done
+
+
+# delete tmp file
+	rm -rf -- "${TMP}";
 
 
 	return 0;
