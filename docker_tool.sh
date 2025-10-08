@@ -1182,6 +1182,10 @@ function docker_gc()
 	docker builder prune --all -f;
 
 
+	echo "docker buildx prune --all -f;";
+	docker buildx prune --all -f;
+
+
 	docker_gc_log;
 
 
