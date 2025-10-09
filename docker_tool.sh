@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.5.0
+# 1.5.1
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -387,7 +387,7 @@ function docker_build()
 
 
 # get hash of image
-	echo "docker inspect --format='{{.Id}}' ${DOCKER_IMAGE_TAG}";
+	echo "docker inspect --format='{{.Id}}' ${DOCKER_IMAGE_TAG};";
 	DOCKER_IMAGE_HASH=$(docker inspect --format='{{.Id}}' "${DOCKER_IMAGE_TAG}");
 	if [ "${?}" != "0" ];
 	then
@@ -396,8 +396,8 @@ function docker_build()
 	fi
 
 
-	echo "made ${DOCKER_IMAGE_NAME}@${DOCKER_IMAGE_HASH}";
-	echo "made ${DOCKER_IMAGE_TAG_LATEST}"
+	echo -e "\tmade ${DOCKER_IMAGE_NAME}@${DOCKER_IMAGE_HASH}";
+	echo -e "\tmade ${DOCKER_IMAGE_TAG_LATEST}";
 
 
 	return 0;
@@ -562,8 +562,8 @@ function docker_push()
 	fi
 
 
-	echo "made ${DOCKER_IMAGE_URL}";
-	echo "made ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST}"
+	echo -e "\tmade ${DOCKER_IMAGE_URL}";
+	echo -e "\tmade ${DOCKER_REGISTRY_HOST}/${DOCKER_IMAGE_TAG_LATEST}";
 
 
 	return 0;
