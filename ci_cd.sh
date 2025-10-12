@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.3
+# 0.0.4
 # Alexey Potehin <gnuplanet@gmail.com>, https://overtask.org/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -201,8 +201,22 @@ function git_save_hash()
 		return 1;
 	fi
 	echo "HASH:\"${HASH}\"";
-	echo "${HASH}" > "${HASH_COMMIT_FILE}";
-	echo "hash stored";
+
+
+# save cur hash commit
+	echo "${HASH}" > "${HASH_COMMIT_FILE}.tmp";
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: can not save hash commit, see df -h";
+		return 1;
+	fi
+	mv "${HASH_COMMIT_FILE}.tmp" "${HASH_COMMIT_FILE}";
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: can not move hash commit, see df -h";
+		return 1;
+	fi
+	echo "hash saved";
 
 
 	return 0;
@@ -211,6 +225,9 @@ function git_save_hash()
 function ci_cd()
 {
 	local STATUS;
+
+
+	echo;
 
 
 # get TELEGRAM_BOT_TOKEN
