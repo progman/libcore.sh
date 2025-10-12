@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.2
+# 0.0.3
 # Alexey Potehin <gnuplanet@gmail.com>, https://overtask.org/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -92,7 +92,7 @@ function git_fetch()
 # compare hashes
 	if [ "${HASH2}" != "${HASH1}" ];
 	then
-		echo "${HASH2}" > "${HASH_COMMIT_FILE}";
+#		echo "${HASH2}" > "${HASH_COMMIT_FILE}";
 		return 0; # it is new repo and we must build it
 	fi
 
@@ -142,10 +142,70 @@ function git_fetch()
 	then
 		return 2; # nothing to fetch
 	fi
-	echo "${HASH3}" > "${HASH_COMMIT_FILE}";
+#	echo "${HASH3}" > "${HASH_COMMIT_FILE}";
 
 
 	return 0; # fetched something
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+function git_save_hash()
+{
+	local FETCH_DIR;
+	local FETCH_DIR_HEX;
+	local COMMIT_FILE;
+	local HASH;
+	local a;
+	local b;
+
+
+# go to fetch dir
+	FETCH_DIR="${1}";
+	if [ ! -d "${FETCH_DIR}" ];
+	then
+		echo "ERROR: fetch dir is not found";
+		return 1;
+	fi
+	cd -- "${FETCH_DIR}";
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: fetch dir is not change";
+		return 1;
+	fi
+	FETCH_DIR_HEX=$(echo -n "${FETCH_DIR}" | hexdump -ve '/1 "%02x"');
+
+
+# get temp dir
+	local LOCAL_TMPDIR="/tmp";
+	if [ "${TMPDIR}" != "" ] && [ -d "${TMPDIR}" ];
+	then
+		LOCAL_TMPDIR="${TMPDIR}";
+	fi
+	HASH_COMMIT_FILE="${LOCAL_TMPDIR}/ci_cd_${FETCH_DIR_HEX}"
+
+
+# status
+	echo "git status;";
+	git status &> /dev/null;
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: can not status repo";
+		return 1;
+	fi
+
+
+# get cur hash commit
+	HASH=$(git rev-parse HEAD | shasum -a 1 | { read a b; echo "${a}"; });
+	if [ "${?}" != "0" ];
+	then
+		echo "ERROR: can not get cur hash commit";
+		return 1;
+	fi
+	echo "HASH:\"${HASH}\"";
+	echo "${HASH}" > "${HASH_COMMIT_FILE}";
+	echo "hash stored";
+
+
+	return 0;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function ci_cd()
@@ -208,14 +268,14 @@ function ci_cd()
 	FETCH_LIST_COUNT=$(cat ${CI_CD_CONFIG} | jq '.fetch_list | length');
 	while true;
 	do
-		echo "=====================================================================================================================";
+#		echo "=====================================================================================================================";
 		TEMPLATE_FETCH=".fetch_list[${FETCH_LIST_INDEX}]";
 		FETCH_NAME=$(cat ${CI_CD_CONFIG} | jq -r "${TEMPLATE_FETCH}.name");
 		FETCH_DIR=$(cat ${CI_CD_CONFIG} | jq -r "${TEMPLATE_FETCH}.dir");
 
-		echo "FETCH_NAME:${FETCH_NAME}";
-		echo "FETCH_DIR:${FETCH_DIR}";
-
+#		echo "FETCH_NAME:${FETCH_NAME}";
+#		echo "FETCH_DIR:${FETCH_DIR}";
+		echo -e "\n[$(date +'%Y-%m-%d %H:%M:%S')]: try fetch \"${FETCH_NAME}\" in \"${FETCH_DIR}\"...";
 
 # git fetch
 		git_fetch "${FETCH_DIR}";
@@ -224,27 +284,34 @@ function ci_cd()
 		then
 			echo "skip repo";
 		else
-			echo "fetched something for ${FETCH_DIR}";
+			echo "to be build";
 
 
 # build docker images and push to registry
+			BUILD_STATUS="0"
 			BUILD_LIST_INDEX=0;
 			BUILD_LIST_COUNT=$(cat ${CI_CD_CONFIG} | jq "${TEMPLATE_FETCH}.build_list | length");
 			while true;
 			do
-				echo ".....................................................................................................................";
+#				echo ".....................................................................................................................";
 				TEMPLATE_BUILD="${TEMPLATE_FETCH}.build_list[${BUILD_LIST_INDEX}]";
 				BUILD_NAME=$(cat ${CI_CD_CONFIG} | jq -r "${TEMPLATE_BUILD}.name");
 				BUILD_DIR=$(cat ${CI_CD_CONFIG} | jq -r "${TEMPLATE_BUILD}.dir");
 
-				echo "BUILD_NAME:${BUILD_NAME}";
-				echo "BUILD_DIR:${BUILD_DIR}";
+#				echo "BUILD_NAME:${BUILD_NAME}";
+#				echo "BUILD_DIR:${BUILD_DIR}";
+				echo -e "\n[$(date +'%Y-%m-%d %H:%M:%S')]: try build \"${BUILD_NAME}\" in \"${BUILD_DIR}\"...";
 
 
 				export DOCKER_DIR="${BUILD_DIR}";
 				export DOCKER_NOTIFY_MSG="${BUILD_NAME}";
 				echo "docker_tool.sh f;";
-				docker_tool.sh f; # skip return status code
+				docker_tool.sh f; # save hash only if build is ok
+				STATUS="${?}";
+				if [ "${STATUS}" != "0" ];
+				then
+					BUILD_STATUS="${STATUS}";
+				fi
 
 
 				(( BUILD_LIST_INDEX++ ));
@@ -253,6 +320,13 @@ function ci_cd()
 					break;
 				fi
 			done
+
+
+# was all builds ok?
+			if [ "${BUILD_STATUS}" == "0" ];
+			then
+				git_save_hash "${FETCH_DIR}"; # ignore exit code
+			fi
 		fi
 
 
@@ -269,13 +343,14 @@ function ci_cd()
 	DEPLOY_LIST_COUNT=$(cat ${CI_CD_CONFIG} | jq '.deploy_list | length');
 	while true;
 	do
-		echo "=====================================================================================================================";
+#		echo "=====================================================================================================================";
 		TEMPLATE_DEPLOY=".deploy_list[${DEPLOY_LIST_INDEX}]";
 		DEPLOY_NAME=$(cat ${CI_CD_CONFIG} | jq -r "${TEMPLATE_DEPLOY}.name");
 		DEPLOY_DIR=$(cat ${CI_CD_CONFIG} | jq -r "${TEMPLATE_DEPLOY}.dir");
 
-		echo "DEPLOY_NAME:${DEPLOY_NAME}";
-		echo "DEPLOY_DIR:${DEPLOY_DIR}";
+#		echo "DEPLOY_NAME:${DEPLOY_NAME}";
+#		echo "DEPLOY_DIR:${DEPLOY_DIR}";
+		echo -e "\n[$(date +'%Y-%m-%d %H:%M:%S')]: try deploy \"${DEPLOY_NAME}\" in \"${DEPLOY_DIR}\"...";
 
 
 		export DOCKER_DIR="${DEPLOY_DIR}";
