@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.4
+# 0.0.5
 # Alexey Potehin <gnuplanet@gmail.com>, https://overtask.org/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -89,14 +89,6 @@ function git_fetch()
 	echo "HASH2:\"${HASH2}\"";
 
 
-# compare hashes
-	if [ "${HASH2}" != "${HASH1}" ];
-	then
-#		echo "${HASH2}" > "${HASH_COMMIT_FILE}";
-		return 0; # it is new repo and we must build it
-	fi
-
-
 # fetch
 	echo "git fetch -a;";
 	git fetch -a &> /dev/null;
@@ -124,6 +116,14 @@ function git_fetch()
 	then
 		echo "ERROR: can not update submodules";
 		return 1;
+	fi
+
+
+# compare hashes
+	if [ "${HASH2}" != "${HASH1}" ];
+	then
+#		echo "${HASH2}" > "${HASH_COMMIT_FILE}";
+		return 0; # it is new repo and we must build it
 	fi
 
 
