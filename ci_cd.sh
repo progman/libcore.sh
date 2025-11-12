@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.6
+# 0.0.7
 # Alexey Potehin <gnuplanet@gmail.com>, https://overtask.org/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -227,12 +227,16 @@ function ci_cd()
 	local STATUS;
 
 
+	echo -e "[$(date +'%Y-%m-%d %H:%M:%S')]: >>>--- ci_cd.sh is easy and trust ---<<<";
+
+
 # project
 	PROJECT_LIST_INDEX=0;
 	PROJECT_LIST_COUNT=$(cat ${CI_CD_CONFIG} | jq '.project_list | length');
 	while true;
 	do
 		TEMPLATE_PROJECT=".project_list[${PROJECT_LIST_INDEX}]";
+		echo -e "\n[$(date +'%Y-%m-%d %H:%M:%S')]: do project [${PROJECT_LIST_INDEX}/${PROJECT_LIST_COUNT}]...";
 
 
 # get TELEGRAM_BOT_TOKEN
@@ -482,6 +486,9 @@ function main()
 
 
 	ci_cd;
+	echo;
+	echo;
+	echo;
 	echo;
 
 
