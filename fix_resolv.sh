@@ -121,6 +121,66 @@ function fix_resolv()
 #
 #exit 0;
 
+#function fix_resolv()
+#{
+#<-->touch /etc/resolv.conf &> /dev/null < /dev/null;
+#
+#
+#<-->if [ "$(cat /etc/resolv.conf | grep '8.8.8.8' | wc -l  | { read a b; echo ${a}; })" != "0" ];
+#<-->then
+#<--><-->echo "/etc/resolv.conf has 8.8.8.8";
+#<--><-->return 0;
+#<-->fi
+#<-->echo "/etc/resolv.conf will have 8.8.8.8";
+#
+#
+#<-->local TMP="/etc/resolv.conf.wifi_tmp";
+#
+#
+#<-->rm -rf -- "${TMP}" &> /dev/null < /dev/null;
+#<-->if [ "${?}" != "0" ];
+#<-->then
+#<--><-->echo "can't rm tmp file";
+#<--><-->return 1;
+#<-->fi
+#
+#
+#<-->echo "nameserver 8.8.8.8" >> "${TMP}";
+#<-->echo "nameserver 1.1.1.1" >> "${TMP}";
+#<-->cat /etc/resolv.conf >> "${TMP}";
+#<-->sync;
+#
+#
+#<-->mv "${TMP}" /etc/resolv.conf &> /dev/null < /dev/null;
+#<-->if [ "${?}" != "0" ];
+#<-->then
+#<--><-->echo "can't mv tmp file";
+#<--><-->return 1;
+#<-->fi
+#<-->sync;
+#
+#
+#<-->chown root:root /etc/resolv.conf &> /dev/null < /dev/null;
+#<-->if [ "${?}" != "0" ];
+#<-->then
+#<--><-->echo "can't chown tmp file";
+#<--><-->return 1;
+#<-->fi
+#
+#
+#<-->chmod 0644 /etc/resolv.conf &> /dev/null < /dev/null;
+#<-->if [ "${?}" != "0" ];
+#<-->then
+#<--><-->echo "can't chmod tmp file";
+#<--><-->return 1;
+#<-->fi
+#
+#
+#<-->sync;
+#
+#
+#<-->return 0;
+#}
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
 function main()
