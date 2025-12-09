@@ -53,7 +53,7 @@ function connect()
 #	fi
 
 
-	echo "nmcli device wifi connect \"${WIFI_SSID}\" password \"${WIFI_PASSWORD}\"";
+	echo "nmcli device wifi connect \"${WIFI_SSID}\" password \"*\"";
 	nmcli device wifi connect "${WIFI_SSID}" password "${WIFI_PASSWORD}" &> /dev/null < /dev/null;
 	if [ "${?}" != "0" ];
 	then
