@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.7
+# 0.0.8
 # Alexey Potehin <gnuplanet@gmail.com>, https://overtask.org/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -242,50 +242,44 @@ function ci_cd()
 # get TELEGRAM_BOT_TOKEN
 		local LOCAL_TELEGRAM_BOT_TOKEN;
 		LOCAL_TELEGRAM_BOT_TOKEN=$(cat ${CI_CD_CONFIG} | jq -r "${TEMPLATE_PROJECT}.telegram.bot_token");
-#		if [ "${TELEGRAM_BOT_TOKEN}" == "" ];
-#		then
-			export TELEGRAM_BOT_TOKEN="${LOCAL_TELEGRAM_BOT_TOKEN}";
-#		fi
+		export TELEGRAM_BOT_TOKEN="${LOCAL_TELEGRAM_BOT_TOKEN}";
 		echo "TELEGRAM_BOT_TOKEN:${TELEGRAM_BOT_TOKEN}";
 
 
 # get TELEGRAM_CHAT_ID
 		local LOCAL_TELEGRAM_CHAT_ID;
 		LOCAL_TELEGRAM_CHAT_ID=$(cat ${CI_CD_CONFIG} | jq -r "${TEMPLATE_PROJECT}.telegram.chat_id");
-#		if [ "${TELEGRAM_CHAT_ID}" == "" ];
-#		then
-			export TELEGRAM_CHAT_ID="${LOCAL_TELEGRAM_CHAT_ID}";
-#		fi
+		export TELEGRAM_CHAT_ID="${LOCAL_TELEGRAM_CHAT_ID}";
 		echo "TELEGRAM_CHAT_ID:${TELEGRAM_CHAT_ID}";
+
+
+# get TELEGRAM_NOTIFY
+		local LOCAL_TELEGRAM_NOTIFY;
+		LOCAL_TELEGRAM_NOTIFY=$(cat ${CI_CD_CONFIG} | jq -r "${TEMPLATE_PROJECT}.telegram.notify");
+#		export TELEGRAM_NOTIFY="${LOCAL_TELEGRAM_NOTIFY}";
+#		echo "TELEGRAM_NOTIFY:${TELEGRAM_NOTIFY}";
+		export DOCKER_NOTIFY="${LOCAL_TELEGRAM_NOTIFY}";
+		echo "DOCKER_NOTIFY:${DOCKER_NOTIFY}";
 
 
 # get DOCKER_REGISTRY_HOST
 		local LOCAL_DOCKER_REGISTRY_HOST;
 		LOCAL_DOCKER_REGISTRY_HOST=$(cat ${CI_CD_CONFIG} | jq -r "${TEMPLATE_PROJECT}.docker_registry.host");
-#		if [ "${DOCKER_REGISTRY_HOST}" == "" ];
-#		then
-			export DOCKER_REGISTRY_HOST="${LOCAL_DOCKER_REGISTRY_HOST}";
-#		fi
+		export DOCKER_REGISTRY_HOST="${LOCAL_DOCKER_REGISTRY_HOST}";
 		echo "DOCKER_REGISTRY_HOST:${DOCKER_REGISTRY_HOST}";
 
 
 # get DOCKER_REGISTRY_LOGIN
 		local LOCAL_DOCKER_REGISTRY_LOGIN;
 		LOCAL_DOCKER_REGISTRY_LOGIN=$(cat ${CI_CD_CONFIG} | jq -r "${TEMPLATE_PROJECT}.docker_registry.login");
-#		if [ "${DOCKER_REGISTRY_LOGIN}" == "" ];
-#		then
-			export DOCKER_REGISTRY_LOGIN="${LOCAL_DOCKER_REGISTRY_LOGIN}";
-#		fi
+		export DOCKER_REGISTRY_LOGIN="${LOCAL_DOCKER_REGISTRY_LOGIN}";
 		echo "DOCKER_REGISTRY_LOGIN:${DOCKER_REGISTRY_LOGIN}";
 
 
 # get DOCKER_REGISTRY_PASSWORD
 		local LOCAL_DOCKER_REGISTRY_PASSWORD;
 		LOCAL_DOCKER_REGISTRY_PASSWORD=$(cat ${CI_CD_CONFIG} | jq -r "${TEMPLATE_PROJECT}.docker_registry.password");
-#		if [ "${DOCKER_REGISTRY_PASSWORD}" == "" ];
-#		then
-			export DOCKER_REGISTRY_PASSWORD="${LOCAL_DOCKER_REGISTRY_PASSWORD}";
-#		fi
+		export DOCKER_REGISTRY_PASSWORD="${LOCAL_DOCKER_REGISTRY_PASSWORD}";
 		echo "DOCKER_REGISTRY_PASSWORD:${DOCKER_REGISTRY_PASSWORD}";
 
 
@@ -414,21 +408,22 @@ function help()
 	echo "    {";
 	echo "      \"telegram\": {";
 	echo "        \"bot_token\": \"TELEGRAM_BOT_TOKEN\",";
-	echo "        \"chat_id\": \"TELEGRAM_CHAT_ID\"";
+	echo "        \"chat_id\":   \"TELEGRAM_CHAT_ID\",";
+	echo "        \"notify\":    \"TELEGRAM_NOTIFY, for example notify_telegram.sh\"";
 	echo "      },";
 	echo "      \"docker_registry\": {";
-	echo "        \"host\": \"127.0.0.1:5000\",";
-	echo "        \"login\": \"\",";
+	echo "        \"host\":     \"127.0.0.1:5000\",";
+	echo "        \"login\":    \"\",";
 	echo "        \"password\": \"\"";
 	echo "      },";
 	echo "      \"fetch_list\": [";
 	echo "        {";
 	echo "          \"name\": \"NAME_FOR_TELEGRAM_NOTIFY\",";
-	echo "          \"dir\": \"SPECIAL_DIR_WITH_CLONE_GIT_REPO_FOR_PULL_ONLY__YOU_CAN_NOT_COMMIT_AND_PUSH_AND_OTHER_HERE__!!!\",";
+	echo "          \"dir\":  \"SPECIAL_DIR_WITH_CLONE_GIT_REPO_FOR_PULL_ONLY__YOU_CAN_NOT_COMMIT_AND_PUSH_AND_OTHER_HERE__!!!\",";
 	echo "          \"build_list\": [";
 	echo "            {";
 	echo "              \"name\": \"NAME_FOR_TELEGRAM_NOTIFY\",";
-	echo "              \"dir\": \"DOCKER_BUILD_DIR\"";
+	echo "              \"dir\":  \"DOCKER_BUILD_DIR\"";
 	echo "            }";
 	echo "          ]";
 	echo "        }";
@@ -436,7 +431,7 @@ function help()
 	echo "      \"deploy_list\": [";
 	echo "        {";
 	echo "          \"name\": \"NAME_FOR_TELEGRAM_NOTIFY\",";
-	echo "          \"dir\": \"DOCKER_COMPOSE_DIR\"";
+	echo "          \"dir\":  \"DOCKER_COMPOSE_DIR\"";
 	echo "        }";
 	echo "      ]";
 	echo "    }";
@@ -482,7 +477,7 @@ function main()
 #		return 1;
 #	fi
 #	export DOCKER_NOTIFY="${CI_CD_NOTIFY}";
-	export DOCKER_NOTIFY='notify_telegram.sh';
+#	export DOCKER_NOTIFY='notify_telegram.sh';
 
 
 	ci_cd;
