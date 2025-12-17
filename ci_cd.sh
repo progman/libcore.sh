@@ -256,10 +256,10 @@ function ci_cd()
 # get TELEGRAM_NOTIFY
 		local LOCAL_TELEGRAM_NOTIFY;
 		LOCAL_TELEGRAM_NOTIFY=$(cat ${CI_CD_CONFIG} | jq -r "${TEMPLATE_PROJECT}.telegram.notify");
-#		export TELEGRAM_NOTIFY="${LOCAL_TELEGRAM_NOTIFY}";
-#		echo "TELEGRAM_NOTIFY:${TELEGRAM_NOTIFY}";
+		export TELEGRAM_NOTIFY="${LOCAL_TELEGRAM_NOTIFY}";
+		echo "TELEGRAM_NOTIFY:${TELEGRAM_NOTIFY}";
 		export DOCKER_NOTIFY="${LOCAL_TELEGRAM_NOTIFY}";
-		echo "DOCKER_NOTIFY:${DOCKER_NOTIFY}";
+#		echo "DOCKER_NOTIFY:${DOCKER_NOTIFY}";
 
 
 # get DOCKER_REGISTRY_HOST
@@ -470,14 +470,6 @@ function main()
 		echo "ERROR: file from CI_CD_CONFIG is not found";
 		return 1;
 	fi
-
-#	if [ "${CI_CD_NOTIFY}" == "" ];
-#	then
-#		echo "ERROR: CI_CD_NOTIFY is not set";
-#		return 1;
-#	fi
-#	export DOCKER_NOTIFY="${CI_CD_NOTIFY}";
-#	export DOCKER_NOTIFY='notify_telegram.sh';
 
 
 	ci_cd;
