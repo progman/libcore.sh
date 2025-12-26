@@ -283,7 +283,7 @@ function cmp_repo()
 # search old commit in GITDIR1
 		local FLAG_FOUND1=0;
 		cd -- "${1}";
-		if [ "$(git log "${BRANCH1}" 2> /dev/null | grep '^commit' | grep "${HASH2}" | wc -l)" != "0" ];
+		if [ "$(git log "${BRANCH1}" -- 2> /dev/null | grep '^commit' | grep "${HASH2}" | wc -l)" != "0" ];
 		then
 			FLAG_FOUND1=1;
 		fi
@@ -292,7 +292,7 @@ function cmp_repo()
 # search old commit in GITDIR2
 		local FLAG_FOUND2=0;
 		cd -- "${2}";
-		if [ "$(git log "${BRANCH2}" 2> /dev/null | grep '^commit' | grep "${HASH1}" | wc -l)" != "0" ];
+		if [ "$(git log "${BRANCH2}" -- 2> /dev/null | grep '^commit' | grep "${HASH1}" | wc -l)" != "0" ];
 		then
 			FLAG_FOUND2=1;
 		fi
@@ -378,7 +378,7 @@ function cmp_branch_cross()
 		do
 
 			echo -n "${BRANCH} ";
-			git log "${BRANCH}" 2> /dev/null | head -n 1 | grep '^commit' | { read a b; echo ${b}; };
+			git log "${BRANCH}" -- 2> /dev/null | head -n 1 | grep '^commit' | { read a b; echo ${b}; };
 
 		done > "${TMP1}";
 	}
@@ -410,7 +410,7 @@ function cmp_branch_cross()
 # search old commit in GITDIR1
 			local FLAG_FOUND1=0;
 			cd -- "${1}";
-			if [ "$(git log "${BRANCH1}" 2> /dev/null | grep '^commit' | grep "${HASH2}" | wc -l)" != "0" ];
+			if [ "$(git log "${BRANCH1}" -- 2> /dev/null | grep '^commit' | grep "${HASH2}" | wc -l)" != "0" ];
 			then
 				FLAG_FOUND1=1;
 			fi
@@ -479,7 +479,7 @@ function cmp_branch_inner()
 		do
 
 			echo -n "${BRANCH} ";
-			git log "${BRANCH}" 2> /dev/null | head -n 1 | grep '^commit' | { read a b; echo ${b}; };
+			git log "${BRANCH}" -- 2> /dev/null | head -n 1 | grep '^commit' | { read a b; echo ${b}; };
 
 		done > "${TMP1}";
 	}
@@ -519,8 +519,8 @@ function cmp_branch_inner()
 	show_uncommited "${GITDIR1_STATUS}";
 
 
-	git log "${2}" 2> /dev/null | grep '^commit' | { while read a b; do echo ${b}; done } > "${TMP1}";
-	git log "${3}" 2> /dev/null | grep '^commit' | { while read a b; do echo ${b}; done } > "${TMP2}";
+	git log "${2}" -- 2> /dev/null | grep '^commit' | { while read a b; do echo ${b}; done } > "${TMP1}";
+	git log "${3}" -- 2> /dev/null | grep '^commit' | { while read a b; do echo ${b}; done } > "${TMP2}";
 
 
 	while read -r HASH1;
