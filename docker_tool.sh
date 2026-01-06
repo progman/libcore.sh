@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.5.3
+# 1.5.4
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -932,16 +932,16 @@ function docker_deploy()
 	FLAG_DEPLOY="0";
 	for CONTAINER_NAME in $(docker compose config | grep 'container_name:' | sed -e 's/.*:\ //g');
 	do
-		echo "found: ${CONTAINER_NAME}";
+		echo "found container: ${CONTAINER_NAME}";
 
 
 # get container image
-			IMAGE=$(docker inspect --type container ${CONTAINER_NAME} | grep Image | tail -n 1 | sed -e 's/",//g' | sed -e 's/.*"//g');
+			IMAGE=$(docker inspect --type container ${CONTAINER_NAME} | grep '"Image"' | tail -n 1 | sed -e 's/",//g' | sed -e 's/.*"//g');
 			echo "IMAGE: ${IMAGE}";
 
 
 # get container image hash
-			HASH_OLD=$(docker inspect --type container ${CONTAINER_NAME} | grep Image | head -n 1 | sed -e 's/",//g' | sed -e 's/.*"//g');
+			HASH_OLD=$(docker inspect --type container ${CONTAINER_NAME} | grep '"Image"' | head -n 1 | sed -e 's/",//g' | sed -e 's/.*"//g');
 			echo "HASH_OLD: ${HASH_OLD}";
 
 
