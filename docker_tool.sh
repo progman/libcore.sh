@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.5.2
+# 1.5.3
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -1219,6 +1219,42 @@ function docker_gc_total()
 
 
 	docker_gc;
+
+
+	if [ -d /var/lib/docker ];
+	then
+		echo "rm -rf /var/lib/docker;";
+		rm -rf /var/lib/docker &> /dev/null < /dev/null;
+
+		echo "mkdir /var/lib/docker;";
+		mkdir /var/lib/docker &> /dev/null < /dev/null;
+
+		echo "chmod 0710 /var/lib/docker;";
+		chmod 0710 /var/lib/docker &> /dev/null < /dev/null;
+
+		echo "chown root:root /var/lib/docker;";
+		chown root:root /var/lib/docker &> /dev/null < /dev/null;
+	fi
+
+
+	if [ -d /var/lib/docker-registry ];
+	then
+		echo "rm -rf /var/lib/docker-registry;";
+		rm -rf /var/lib/docker-registry &> /dev/null < /dev/null;
+
+		echo "mkdir /var/lib/docker-registry;";
+		mkdir /var/lib/docker-registry &> /dev/null < /dev/null;
+
+		echo "chmod 0755 /var/lib/docker-registry;";
+		chmod 0755 /var/lib/docker-registry &> /dev/null < /dev/null;
+
+		echo "chown root:root /var/lib/docker-registry;";
+		chown root:root /var/lib/docker-registry &> /dev/null < /dev/null;
+	fi
+
+
+	echo "systemctl restart docker;";
+	systemctl restart docker &> /dev/null < /dev/null;
 
 
 	return 0;
