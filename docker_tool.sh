@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 1.5.4
+# 1.5.5
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -225,12 +225,24 @@ function export_source()
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 function docker_registry()
 {
-	echo "docker run -d -p 5000:5000 --restart always -e OTEL_TRACES_EXPORTER=none -e OTEL_PROPAGATORS=none -e OTEL_TRACES_SAMPLER=never -e REGISTRY_LOG_LEVEL=info --name registry registry:3;";
+	if [ ! -d /var/lib/docker-registry ];
+	then
+		echo "mkdir -p /var/lib/docker-registry;";
+		if [ "${FLAG_DEBUG}" != "1" ];
+		then
+			mkdir -p /var/lib/docker-registry &> /dev/null < /dev/null
+		else
+			mkdir -p /var/lib/docker-registry
+		fi
+	fi
+
+
+	echo "docker run -d -p 5000:5000 -v /var/lib/docker-registry:/var/lib/registry --restart always -e OTEL_TRACES_EXPORTER=none -e OTEL_PROPAGATORS=none -e OTEL_TRACES_SAMPLER=never -e REGISTRY_LOG_LEVEL=info --name registry registry:3;";
 	if [ "${FLAG_DEBUG}" != "1" ];
 	then
-		docker run -d -p 5000:5000 --restart always -e OTEL_TRACES_EXPORTER=none -e OTEL_PROPAGATORS=none -e OTEL_TRACES_SAMPLER=never -e REGISTRY_LOG_LEVEL=info --name registry registry:3 &> /dev/null < /dev/null
+		docker run -d -p 5000:5000 -v /var/lib/docker-registry:/var/lib/registry --restart always -e OTEL_TRACES_EXPORTER=none -e OTEL_PROPAGATORS=none -e OTEL_TRACES_SAMPLER=never -e REGISTRY_LOG_LEVEL=info --name registry registry:3 &> /dev/null < /dev/null
 	else
-		docker run -d -p 5000:5000 --restart always -e OTEL_TRACES_EXPORTER=none -e OTEL_PROPAGATORS=none -e OTEL_TRACES_SAMPLER=never -e REGISTRY_LOG_LEVEL=info --name registry registry:3
+		docker run -d -p 5000:5000 -v /var/lib/docker-registry:/var/lib/registry --restart always -e OTEL_TRACES_EXPORTER=none -e OTEL_PROPAGATORS=none -e OTEL_TRACES_SAMPLER=never -e REGISTRY_LOG_LEVEL=info --name registry registry:3
 	fi
 	if [ "${?}" != "0" ];
 	then
@@ -1237,19 +1249,10 @@ function docker_gc_total()
 	fi
 
 
-	if [ -d /var/lib/docker-registry ];
+	if [ -d /var/lib/docker-registry/docker ];
 	then
-		echo "rm -rf /var/lib/docker-registry;";
-		rm -rf /var/lib/docker-registry &> /dev/null < /dev/null;
-
-		echo "mkdir /var/lib/docker-registry;";
-		mkdir /var/lib/docker-registry &> /dev/null < /dev/null;
-
-		echo "chmod 0755 /var/lib/docker-registry;";
-		chmod 0755 /var/lib/docker-registry &> /dev/null < /dev/null;
-
-		echo "chown root:root /var/lib/docker-registry;";
-		chown root:root /var/lib/docker-registry &> /dev/null < /dev/null;
+		echo "rm -rf /var/lib/docker-registry/docker;";
+		rm -rf /var/lib/docker-registry/docker &> /dev/null < /dev/null;
 	fi
 
 
