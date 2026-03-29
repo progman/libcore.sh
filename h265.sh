@@ -25,8 +25,7 @@ function main()
 
 	if [ "${FLAG_NVIDIA}" == "0" ];
 	then
-#		ffmpeg -i "${SOURCE}"                 -c:v libx265 -vtag hvc1 -c:a copy -map 0 -f mp4 "${TARGET}.tmp" &> /dev/null;
-		ffmpeg -i "${SOURCE}"                 -c:v libx265 -vtag hvc1 -c:a copy -map 0 -f mp4 "${TARGET}.tmp"
+		ffmpeg -i "${SOURCE}"                 -c:v libx265 -vtag hvc1 -c:a copy -map 0 -f mp4 "${TARGET}.tmp" &> /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			rm -rf "${TARGET}.tmp" &> /dev/null < /dev/null;
