@@ -8,6 +8,11 @@ function main()
 	SOURCE="${1}";
 	TARGET="${2}";
 
+
+#	echo "SOURCE: ${SOURCE}";
+#	echo "TARGET: ${TARGET}";
+
+
 	if [ "${SOURCE}" == "" ] || [ "${TARGET}" == "" ];
 	then
 		echo "example: ${0} SOURCE TARGET";
@@ -20,21 +25,20 @@ function main()
 
 	if [ "${FLAG_NVIDIA}" == "0" ];
 	then
-#	echo "ffmpeg -i ${SOURCE} -c:v libx265 -vtag hvc1 -c:a copy ${TARGET}";
-		ffmpeg -i "${SOURCE}"                 -c:v libx265 -vtag hvc1 -c:a copy -map 0 "${TARGET}.tmp" &> /dev/null;
+#		ffmpeg -i "${SOURCE}"                 -c:v libx265 -vtag hvc1 -c:a copy -map 0 -f mp4 "${TARGET}.tmp" &> /dev/null;
+		ffmpeg -i "${SOURCE}"                 -c:v libx265 -vtag hvc1 -c:a copy -map 0 -f mp4 "${TARGET}.tmp"
 		if [ "${?}" != "0" ];
 		then
 			rm -rf "${TARGET}.tmp" &> /dev/null < /dev/null;
-			echo "ERROR";
+			echo "ERROR1";
 			return 1;
 		fi
 	else
-#	echo "ffmpeg -i ${SOURCE} -c:v hevc_nvenc -c:v libx265 -vtag hvc1 -c:a copy ${TARGET}";
-		ffmpeg -i "${SOURCE}" -c:v hevc_nvenc -c:v libx265 -vtag hvc1 -c:a copy -map 0 "${TARGET}.tmp" &> /dev/null;
+		ffmpeg -i "${SOURCE}" -c:v hevc_nvenc -c:v libx265 -vtag hvc1 -c:a copy -map 0 -f mp4 "${TARGET}.tmp" &> /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			rm -rf "${TARGET}.tmp" &> /dev/null < /dev/null;
-			echo "ERROR";
+			echo "ERROR2";
 			return 1;
 		fi
 	fi
@@ -43,7 +47,7 @@ function main()
 	mv "${TARGET}.tmp" "${TARGET}" &> /dev/null < /dev/null;
 	if [ "${?}" != "0" ];
 	then
-		echo "ERROR";
+		echo "ERROR3";
 		return 1;
 	fi
 
