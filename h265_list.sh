@@ -33,7 +33,7 @@ function main()
 	while read -r FILE;
 	do
 		echo "${FILE}";
-		h265.sh "${FILE}" "${FILE}.mkv";
+		h265.sh "${FILE}" "${FILE}.mp4";
 		if [ "${?}" != "0" ];
 		then
 			echo "ERROR: broken convert file \"${FILE}\"";
