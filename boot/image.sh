@@ -18,5 +18,6 @@ export LC_ALL="${LANG}";
 
 export G_BROKEN_FILENAMES=1;
 export GQ_DISABLE_CLUTTER=y;
+export GTK_IM_MODULE=simple;
 
 geeqie "${@}" &> /dev/null < /dev/null &
