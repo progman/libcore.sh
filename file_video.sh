@@ -27,10 +27,6 @@ function help()
 # general function
 function main()
 {
-	local SOURCE;
-	SOURCE="${1}";
-
-
 # check depends tools
 	check_prog "ffprobe sed";
 	if [ "${?}" != "0" ];
@@ -63,10 +59,22 @@ function main()
 		fi
 
 
-		local CONTAINER=$(ffprobe -v error -show_entries format=format_name -of default=noprint_wrappers=1:nokey=1 "${FILE}" | sed -e 's/matroska,webm/matroska/g' | sed -e 's/mov,mp4,m4a,3gp,3g2,mj2/mp4/g');
+		local CONTAINER;
+		CONTAINER=$(ffprobe -v error -show_entries format=format_name -of default=noprint_wrappers=1:nokey=1 "${FILE}" 2>/dev/null | sed -e 's/matroska,webm/matroska/g' | sed -e 's/mov,mp4,m4a,3gp,3g2,mj2/mp4/g');
+		if [ "${?}" != "0" ];
+		then
+			echo "ERROR: cat not get CONTAINER type";
+			return 1;
+		fi
 
 
-		local CODEC=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1 "${FILE}" | sed -e 's/codec_name=//g' | sed -e 's/hevc/h265/g')
+		local CODEC;
+		CODEC=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1 "${FILE}" 2>/dev/null | sed -e 's/codec_name=//g' | sed -e 's/hevc/h265/g');
+		if [ "${?}" != "0" ];
+		then
+			echo "ERROR: cat not get CODEC type";
+			return 1;
+		fi
 
 
 		if [ "${FLAG_PEDANTIC}" != "1" ];
