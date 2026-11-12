@@ -1,54 +1,122 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# 0.0.1
+# Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# check depends
+function check_prog()
+{
+	for i in ${1};
+	do
+		if [ "$(command -v ${i})" == "" ];
+		then
+			echo "FATAL: you must install \"${i}\"...";
+			return 1;
+		fi
+	done
+
+	return 0;
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# help function
+function help()
+{
+	echo "example: cat FILELIST | ${1} [ -h | --help ] [ -d | --debug ]";
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
 function main()
 {
-
-# https://stackoverflow.com/questions/58742765/convert-videos-from-264-to-265-hevc-with-ffmpeg
-	SOURCE="${1}";
-	TARGET="${2}";
-
-
-#	echo "SOURCE: ${SOURCE}";
-#	echo "TARGET: ${TARGET}";
-
-
-	if [ "${SOURCE}" == "" ] || [ "${TARGET}" == "" ];
+# check depends tools
+	check_prog "ffmpeg";
+	if [ "${?}" != "0" ];
 	then
-		echo "example: ${0} SOURCE TARGET";
+		return 1;
+	fi
+
+
+	if [ "${1}" == "-h" ] || [ "${1}" == "--h" ] || [ "${1}" == "--help" ];
+	then
+		help "${0}";
 		return 0;
 	fi
 
 
-	FLAG_NVIDIA=$(lspci | grep -i vga | grep -i NVIDIA | wc -l);
-
-
-	if [ "${FLAG_NVIDIA}" == "0" ];
+	local FLAG_DEBUG='0';
+	if [ "${1}" == "-d" ] || [ "${1}" == "--d" ] || [ "${1}" == "--debug" ];
 	then
-		ffmpeg -i "${SOURCE}"                 -c:v libx265 -vtag hvc1 -c:a copy -map 0 -f mp4 "${TARGET}.tmp" &> /dev/null;
-		if [ "${?}" != "0" ];
-		then
-			rm -rf "${TARGET}.tmp" &> /dev/null < /dev/null;
-			echo "ERROR1";
-			return 1;
-		fi
-	else
-		ffmpeg -i "${SOURCE}" -c:v hevc_nvenc -c:v libx265 -vtag hvc1 -c:a copy -map 0 -f mp4 "${TARGET}.tmp" &> /dev/null;
-		if [ "${?}" != "0" ];
-		then
-			rm -rf "${TARGET}.tmp" &> /dev/null < /dev/null;
-			echo "ERROR2";
-			return 1;
-		fi
+		FLAG_DEBUG='1';
 	fi
 
 
-	mv "${TARGET}.tmp" "${TARGET}" &> /dev/null < /dev/null;
-	if [ "${?}" != "0" ];
-	then
-		echo "ERROR3";
-		return 1;
-	fi
+#	FLAG_NVIDIA=$(lspci | grep -i vga | grep -i NVIDIA | wc -l);
+	FLAG_NVIDIA=$(which nvidia-smi | wc -l);
+
+
+	local FILE;
+	while read -r FILE;
+	do
+		if [ ! -f "${FILE}" ];
+		then
+			echo "ERROR: file \"${FILE}\" is not exist...";
+			return 1;
+		fi
+
+
+#		if [ "${FLAG_NVIDIA}" == "0" ];
+#		then
+#			ffmpeg -i "${SOURCE}"                 -c:v libx265 -vtag hvc1 -c:a copy -map 0 -f mp4 "${TARGET}.tmp" &> /dev/null;
+#		else
+#			ffmpeg -i "${SOURCE}" -c:v hevc_nvenc -c:v libx265 -vtag hvc1 -c:a copy -map 0 -f mp4 "${TARGET}.tmp" &> /dev/null;
+#		fi
+
+
+		local CMD="";
+		CMD+="ffmpeg";
+		CMD+=" -i ${FILE}";
+
+		if [ "${FLAG_NVIDIA}" == "0" ];
+		then
+			CMD+=" -c:v libx265";
+		else
+			CMD+=" -c:v hevc_nvenc";
+		fi
+
+		CMD+=" -map 0";
+		CMD+=" -c:a copy";
+		CMD+=" -c:s copy";
+		CMD+=" -f matroska";
+		CMD+=" ${FILE}.tmp";
+
+
+		rm "${FILE}.tmp" &> /dev/null < /dev/null;
+
+
+		if [ "${FLAG_DEBUG}" == "1" ];
+		then
+			echo "${CMD}";
+		fi
+
+
+		${CMD} &> /dev/null < /dev/null;
+		if [ "${?}" != "0" ];
+		then
+			rm "${FILE}.tmp" &> /dev/null < /dev/null;
+			echo "ERROR: can not convert";
+			return 1;
+		fi
+
+
+		mv "${FILE}.tmp" "${FILE}.mkv" &> /dev/null < /dev/null;
+		if [ "${?}" != "0" ];
+		then
+			echo "ERROR: can not move";
+			return 1;
+		fi
+
+
+		echo "${FILE};";
+	done;
 
 
 	return 0;
