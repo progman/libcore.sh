@@ -18,6 +18,12 @@ function check_prog()
 	return 0;
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# help function
+function help()
+{
+	echo "example: cat FILELIST | ${1} [ -h | --help ] [ -p | --pedantic ]";
+}
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
 function main()
 {
@@ -33,20 +39,43 @@ function main()
 	fi
 
 
-	if [ ! -f "${SOURCE}" ];
+	if [ "${1}" == "-h" ] || [ "${1}" == "--h" ] || [ "${1}" == "--help" ];
 	then
-		echo "FATAL: file is not exist...";
-		return 1;
+		help "${0}";
+		return 0;
 	fi
 
 
-	local CONTAINER=$(ffprobe -v error -show_entries format=format_name -of default=noprint_wrappers=1:nokey=1 "${SOURCE}" | sed -e 's/matroska,webm/matroska/g' | sed -e 's/mov,mp4,m4a,3gp,3g2,mj2/mp4/g');
+	local FLAG_PEDANTIC='0';
+	if [ "${1}" == "-p" ] || [ "${1}" == "--p" ] || [ "${1}" == "--pedantic" ];
+	then
+		FLAG_PEDANTIC='1';
+	fi
 
 
-	local CODEC=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1 "${SOURCE}" | sed -e 's/codec_name=//g' | sed -e 's/hevc/h265/g')
+	local FILE;
+	while read -r FILE;
+	do
+		if [ ! -f "${FILE}" ];
+		then
+			echo "FATAL: file \"${FILE}\" is not exist...";
+			return 1;
+		fi
 
 
-	echo "${CONTAINER} (${CODEC})";
+		local CONTAINER=$(ffprobe -v error -show_entries format=format_name -of default=noprint_wrappers=1:nokey=1 "${FILE}" | sed -e 's/matroska,webm/matroska/g' | sed -e 's/mov,mp4,m4a,3gp,3g2,mj2/mp4/g');
+
+
+		local CODEC=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1 "${FILE}" | sed -e 's/codec_name=//g' | sed -e 's/hevc/h265/g')
+
+
+		if [ "${FLAG_PEDANTIC}" != "1" ];
+		then
+			echo    "${CONTAINER} (${CODEC})";
+		else
+			echo -e "${CONTAINER} (${CODEC})\t\t${FILE}";
+		fi
+	done;
 
 
 	return 0;
