@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.1
+# 0.0.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -71,9 +71,13 @@ function main()
 #		fi
 
 
+		local INPUT;
+		printf -v INPUT '%q' "${FILE}"; # clean arg for eval
+
+
 		local CMD="";
 		CMD+="ffmpeg";
-		CMD+=" -i ${FILE}";
+		CMD+=" -i ${INPUT}";
 
 		if [ "${FLAG_NVIDIA}" == "0" ];
 		then
@@ -86,10 +90,10 @@ function main()
 		CMD+=" -c:a copy";
 		CMD+=" -c:s copy";
 		CMD+=" -f matroska";
-		CMD+=" ${FILE}.tmp";
+		CMD+=" ${INPUT}.tmp;";
 
 
-		rm "${FILE}.tmp" &> /dev/null < /dev/null;
+		rm "${INPUT}.tmp" &> /dev/null < /dev/null;
 
 
 		if [ "${FLAG_DEBUG}" == "1" ];
@@ -98,16 +102,16 @@ function main()
 		fi
 
 
-		${CMD} &> /dev/null < /dev/null;
+		eval ${CMD} &> /dev/null < /dev/null; # arg already cleaned
 		if [ "${?}" != "0" ];
 		then
-			rm "${FILE}.tmp" &> /dev/null < /dev/null;
+			rm "${INPUT}.tmp" &> /dev/null < /dev/null;
 			echo "ERROR: can not convert";
 			return 1;
 		fi
 
 
-		mv "${FILE}.tmp" "${FILE}.mkv" &> /dev/null < /dev/null;
+		mv "${INPUT}.tmp" "${INPUT}.mkv" &> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo "ERROR: can not move";
