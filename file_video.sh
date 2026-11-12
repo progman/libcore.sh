@@ -33,6 +33,13 @@ function main()
 	fi
 
 
+	if [ ! -f "${SOURCE}" ];
+	then
+		echo "FATAL: file is not exist...";
+		return 1;
+	fi
+
+
 	local CONTAINER=$(ffprobe -v error -show_entries format=format_name -of default=noprint_wrappers=1:nokey=1 "${SOURCE}" | sed -e 's/matroska,webm/matroska/g' | sed -e 's/mov,mp4,m4a,3gp,3g2,mj2/mp4/g');
 
 
