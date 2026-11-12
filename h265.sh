@@ -115,7 +115,7 @@ function main()
 		fi
 
 
-		echo "${FILE};";
+		echo "${FILE}";
 	done;
 
 
