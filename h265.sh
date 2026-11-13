@@ -111,7 +111,7 @@ function main()
 		fi
 
 
-		mv "${INPUT}.tmp" "${INPUT}.mkv" &> /dev/null < /dev/null;
+		mv -- "${FILE}.tmp" "${FILE}.mkv" &> /dev/null < /dev/null;
 		if [ "${?}" != "0" ];
 		then
 			echo "ERROR: can not move";
