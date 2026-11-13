@@ -86,7 +86,9 @@ function main()
 			CMD+=" -c:v hevc_nvenc";
 		fi
 
-		CMD+=" -map 0";
+#		CMD+=" -map 0";
+		CMD+=" -map 0:v -map 0:a -map 0:s?";
+
 		CMD+=" -c:a copy";
 		CMD+=" -c:s copy";
 		CMD+=" -f matroska";
