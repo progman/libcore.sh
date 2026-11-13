@@ -1,6 +1,6 @@
 #!/bin/bash
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
-# 0.0.1
+# 0.0.2
 # Alexey Potehin <gnuplanet@gmail.com>, http://www.gnuplanet.ru/doc/cv
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # check depends
@@ -59,29 +59,47 @@ function main()
 		fi
 
 
-		local CONTAINER;
-		CONTAINER=$(ffprobe -v error -show_entries format=format_name -of default=noprint_wrappers=1:nokey=1 "${FILE}" 2>/dev/null | sed -e 's/matroska,webm/matroska/g' | sed -e 's/mov,mp4,m4a,3gp,3g2,mj2/mp4/g');
-		if [ "${?}" != "0" ];
+		local MIME;
+		MIME=$(file -b --mime-type "${FILE}");
+
+
+		local MIME_SHORT;
+		MIME_SHORT=$(echo "${MIME}" | sed -e 's/\/.*//g');
+
+
+		if [ "${MIME_SHORT}" == "video" ];
 		then
-			echo "ERROR: cat not get CONTAINER type";
-			return 1;
-		fi
+			local CONTAINER;
+			CONTAINER=$(ffprobe -v error -show_entries format=format_name -of default=noprint_wrappers=1:nokey=1 "${FILE}" 2>/dev/null | sed -e 's/matroska,webm/matroska/g' | sed -e 's/mov,mp4,m4a,3gp,3g2,mj2/mp4/g');
+			if [ "${?}" != "0" ];
+			then
+				echo "ERROR: cat not get CONTAINER type";
+				return 1;
+			fi
 
 
-		local CODEC;
-		CODEC=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1 "${FILE}" 2>/dev/null | sed -e 's/codec_name=//g' | sed -e 's/hevc/h265/g');
-		if [ "${?}" != "0" ];
-		then
-			echo "ERROR: cat not get CODEC type";
-			return 1;
-		fi
+			local CODEC;
+			CODEC=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1 "${FILE}" 2>/dev/null | sed -e 's/codec_name=//g' | sed -e 's/hevc/h265/g');
+			if [ "${?}" != "0" ];
+			then
+				echo "ERROR: cat not get CODEC type";
+				return 1;
+			fi
 
 
-		if [ "${FLAG_PEDANTIC}" != "1" ];
-		then
-			echo    "${CONTAINER} (${CODEC})";
+			if [ "${FLAG_PEDANTIC}" != "1" ];
+			then
+				echo    "${MIME}, ${CONTAINER} (${CODEC})";
+			else
+				echo -e "${MIME}, ${CONTAINER} (${CODEC})\t\t${FILE}";
+			fi
 		else
-			echo -e "${CONTAINER} (${CODEC})\t\t${FILE}";
+			if [ "${FLAG_PEDANTIC}" != "1" ];
+			then
+				echo "${MIME}";
+			else
+				echo -e "${MIME}\t\t${FILE}";
+			fi
 		fi
 	done;
 
