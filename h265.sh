@@ -21,7 +21,7 @@ function check_prog()
 # help function
 function help()
 {
-	echo "example: cat FILELIST | ${1} [ -h | --help ] [ -d | --debug ] [ -q | --quality ]";
+	echo "example: cat FILELIST | ${1} [ -h | --help ] [ -d | --debug ] [ -min | --min ] [ -avg | --avg ] [ -max | --max ]";
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
@@ -49,10 +49,18 @@ function main()
 	fi
 
 
-	local FLAG_QUALITY='0';
-	if [ "${1}" == "-q" ] || [ "${1}" == "--q" ] || [ "${1}" == "--quality" ];
+	local QUALITY='avg';
+	if [ "${1}" == "-min" ] || [ "${1}" == "--min" ];
 	then
-		FLAG_QUALITY='1';
+		QUALITY='min';
+	fi
+	if [ "${1}" == "-avg" ] || [ "${1}" == "--avg" ];
+	then
+		QUALITY='avg';
+	fi
+	if [ "${1}" == "-max" ] || [ "${1}" == "--max" ];
+	then
+		QUALITY='max';
 	fi
 
 
@@ -94,10 +102,21 @@ function main()
 		fi
 
 
-		if [ "${FLAG_QUALITY}" == "1" ];
+		if [ "${QUALITY}" == "min" ];
 		then
 			CMD+=" -crf 23";
 		fi
+		if [ "${QUALITY}" == "avg" ];
+		then
+			CMD+=" -crf 20";
+		fi
+		if [ "${QUALITY}" == "max" ];
+		then
+			CMD+=" -crf 16";
+		fi
+
+
+		CMD+=" -preset slow";
 
 
 #		CMD+=" -map 0";
