@@ -21,7 +21,7 @@ function check_prog()
 # help function
 function help()
 {
-	echo "example: cat FILELIST | ${1} [ -h | --help ] [ -d | --debug ]";
+	echo "example: cat FILELIST | ${1} [ -h | --help ] [ -d | --debug ] [ -q | --quality ]";
 }
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 # general function
@@ -46,6 +46,13 @@ function main()
 	if [ "${1}" == "-d" ] || [ "${1}" == "--d" ] || [ "${1}" == "--debug" ];
 	then
 		FLAG_DEBUG='1';
+	fi
+
+
+	local FLAG_QUALITY='0';
+	if [ "${1}" == "-q" ] || [ "${1}" == "--q" ] || [ "${1}" == "--quality" ];
+	then
+		FLAG_QUALITY='1';
 	fi
 
 
@@ -85,6 +92,13 @@ function main()
 		else
 			CMD+=" -c:v hevc_nvenc";
 		fi
+
+
+		if [ "${FLAG_QUALITY}" == "1" ];
+		then
+			CMD+=" -crf 23";
+		fi
+
 
 #		CMD+=" -map 0";
 		CMD+=" -map 0:v -map 0:a -map 0:s?";
