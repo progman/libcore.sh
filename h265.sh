@@ -104,15 +104,15 @@ function main()
 
 		if [ "${QUALITY}" == "min" ];
 		then
-			CMD+=" -crf 23";
+			CMD+=" -crf 22";
 		fi
 		if [ "${QUALITY}" == "avg" ];
 		then
-			CMD+=" -crf 20";
+			CMD+=" -crf 16";
 		fi
 		if [ "${QUALITY}" == "max" ];
 		then
-			CMD+=" -crf 16";
+			CMD+=" -crf 12";
 		fi
 
 
